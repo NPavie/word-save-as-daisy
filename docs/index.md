@@ -14,7 +14,7 @@ SaveAsDAISY is available for Windows only. We provide an installer for Microsoft
 
 If you have an issue with the installers or with the add-in, please contact the development team by mail to [daisy-pipeline@mail.daisy.org](mailto:daisy-pipeline@mail.daisy.org).
 
-Any construcive feedback is also welcome to help us improve the add-in :)
+Any constructive feedback is also welcome to help us improve the add-in :)
 
 # Changelog
 
