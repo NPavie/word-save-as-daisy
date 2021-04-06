@@ -43,16 +43,35 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr GetClipboardData(uint uFormat);
 
+        
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool CloseClipboard();
         
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool EmptyClipboard();
 
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern uint EnumClipboardFormats(uint format);
+
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern int GetClipboardFormatNameW(
+            uint format,
+            StringBuilder lpszFormatName,
+            int cchMaxCount
+        );
+
+        
+
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        private static extern int FormatMessage(int dwFlags, string lpSource, int dwMessageId, int dwLanguageId,
-                                               StringBuilder lpBuffer, int nSize, string[] Arguments);
+        private static extern int FormatMessage(
+            int dwFlags,
+            string lpSource,
+            int dwMessageId,
+            int dwLanguageId,
+            StringBuilder lpBuffer,
+            int nSize,
+            string[] Arguments);
 
         public static string GetLastErrorMessage(int ErrorCode) {
             StringBuilder strLastErrorMessage = new StringBuilder(255);
@@ -117,11 +136,32 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
                     {
                         int errorCode = Marshal.GetLastWin32Error();
                         string message = "CF_ENHMETAFILE format is not available for the clipboard current data";
+
                         if (errorCode != 0) {
                             message += "\r\n - System message: \"" + User32.GetLastErrorMessage(errorCode) + "\"";
                         } else {
                             message += "\r\n(the shape may not be convertable to a metafile in the document)";
                         }
+
+                        uint format = 0;
+                        List<uint> formatList = new List<uint>();
+                        do {
+                            format = User32.EnumClipboardFormats(format);
+                            if(format > 0) formatList.Add(format);
+                        } while (format > 0);
+
+                        StringBuilder formats = new StringBuilder();
+                        foreach (uint availableFormat in formatList) {
+                            StringBuilder formatName = new StringBuilder(255);
+                            formatName.Append(0);
+                            User32.GetClipboardFormatNameW(availableFormat, formatName, formatName.Capacity);
+                            formats.AppendLine("- " + formatName.ToString());
+                        }
+                        
+                        
+                        
+                        message += "\r\nAvailable formats : \r\n";
+                        message += formats;
                         throw new ClipboardDataException(message);
                     }
                 }

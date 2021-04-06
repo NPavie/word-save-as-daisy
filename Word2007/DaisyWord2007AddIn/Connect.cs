@@ -910,7 +910,7 @@ namespace DaisyWord2007AddIn {
             // visibility
             object visible = true;
             object invisible = false;
-
+            object originalFormat = WdOriginalFormat.wdOriginalDocumentFormat;
             object format = WdSaveFormat.wdFormatXMLDocument;
 
             // FIX 05/03/2021 : Error is raised here for onedrive files that are using "http(s)" urls
@@ -923,15 +923,17 @@ namespace DaisyWord2007AddIn {
 
             // Save a copy and reopen the the original document
             currentDoc.SaveAs(ref tmpFileName, ref format, ref missing, ref missing, ref addToRecentFiles, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing);
-            currentDoc = this.applicationObject.Documents.Open(ref originalPath);
+            currentDoc.Close();
 
             // Open, or retrieve the temp file if opened in word
             Document newDoc = this.applicationObject.Documents.Open(ref tmpFileName, ref missing, ref readOnly, ref addToRecentFiles, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref invisible, ref missing, ref missing, ref missing, ref missing);
             // close the temp file
             object saveChanges = WdSaveOptions.wdDoNotSaveChanges;
-            object originalFormat = WdOriginalFormat.wdOriginalDocumentFormat;
-            newDoc.Close(ref saveChanges, ref originalFormat, ref missing); 
             
+            // Close the new doc and reopen the original one
+            newDoc.Close(ref saveChanges, ref originalFormat, ref missing);
+            currentDoc = this.applicationObject.Documents.Open(ref originalPath);
+
             docFile = (string)tmpFileName;
 
             PrepopulateDaisyXml prepopulateDaisyXml = new PrepopulateDaisyXml();
@@ -1557,10 +1559,13 @@ namespace DaisyWord2007AddIn {
                     item.Select(ref missing);
                     
                     string pathShape = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + "SaveAsDAISY" + "\\" + Path.GetFileNameWithoutExtension(fileName) + "-Shape" + item.ID.ToString() + ".png";
-                    this.applicationObject.Selection.CopyAsPicture();
+                    
                     try {
                         // Note : using Clipboard.GetImage() set Word to display a clipboard data save request on closing
                         // So we rely on the user32 clipboard methods that does not seem to be intercepted by Office
+                        this.applicationObject.Selection.CopyAsPicture();
+                        
+                        //System.Drawing.Image image = Clipboard.GetImage();
                         System.Drawing.Image image = ClipboardEx.GetEMF(objProcess.MainWindowHandle);
                         byte[] Ret;
                         MemoryStream ms = new MemoryStream();
@@ -1573,7 +1578,7 @@ namespace DaisyWord2007AddIn {
                     } catch (ClipboardDataException cde) {
                         warnings.Add("- Shape " + item.ID + ": " + cde.Message);
                     } catch (Exception e) {
-                        throw e;
+                        throw new Exception("Error when saving shape " + item.ID + ": " + e.Message, e);
                     } finally {
                         Clipboard.Clear();
                     }
@@ -1610,8 +1615,9 @@ namespace DaisyWord2007AddIn {
                     if (!item.Name.Contains("Text Box")) {
                         item.Select(ref missing);
                         string pathShape = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + "SaveAsDAISY" + "\\" + Path.GetFileNameWithoutExtension(fileName) + "-Shape" + item.ID.ToString() + ".png";
-                        this.applicationObject.Selection.CopyAsPicture();
                         try {
+                            this.applicationObject.Selection.CopyAsPicture();
+                            //System.Drawing.Image image = Clipboard.GetImage();
                             System.Drawing.Image image = ClipboardEx.GetEMF(objProcess.MainWindowHandle);
                             byte[] Ret;
                             MemoryStream ms = new MemoryStream();
