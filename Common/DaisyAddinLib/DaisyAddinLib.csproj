@@ -229,6 +229,7 @@
     <Compile Include="IntUserControl.Designer.cs">
       <DependentUpon>IntUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="IPluginEventsHandler.cs" />
     <Compile Include="MasterSubValidation.cs">
       <SubType>Form</SubType>
     </Compile>

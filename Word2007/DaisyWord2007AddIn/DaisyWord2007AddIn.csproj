@@ -170,7 +170,6 @@
     <Compile Include="ExceptionReport.Designer.cs">
       <DependentUpon>ExceptionReport.cs</DependentUpon>
     </Compile>
-    <Compile Include="IPluginEventsHandler.cs" />
     <Compile Include="Language.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -183,7 +182,7 @@
     <Compile Include="Mark.Designer.cs">
       <DependentUpon>Mark.cs</DependentUpon>
     </Compile>
-    <Compile Include="PreparetionResult.cs" />
+    <Compile Include="PreprocessingData.cs" />
     <Compile Include="progressBar.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -202,6 +201,7 @@
     <Compile Include="ValidateInput.designer.cs">
       <DependentUpon>ValidateInput.cs</DependentUpon>
     </Compile>
+    <Compile Include="WordProcessing.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Abbreviation.resx">

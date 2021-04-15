@@ -697,7 +697,7 @@ namespace DaisyWord2007AddIn {
         /// Function to generate Random ID
         /// </summary>
         /// <returns></returns>
-        public long GenerateId() {
+        static public long GenerateId() {
             byte[] buffer = Guid.NewGuid().ToByteArray();
             return BitConverter.ToInt64(buffer, 0);
         }
@@ -758,9 +758,14 @@ namespace DaisyWord2007AddIn {
         public bool SaveAsSingleDaisyInQuiteMode(Document activeDocument, TranslationParametersBuilder preporator, string output) {
             string ctrlId = "DaisySingle";
             IPluginEventsHandler eventsHandler = new PluginEventsQuiteHandler();
-            PreparetionResult preparetionResult = PrepareForSaveAsDaisy(eventsHandler, activeDocument, ctrlId);
-            if (preparetionResult.IsSuccess) {
-                OoxToDaisyParameters parameters = BuildParameters(preparetionResult, ctrlId);
+            PreprocessingData preprocessingResults = PrepareForSaveAsDaisy(
+                    eventsHandler,
+                    applicationObject,
+                    applicationObject.ActiveDocument,
+                    addinLib,
+                    AddInHelper.buttonIsSingleWordToXMLConversion(ctrlId));
+            if (preprocessingResults.IsSuccess) {
+                OoxToDaisyParameters parameters = BuildParameters(preprocessingResults, ctrlId);
                 addinLib.OoxToDaisyWithoutUI(parameters, preporator, output, string.Empty);
                 return true;
             }
@@ -774,14 +779,20 @@ namespace DaisyWord2007AddIn {
         public void SaveAsDaisy(IRibbonControl control) {
             try {
                 IPluginEventsHandler eventsHandler = new PluginEventsUIHandler();
-                PreparetionResult preparetionResult = PrepareForSaveAsDaisy(eventsHandler, applicationObject.ActiveDocument, control.Tag);
-                if (preparetionResult.IsSuccess) {
-                    OoxToDaisyParameters parameters = BuildParameters(preparetionResult, control.Tag);
+                Initialize preprocessingOngoing = new Initialize();
+                preprocessingOngoing.Show();
+                PreprocessingData preprocessingResults = PrepareForSaveAsDaisy(
+                    eventsHandler, 
+                    applicationObject,
+                    applicationObject.ActiveDocument, 
+                    addinLib,
+                    AddInHelper.buttonIsSingleWordToXMLConversion(control.Tag));
+                preprocessingOngoing.Close();
+                if (preprocessingResults.IsSuccess) {
+                    OoxToDaisyParameters parameters = BuildParameters(preprocessingResults, control.Tag);
                     addinLib.StartSingleWordConversion(parameters);
-                    // Removing call due to single reference
-                    // StartSingleWordConversion(preparetionResult, control.Tag);
-                } else if (!preparetionResult.IsCanceled) {
-                    MessageBox.Show(preparetionResult.LastMessage, "Conversion stopped");
+                } else if (!preprocessingResults.IsCanceled) {
+                    MessageBox.Show(preprocessingResults.LastMessage, "Conversion stopped");
                 } 
                 applicationObject.ActiveDocument.Save();
             } catch (Exception e) {
@@ -791,7 +802,7 @@ namespace DaisyWord2007AddIn {
             
         }
 
-        public OoxToDaisyParameters BuildParameters(PreparetionResult preparetionResult, string ctrlId) {
+        public OoxToDaisyParameters BuildParameters(PreprocessingData preparetionResult, string ctrlId) {
             
 
             OoxToDaisyParameters parameters = new OoxToDaisyParameters();
@@ -801,7 +812,7 @@ namespace DaisyWord2007AddIn {
             parameters.Version = this.applicationObject.Version;
             parameters.ControlName = ctrlId;
             parameters.ObjectShapes = preparetionResult.ObjectShapes;
-            parameters.ListMathMl = multipleMathMl;
+            parameters.ListMathMl = preparetionResult.MathMLEquations;
             parameters.ImageIds = preparetionResult.ImageId;
             parameters.InlineShapes = preparetionResult.InlineShapes;
             parameters.InlineIds = preparetionResult.InlineId;
@@ -825,11 +836,18 @@ namespace DaisyWord2007AddIn {
             addinLib.StartSingleWordConversion(parameters);
         }/* */
 
-
-        public PreparetionResult PrepareForSaveAsDaisy(IPluginEventsHandler eventsHandler, Document activeDocument, string controlId) {
-            PreparetionResult result = new PreparetionResult();
-            listmathML = new ArrayList();
-            multipleMathMl = new Hashtable();
+        
+        
+        
+        public PreprocessingData PrepareForSaveAsDaisy(
+            IPluginEventsHandler eventsHandler,
+            MSword.Application WordInstance,
+            Document activeDocument,
+            DaisyAddinLib utilities,
+            bool onlyConvertToXML
+        ) {
+            PreprocessingData result = new PreprocessingData();
+            result.MathMLEquations = new Hashtable();
             result.ObjectShapes = new ArrayList();
             result.ImageId = new ArrayList();
             result.InlineShapes = new ArrayList();
@@ -838,16 +856,16 @@ namespace DaisyWord2007AddIn {
             Document currentDoc = activeDocument;
 
             if (!currentDoc.Saved || currentDoc.FullName.LastIndexOf('.') < 0) {
-                eventsHandler.OnStop(addinLib.GetString("DaisySaveDocumentBeforeExport"));
-                return PreparetionResult.Failed("Please save your document before going further.");
+                eventsHandler.OnStop(utilities.GetString("DaisySaveDocumentBeforeExport"));
+                return PreprocessingData.Failed("Please save your document before going further.");
             }
-            
+
             fileIndex = currentDoc.FullName.LastIndexOf('.');
             String substr = currentDoc.FullName.Substring(fileIndex);
 
             if (substr.ToLower() != ".docx") {
-                eventsHandler.OnStop(addinLib.GetString("DaisySaveDocumentin2007"));
-                return PreparetionResult.Failed("The document is not a docx file saved on your system.");
+                eventsHandler.OnStop(utilities.GetString("DaisySaveDocumentin2007"));
+                return PreprocessingData.Failed("The document is not a docx file saved on your system.");
             }
             object missing = Type.Missing;
 
@@ -855,8 +873,8 @@ namespace DaisyWord2007AddIn {
             StringBuilder errorFileNameMessage = new StringBuilder("Your document file name contains unauthorized characters, that may be automatically replaced by underscores.\r\n");
             // For dtbook conversion, any correct system file name will work, except for the ones with commas in it in my tests
             // Possibly an error in the pipeline commande line parsing of arguments in the pipeline side
-            string authorizedNamePattern = @"^[^,]+$"; 
-            if (AddInHelper.buttonIsSingleWordToXMLConversion(controlId)) {
+            string authorizedNamePattern = @"^[^,]+$";
+            if (onlyConvertToXML) {
                 errorFileNameMessage.Append("Any commas (,) present in the file name should be removed, or they will be replaced by underscores automatically.");
             } else {
                 // TODO : specific name pattern following daisy book naming convention to find
@@ -881,15 +899,15 @@ namespace DaisyWord2007AddIn {
             do {
                 bool docIsRenamed = false;
                 if (!validator.IsMatch(currentDoc.Name)) { // check only name (i assume it may still lead to problem if path has commas)
-                    DialogResult userAnswer = MessageBox.Show(errorFileNameMessage.ToString(), "Unauthorized characters in the document filename", MessageBoxButtons.YesNoCancel,MessageBoxIcon.Warning);
+                    DialogResult userAnswer = MessageBox.Show(errorFileNameMessage.ToString(), "Unauthorized characters in the document filename", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
                     if (userAnswer == DialogResult.Yes) {
-                        Dialog dlg = this.applicationObject.Dialogs[Microsoft.Office.Interop.Word.WdWordDialog.wdDialogFileSaveAs];
+                        Dialog dlg = WordInstance.Dialogs[MSword.WdWordDialog.wdDialogFileSaveAs];
                         int saveResult = dlg.Show(ref missing);
                         if (saveResult == -1) { // ok pressed, see https://docs.microsoft.com/fr-fr/dotnet/api/microsoft.office.interop.word.dialog.show?view=word-pia#Microsoft_Office_Interop_Word_Dialog_Show_System_Object__
                             docIsRenamed = true;
-                        } else return PreparetionResult.Canceled("User canceled a renaming request for an invalid docx filename");
+                        } else return PreprocessingData.Canceled("User canceled a renaming request for an invalid docx filename");
                     } else if (userAnswer == DialogResult.Cancel) {
-                        return PreparetionResult.Canceled("User canceled a renaming request for an invalid docx filename");
+                        return PreprocessingData.Canceled("User canceled a renaming request for an invalid docx filename");
                     }
                     // else a sanitize path in the DaisyAddinLib will replace commas by underscore.
                     // Other illegal characters regarding the conversion to DAISY book are replaced by underscore by the pipeline itself
@@ -898,11 +916,10 @@ namespace DaisyWord2007AddIn {
                 nameIsValid = !docIsRenamed;
             } while (!nameIsValid);
 
-            result.InitializeWindow = new Initialize();
             object originalPath = currentDoc.FullName;
-            object tmpFileName = this.addinLib.GetTempPath((string)originalPath, ".docx");
+            object tmpFileName = utilities.GetTempPath((string)originalPath, ".docx");
             object newName = Path.GetTempFileName() + Path.GetExtension((string)originalPath);
-            
+
             // Duplicate the current doc and use the copy
             object addToRecentFiles = false;
             object readOnly = false;
@@ -926,13 +943,13 @@ namespace DaisyWord2007AddIn {
             currentDoc.Close();
 
             // Open, or retrieve the temp file if opened in word
-            Document newDoc = this.applicationObject.Documents.Open(ref tmpFileName, ref missing, ref readOnly, ref addToRecentFiles, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref invisible, ref missing, ref missing, ref missing, ref missing);
+            Document newDoc = WordInstance.Documents.Open(ref tmpFileName, ref missing, ref readOnly, ref addToRecentFiles, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref invisible, ref missing, ref missing, ref missing, ref missing);
             // close the temp file
             object saveChanges = WdSaveOptions.wdDoNotSaveChanges;
-            
+
             // Close the new doc and reopen the original one
             newDoc.Close(ref saveChanges, ref originalFormat, ref missing);
-            currentDoc = this.applicationObject.Documents.Open(ref originalPath);
+            currentDoc = WordInstance.Documents.Open(ref originalPath);
 
             docFile = (string)tmpFileName;
 
@@ -948,14 +965,17 @@ namespace DaisyWord2007AddIn {
             result.TempFilePath = docFile;
 
             result.MasterSubFlag = MasterSubDecision(docFile, eventsHandler);
-            result.InitializeWindow.Show();
-            Application.DoEvents();
+            //result.InitializeWindow.Show();
+            //Application.DoEvents();
             try {
                 Exception threadEx = null;
                 Thread staThread = new Thread(
                     delegate () {
                         try {
-                            saveasshapes();
+                            WordProcessing.saveShapes(
+                                WordInstance,
+                                new ArrayList() { docFile },
+                                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + "SaveAsDAISY");
                         } catch (Exception ex) {
                             threadEx = ex;
                         }
@@ -963,12 +983,12 @@ namespace DaisyWord2007AddIn {
                 staThread.SetApartmentState(ApartmentState.STA);
                 staThread.Start();
                 staThread.Join();
-                if(threadEx != null) {
+                if (threadEx != null) {
                     throw threadEx;
                 }
             } catch (Exception e) {
                 eventsHandler.OnError("An error occured while preprocessing shapes and may prevent the rest of the conversion to success:" +
-                    "\r\n- " + e.Message + 
+                    "\r\n- " + e.Message +
                     "\r\n" + e.StackTrace);
             }
             try {
@@ -976,7 +996,10 @@ namespace DaisyWord2007AddIn {
                 Thread staThread = new Thread(
                     delegate () {
                         try {
-                            SaveasImages();
+                            WordProcessing.saveInlineShapes(
+                                WordInstance,
+                                new ArrayList() { docFile },
+                                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + "SaveAsDAISY");
                         } catch (Exception ex) {
                             threadEx = ex;
                         }
@@ -993,20 +1016,24 @@ namespace DaisyWord2007AddIn {
                     "\r\n" + e.StackTrace);
             }
 
-            
-            this.applicationObject.ActiveDocument.Save();
+
+            //this.applicationObject.ActiveDocument.Save();
             if (result.MasterSubFlag == "Yes") {
-                result.IsSuccess = OoxToDaisyOwn(result, controlId, eventsHandler);
+                result.IsSuccess = OoxToDaisyOwn(result, eventsHandler);
             } else {
+                WordProcessing.parseEquations(
+                    eventsHandler,
+                    WordInstance,
+                    docFile,
+                    result.MathMLEquations);
                 MTGetEquationAddin(eventsHandler);
                 result.IsSuccess = true;
-                
+
             }
-            result.InitializeWindow.Close();
+            //result.InitializeWindow.Close();
 
             return result;
         }
-
         #endregion
 
         private MSword.Application applicationObject;
@@ -1265,86 +1292,6 @@ namespace DaisyWord2007AddIn {
 
         #region Multiple OOXML functions
 
-        /// <summary>
-        /// Function to Check selected Documents are Master/Sub dcouemnts or simple Documents 
-        /// </summary>
-        /// <param name="listSubDocs">Seleted Documents</param>
-        /// <param name="value">bool value</param>
-        /// <returns>document type</returns>
-        //public String CheckingSubDocs(ArrayList listSubDocs)
-        //{
-        //    String resultSubDoc = "simple";
-        //    for (int i = 0; i < listSubDocs.Count; i++)
-        //    {
-        //        string[] splitName = listSubDocs[i].ToString().Split('|');
-        //        Package pack;
-        //        pack = Package.Open(splitName[0].ToString(), FileMode.Open, FileAccess.ReadWrite);
-
-        //        foreach (PackageRelationship searchRelation in pack.GetRelationshipsByType(wordRelationshipType))
-        //        {
-        //            packRelationship = searchRelation;
-        //            break;
-        //        }
-
-        //        Uri partUri = PackUriHelper.ResolvePartUri(packRelationship.SourceUri, packRelationship.TargetUri);
-        //        PackagePart mainPartxml = pack.GetPart(partUri);
-
-        //        foreach (PackageRelationship searchRelation in mainPartxml.GetRelationships())
-        //        {
-        //            packRelationship = searchRelation;
-        //            if (packRelationship.RelationshipType == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/subDocument")
-        //            {
-        //                if (packRelationship.TargetMode.ToString() == "External")
-        //                {
-        //                    resultSubDoc = "complex";
-        //                }
-        //            }
-        //        }
-        //        pack.Close();
-        //    }
-        //    return resultSubDoc;
-        //}
-
-        /// <summary>
-        /// Function to Check selected Documents are Master/Sub dcouemnts or simple Documents 
-        /// </summary>
-        /// <param name="listSubDocs">Seleted Documents</param>
-        /// <param name="value">bool value</param>
-        /// <returns>document type</returns>
-        //public String CheckingSubDocs(ArrayList listSubDocs, bool value)
-        //{
-        //    String resultSubDoc = "simple";
-        //    for (int i = 1; i < listSubDocs.Count; i++)
-        //    {
-        //        string[] splitName = listSubDocs[i].ToString().Split('|');
-        //        Package pack;
-        //        pack = Package.Open(splitName[0].ToString(), FileMode.Open, FileAccess.ReadWrite);
-
-        //        foreach (PackageRelationship searchRelation in pack.GetRelationshipsByType(wordRelationshipType))
-        //        {
-        //            packRelationship = searchRelation;
-        //            break;
-        //        }
-
-        //        Uri partUri = PackUriHelper.ResolvePartUri(packRelationship.SourceUri, packRelationship.TargetUri);
-        //        PackagePart mainPartxml = pack.GetPart(partUri);
-
-        //        foreach (PackageRelationship searchRelation in mainPartxml.GetRelationships())
-        //        {
-        //            packRelationship = searchRelation;
-        //            if (packRelationship.RelationshipType == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/subDocument")
-        //            {
-        //                if (packRelationship.TargetMode.ToString() == "External")
-        //                {
-        //                    resultSubDoc = "complex";
-        //                }
-        //            }
-        //        }
-        //        pack.Close();
-        //    }
-        //    return resultSubDoc;
-        //}
-
         public void SignleDaisyFromMultipleInQuiteMode(ArrayList documents, string outputFilePath, TranslationParametersBuilder preporator) {
             Application.DoEvents();
             multipleMathMl = new Hashtable();
@@ -1372,7 +1319,7 @@ namespace DaisyWord2007AddIn {
             if (resultOpenSub == "notopen") {
                 String resultSub = SubdocumentsManager.CheckingSubDocs(subList);
                 if (resultSub == "simple") {
-                    MathMLMultiple(subList);
+                    MathMLMultiple(subList, new PluginEventsQuiteHandler());
                     inz.Close();
                     bool result = this.addinLib.OoxToDaisySubWithoutUI(outputFilePath, subList, individual_docs, preporator.BuildTranslationParameters(), "DaisyMultiple", multipleMathMl, output_Pipeline);
                 } else {
@@ -1448,7 +1395,7 @@ namespace DaisyWord2007AddIn {
                 return;
             }
 
-            MathMLMultiple(subList);
+            MathMLMultiple(subList, eventsHandler);
             inz.Close();
 
             bool result = this.addinLib.OoxToDaisySub(outputFilePath, subList, individual_docs, mulsubDoc.HTable, control.Tag,
@@ -1463,11 +1410,16 @@ namespace DaisyWord2007AddIn {
             }
         }
 
-        public void MathMLMultiple(ArrayList subList) {
+        public void MathMLMultiple(ArrayList subList, IPluginEventsHandler eventsHandler) {
             for (int i = 0; i < subList.Count; i++) {
                 string[] splitName = subList[i].ToString().Split('|');
                 multipleOwnMathMl = new Hashtable();
-                MTGetEquationAddinNew(splitName[0].ToString());
+                WordProcessing.parseEquations(
+                    eventsHandler,
+                    this.applicationObject,
+                    splitName[0].ToString(),
+                    multipleOwnMathMl
+                );
                 multipleMathMl.Add("Doc" + i, multipleOwnMathMl);
             }
         }
@@ -1547,56 +1499,6 @@ namespace DaisyWord2007AddIn {
         #endregion
 
         #region ShapesObject
-
-        public void saveasshapes() {
-            MSword.Document doc = this.applicationObject.ActiveDocument;
-            System.Diagnostics.Process objProcess = System.Diagnostics.Process.GetCurrentProcess();
-            List<string> warnings = new List<string>();
-            String fileName = doc.Name.Replace(" ", "_");
-            foreach (MSword.Shape item in doc.Shapes) {
-                if (!item.Name.Contains("Text Box")) { 
-                    object missing = Type.Missing;
-                    item.Select(ref missing);
-                    
-                    string pathShape = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + "SaveAsDAISY" + "\\" + Path.GetFileNameWithoutExtension(fileName) + "-Shape" + item.ID.ToString() + ".png";
-                    
-                    try {
-                        // Note : using Clipboard.GetImage() set Word to display a clipboard data save request on closing
-                        // So we rely on the user32 clipboard methods that does not seem to be intercepted by Office
-                        this.applicationObject.Selection.CopyAsPicture();
-                        
-                        //System.Drawing.Image image = Clipboard.GetImage();
-                        System.Drawing.Image image = ClipboardEx.GetEMF(objProcess.MainWindowHandle);
-                        byte[] Ret;
-                        MemoryStream ms = new MemoryStream();
-                        image.Save(ms, ImageFormat.Png);
-                        Ret = ms.ToArray();
-                        FileStream fs = new FileStream(pathShape, FileMode.Create, FileAccess.Write);
-                        fs.Write(Ret, 0, Ret.Length);
-                        fs.Flush();
-                        fs.Dispose();
-                    } catch (ClipboardDataException cde) {
-                        warnings.Add("- Shape " + item.ID + ": " + cde.Message);
-                    } catch (Exception e) {
-                        throw new Exception("Error when saving shape " + item.ID + ": " + e.Message, e);
-                    } finally {
-                        Clipboard.Clear();
-                    }
-
-                }
-            }
-
-            this.applicationObject.ActiveDocument.Save();
-
-            if (warnings.Count > 0) {
-                string warningMessage = "Some shapes could not be exported from the document:";
-                foreach (string warning in warnings) {
-                    warningMessage += "\r\n" + warning;
-                }
-                throw new Exception(warningMessage);
-            }
-            
-        }
 
         public void saveasshapes(ArrayList subList, String saveFlag) {
             object addToRecentFiles = false;
@@ -2013,7 +1915,7 @@ namespace DaisyWord2007AddIn {
 
                                                     bMathML = DoesServerSupportMathML(ref autoConvert, ref strVerb, out indexForVerb);
                                                     if (bMathML) {
-                                                        Equation_GetMathML(ref shape, indexForVerb);
+                                                        Equation_GetMathML(ref shape, indexForVerb, this.listmathML);
                                                     }
                                                 }
                                             } else {
@@ -2046,7 +1948,7 @@ namespace DaisyWord2007AddIn {
             return iNumShapesViewed;
         }
 
-        private bool FindAutoConvert(ref string ProgID, out Guid autoConvert) {
+        static private bool FindAutoConvert(ref string ProgID, out Guid autoConvert) {
             bool bRetVal = false;
             Guid oGuid;
             int iCOMRetVal = 0;
@@ -2063,7 +1965,7 @@ namespace DaisyWord2007AddIn {
             return bRetVal;
         }
 
-        private void RecurseAutoConvert(ref Guid oGuid, out Guid autoConvert) {
+        static private void RecurseAutoConvert(ref Guid oGuid, out Guid autoConvert) {
             int iCOMRetVal = 0;
 
             iCOMRetVal = OleGetAutoConvert(ref oGuid, out autoConvert);
@@ -2090,7 +1992,7 @@ namespace DaisyWord2007AddIn {
             }
         }
 
-        private bool IsCLSIDInsertable(ref Guid oGuid) {
+        static private bool IsCLSIDInsertable(ref Guid oGuid) {
             bool bInsertable = false;
             //Check for the existance of the insertable key
             RegistryKey regkey;/* new Microsoft.Win32 Registry Key */
@@ -2105,7 +2007,7 @@ namespace DaisyWord2007AddIn {
             return bInsertable;
         }
 
-        private bool IsCLSIDNotInsertable(ref Guid oGuid) {
+        static private bool IsCLSIDNotInsertable(ref Guid oGuid) {
             bool bNotInsertable = false;
             //Check for the existance of the insertable key
             RegistryKey regkey;/* new Microsoft.Win32 Registry Key */
@@ -2121,7 +2023,7 @@ namespace DaisyWord2007AddIn {
             return bNotInsertable;
         }
 
-        private bool DoesServerExist(out string strPathToExe, ref Guid oGuid) {
+        static private bool DoesServerExist(out string strPathToExe, ref Guid oGuid) {
             bool bServerExists = false;
             //Check for the existance of the insertable key
             RegistryKey regkey;/* new Microsoft.Win32 Registry Key */
@@ -2152,7 +2054,7 @@ namespace DaisyWord2007AddIn {
             return bServerExists;
         }
 
-        private bool DoesServerSupportMathML(ref Guid oGuid, ref string strVerb, out int indexForVerb) {
+        static private bool DoesServerSupportMathML(ref Guid oGuid, ref string strVerb, out int indexForVerb) {
             bool bIsMathMLSupported = false;
             //Check for the existance of the insertable key
             RegistryKey regkey;
@@ -2206,7 +2108,7 @@ namespace DaisyWord2007AddIn {
             return bIsMathMLSupported;
         }
 
-        private int GetVerbIndex(string strVerbToFind, ref Guid oGuid) {
+        static private int GetVerbIndex(string strVerbToFind, ref Guid oGuid) {
             int indexForVerb = 1000;
             //Check for the existance of the insertable key
             RegistryKey regkey;
@@ -2259,7 +2161,12 @@ namespace DaisyWord2007AddIn {
             return indexForVerb;
         }
 
-        private void Equation_GetMathML(ref Microsoft.Office.Interop.Word.InlineShape shape, int indexForVerb) {
+        static private void Equation_GetMathML(
+            ref Microsoft.Office.Interop.Word.InlineShape shape, 
+            int indexForVerb,
+            ArrayList listmathML
+        ) {
+            IConnectDataObject mDataObject;
             if (shape != null) {
                 object dataObject = null;
                 object objVerb;
@@ -2333,7 +2240,7 @@ namespace DaisyWord2007AddIn {
                     // lets deal with the memory here.
                     if (oStgMedium.tymed == TYMED.TYMED_HGLOBAL &&
                         oStgMedium.unionmember != null) {
-                        WriteOutMathMLFromStgMedium(ref oStgMedium);
+                        WriteOutMathMLFromStgMedium(ref oStgMedium, listmathML);
 
                         if (oleObject != null) {
                             uint close = (uint)OLECLOSE.OLECLOSE_NOSAVE;
@@ -2345,7 +2252,10 @@ namespace DaisyWord2007AddIn {
             }
         }
 
-        private void WriteOutMathMLFromStgMedium(ref ConnectSTGMEDIUM oStgMedium) {
+        static private void WriteOutMathMLFromStgMedium(
+            ref ConnectSTGMEDIUM oStgMedium,
+            ArrayList listmathML
+        ) {
             IntPtr ptr;
             byte[] rawArray = null;
 
@@ -2464,7 +2374,7 @@ namespace DaisyWord2007AddIn {
 
                                                     bMathML = DoesServerSupportMathML(ref autoConvert, ref strVerb, out indexForVerb);
                                                     if (bMathML) {
-                                                        Equation_GetMathML(ref shape, indexForVerb);
+                                                        Equation_GetMathML(ref shape, indexForVerb, listmathML);
                                                     }
                                                 }
                                             } else {
@@ -2536,7 +2446,7 @@ namespace DaisyWord2007AddIn {
         /// <param name="cTrl"></param>
         /// <param name="eventsHandler"></param>
         /// <returns></returns>
-        public bool OoxToDaisyOwn(PreparetionResult preparetionResult, String cTrl, IPluginEventsHandler eventsHandler) {
+        public bool OoxToDaisyOwn(PreprocessingData preparetionResult, IPluginEventsHandler eventsHandler) {
             SubdocumentsList subdocuments = SubdocumentsManager.FindSubdocuments(preparetionResult.TempFilePath, preparetionResult.OriginalFilePath);
             //MessageBox.Show("Check for errors when retrieving subdocuments pathes");
             if(subdocuments.Errors.Count > 0) {
@@ -2574,20 +2484,36 @@ namespace DaisyWord2007AddIn {
             }
 
             try {
-                saveasshapes(subdocuments.GetSubdocumentsNames(), "Yes");
+                WordProcessing.saveShapes(
+                    this.applicationObject,
+                    subdocuments.GetSubdocumentsNames(),
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + "SaveAsDAISY");
             } catch (Exception e) {
                 eventsHandler.OnError("An error occured while preprocessing shapes and may prevent the rest of the conversion to success:\r\n" + e.Message);
             }
             try {
-                SaveasImages(subdocuments.GetSubdocumentsNames(), "Yes");
+                WordProcessing.saveInlineShapes(
+                   this.applicationObject,
+                   subdocuments.GetSubdocumentsNames(),
+                   Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + "SaveAsDAISY");
             } catch (Exception e) {
                 eventsHandler.OnError("An error occured while preprocessing images and may prevent the rest of the conversion to success:\r\n" + e.Message);
             }
-
-            MathMLMultiple(subList);
-            this.applicationObject.ActiveDocument.Save();
+            
+            for (int i = 0; i < subList.Count; i++) {
+                string[] splitName = subList[i].ToString().Split('|');
+                multipleOwnMathMl = new Hashtable();
+                WordProcessing.parseEquations(
+                    eventsHandler,
+                    this.applicationObject,
+                    splitName[0].ToString(),
+                    multipleOwnMathMl
+                );
+                preparetionResult.MathMLEquations.Add("Doc" + i, multipleOwnMathMl);
+            }
+            
+            //this.applicationObject.ActiveDocument.Save();
             return true;
-            //OoxToDaisyUI(preparetionResult, cTrl);
         }
 
         #endregion

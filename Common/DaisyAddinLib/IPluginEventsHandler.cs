@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace DaisyWord2007AddIn
+namespace Daisy.DaisyConverter.DaisyConverterLib
 {
 	public interface IPluginEventsHandler
 	{
