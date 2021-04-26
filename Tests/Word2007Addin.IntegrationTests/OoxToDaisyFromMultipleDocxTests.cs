@@ -8,6 +8,7 @@ using NUnit.Framework;
 using Microsoft.Office.Interop.Word;
 using Daisy.DaisyConverter.DaisyConverterLib.Converters;
 using System.Reflection;
+using Daisy.DaisyConverter.DaisyConverterLib;
 
 namespace Word2007Addin.IntegrationTests
 {
@@ -61,7 +62,7 @@ namespace Word2007Addin.IntegrationTests
 				.WithSubject("m");
 
 			//Act
-			SaveAsMultipleDaisy(inputFiles, outputFilePath, preporator);
+			convertAndMergeDocumentsToDaisy(inputFiles, outputFilePath, preporator);
 
 
 			//Assert
@@ -95,7 +96,7 @@ namespace Word2007Addin.IntegrationTests
 				.WithSubject("m");
 
 			//Act
-			SaveAsMultipleDaisy(inputFiles, outputFilePath, preporator);
+			convertAndMergeDocumentsToDaisy(inputFiles, outputFilePath, preporator);
 
 			//Assert
 			string originalPluginResult =ReadFile(originalOutputPath);
@@ -125,7 +126,7 @@ namespace Word2007Addin.IntegrationTests
 				.WithSubject("m");
 
 			//Act
-			SaveAsMultipleDaisy(inputFiles, outputFilePath, preporator);
+			convertAndMergeDocumentsToDaisy(inputFiles, outputFilePath, preporator);
 
 			//Assert
 			string originalPluginResult =ReadFile(originalOutputPath);
@@ -155,7 +156,7 @@ namespace Word2007Addin.IntegrationTests
 				.WithSubject("m");
 
 			//Act
-			SaveAsMultipleDaisy(inputFiles, outputFilePath, preporator);
+			convertAndMergeDocumentsToDaisy(inputFiles, outputFilePath, preporator);
 
 			//Assert
 			string originalPluginResult =ReadFile(originalOutputPath);
@@ -185,7 +186,7 @@ namespace Word2007Addin.IntegrationTests
 				.WithSubject("m");
 
 			//Act
-			SaveAsMultipleDaisy(inputFiles, outputFilePath, preporator);
+			convertAndMergeDocumentsToDaisy(inputFiles, outputFilePath, preporator);
 
 			//Assert
 			string originalPluginResult =ReadFile(originalOutputPath);
@@ -215,7 +216,7 @@ namespace Word2007Addin.IntegrationTests
 				.WithSubject("m");
 
 			//Act
-			SaveAsMultipleDaisy(inputFiles, outputFilePath, preporator);
+			convertAndMergeDocumentsToDaisy(inputFiles, outputFilePath, preporator);
 
 			//Assert
 			string originalPluginResult =ReadFile(originalOutputPath);
@@ -245,7 +246,7 @@ namespace Word2007Addin.IntegrationTests
 				.WithSubject("m");
 
 			//Act
-			SaveAsMultipleDaisy(inputFiles, outputFilePath, preporator);
+			convertAndMergeDocumentsToDaisy(inputFiles, outputFilePath, preporator);
 
 			//Assert
 			string originalPluginResult =ReadFile(originalOutputPath);
@@ -275,7 +276,7 @@ namespace Word2007Addin.IntegrationTests
 				.WithSubject("m");
 
 			//Act
-			SaveAsMultipleDaisy(inputFiles, outputFilePath, preporator);
+			convertAndMergeDocumentsToDaisy(inputFiles, outputFilePath, preporator);
 
 			//Assert
 			string originalPluginResult =ReadFile(originalOutputPath);
@@ -305,7 +306,7 @@ namespace Word2007Addin.IntegrationTests
 				.WithSubject("m");
 
 			//Act
-			SaveAsMultipleDaisy(inputFiles, outputFilePath, preporator);
+			convertAndMergeDocumentsToDaisy(inputFiles, outputFilePath, preporator);
 
 			//Assert
 			string originalPluginResult =ReadFile(originalOutputPath);
@@ -335,7 +336,7 @@ namespace Word2007Addin.IntegrationTests
 				.WithSubject("m");
 
 			//Act
-			SaveAsMultipleDaisy(inputFiles, outputFilePath, preporator);
+			convertAndMergeDocumentsToDaisy(inputFiles, outputFilePath, preporator);
 
 			//Assert
 			string originalPluginResult =ReadFile(originalOutputPath);
@@ -358,7 +359,7 @@ namespace Word2007Addin.IntegrationTests
 			return inputFiles;
 		}
 
-		public void SaveAsMultipleDaisy(ArrayList inputFiles, string ouputFilePath, TranslationParametersBuilder preporator)
+		public void convertAndMergeDocumentsToDaisy(ArrayList inputFiles, string ouputFilePath, TranslationParametersBuilder preporator)
 		{
 			Application word = OpenMsWordDocument(string.Empty);
 
@@ -367,7 +368,14 @@ namespace Word2007Addin.IntegrationTests
 			Array array = new object[0];
 			connect.OnConnection(word, ext_ConnectMode.ext_cm_External, null, ref array);
 
-			connect.SignleDaisyFromMultipleInQuiteMode(inputFiles, ouputFilePath, preporator);
+			PluginEventsQuiteHandler eventsHandler = new PluginEventsQuiteHandler();
+			connect.convertAndMergeDocumentsToDTBook(
+				eventsHandler, 
+				inputFiles, 
+				ouputFilePath,
+				string.Empty,
+				"DaisyTabMultiple",
+				preporator.BuildTranslationParameters());
 		}
 
 		#endregion

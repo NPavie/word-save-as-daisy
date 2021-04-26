@@ -247,19 +247,19 @@ namespace Daisy.DaisyConverter.DaisyConverterLib.Converters
 			DeleteTemporaryImages();
 		}
 
-		private ConvertResult ConvertOoxToDaisy(string inputFile, string outputFile, Hashtable listMathMl, Hashtable table, string control, string output_Pipeline)
+		private ConverterResult ConvertOoxToDaisy(string inputFile, string outputFile, Hashtable listMathMl, Hashtable table, string control, string output_Pipeline)
 		{
 			try
 			{
 				using (ConverterForm form = new ConverterForm(this.converter, inputFile, outputFile, this.resourceManager, true, listMathMl, table, control, output_Pipeline))
 				{
 					if (DialogResult.OK != form.ShowDialog())
-						return ConvertResult.Cancel();
+						return ConverterResult.Cancel();
 
 					if (!String.IsNullOrEmpty(form.ValidationError))
 					{
 						OnValidationError(form.ValidationError, inputFile, outputFile);
-						return ConvertResult.ValidationError(form.ValidationError);
+						return ConverterResult.ValidationError(form.ValidationError);
 					}
 
 					if (form.HasLostElements) {
@@ -280,7 +280,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib.Converters
 				// this is meant to catch "file already accessed by another process", though there's no .NET fine-grain exception for this.
 				AddinLogger.Error(e);
 				OnUnknownError("UnableToCreateOutputLabel", e.Message);
-				return ConvertResult.UnknownError(e.Message + Environment.NewLine + e.StackTrace);
+				return ConverterResult.UnknownError(e.Message + Environment.NewLine + e.StackTrace);
 			}
 			catch (Exception e)
 			{
@@ -292,15 +292,15 @@ namespace Daisy.DaisyConverter.DaisyConverterLib.Converters
 					File.Delete(outputFile);
 				}
 
-				return ConvertResult.UnknownError(e.Message + Environment.NewLine + e.StackTrace);
+				return ConverterResult.UnknownError(e.Message + Environment.NewLine + e.StackTrace);
 			}
 
-			return ConvertResult.Success();
+			return ConverterResult.Success();
 		}
 
-		public ConvertResult OoxToDaisy(string inputFile, string outputFile, Hashtable listMathMl, Hashtable table, string control, string output_Pipeline)
+		public ConverterResult OoxToDaisy(string inputFile, string outputFile, Hashtable listMathMl, Hashtable table, string control, string output_Pipeline)
 		{
-			ConvertResult result = ConvertOoxToDaisy(inputFile, outputFile, listMathMl, table, control, output_Pipeline);
+			ConverterResult result = ConvertOoxToDaisy(inputFile, outputFile, listMathMl, table, control, output_Pipeline);
 
 			DeleteTemporaryImages();
 

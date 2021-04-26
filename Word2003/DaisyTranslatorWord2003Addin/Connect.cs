@@ -969,7 +969,7 @@ namespace DaisyTranslatorWord2003Addin
 			{
 				try
 				{
-					OoxToDaisyParameters parameters = new OoxToDaisyParameters();
+					ConverterParameters parameters = new ConverterParameters();
 					parameters.InputFile = inputFile;
 					parameters.TempInputFile = tempInput;
 					parameters.Version = this.applicationObject.Version;
@@ -998,7 +998,7 @@ namespace DaisyTranslatorWord2003Addin
 			}
 			else
 			{
-				OoxToDaisyParameters parameters = new OoxToDaisyParameters();
+				ConverterParameters parameters = new ConverterParameters();
 				parameters.InputFile = inputFile;
 				parameters.TempInputFile = tempInput;
 				parameters.Version = this.applicationObject.Version;

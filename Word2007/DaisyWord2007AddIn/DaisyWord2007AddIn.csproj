@@ -182,7 +182,7 @@
     <Compile Include="Mark.Designer.cs">
       <DependentUpon>Mark.cs</DependentUpon>
     </Compile>
-    <Compile Include="PreprocessingData.cs" />
+    <Compile Include="ProcessingData.cs" />
     <Compile Include="progressBar.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -201,7 +201,7 @@
     <Compile Include="ValidateInput.designer.cs">
       <DependentUpon>ValidateInput.cs</DependentUpon>
     </Compile>
-    <Compile Include="WordProcessing.cs" />
+    <Compile Include="WordPreprocessing.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Abbreviation.resx">

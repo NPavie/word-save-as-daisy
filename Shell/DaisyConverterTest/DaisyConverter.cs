@@ -45,6 +45,7 @@ using System.Drawing.Imaging;
 using MSword = Microsoft.Office.Interop.Word;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using DaisyWord2007AddIn;
 
 namespace Daisy.DaisyConverter.CommandLineTool {
     enum ControlType : int {
@@ -112,6 +113,8 @@ namespace Daisy.DaisyConverter.CommandLineTool {
         ArrayList MathList8879, MathList9573, MathListmathml;
         String errorText = "";
         const string wordRelationshipType = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument";
+
+        DaisyAddinLib addinLib = new Daisy.DaisyConverter.Word.Addin();
 
 #if MONO
 		static bool SetConsoleCtrlHandler(ControlHandlerFonction handlerRoutine, bool add) 
@@ -422,6 +425,7 @@ namespace Daisy.DaisyConverter.CommandLineTool {
                 // Preprocess shapes
                 Microsoft.Office.Interop.Word.Application app = new Microsoft.Office.Interop.Word.Application();
                 
+
                 
                 string shapeOutput = preprocessOnly ? Path.GetDirectoryName(output) : Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\SaveAsDAISY";
                 try {
@@ -465,16 +469,31 @@ namespace Daisy.DaisyConverter.CommandLineTool {
                 if (!preprocessOnly) {
                     converted = ConvertFile(input, output, transformDirection, table);
                 } else {
+                    ProcessingData temp = new ProcessingData(app.Version);
+                    
                     // copy generated shapes to output
                     string parametersOutput = Path.Combine(shapeOutput, "parametersTable.csv");
                     string content = "key;value;\r\n";
-                    
+
+                    // parameters that are used by the daisyclass but originally computed
+                    table.Add("inputName", "");
+                    table.Add("output", "");
+                    table.Add("output_pipeline", "");
+
+
                     foreach (DictionaryEntry param in table) {
                         content += param.Key + ";";
                         content += param.Value + ";\r\n";
 
                     }
                     File.WriteAllText(parametersOutput,content);
+
+                    AbstractConverter converter = ConverterFactory.Instance(transformDirection);
+                    converter.ExternalResources = this.xslPath;
+                    converter.SkipedPostProcessors = this.skipedPostProcessors;
+                    converter.DirectTransform = transformDirection == Direction.DocxToXml;
+
+                    converter.Transform(input, output, table, null, false, "");
                 }
                 
             }
@@ -872,6 +891,7 @@ namespace Daisy.DaisyConverter.CommandLineTool {
             Console.WriteLine("     /APAGE   To Translate the current document with Automatic PageNumber Style");
             Console.WriteLine("     /CPAGE   To Translate the current document with Custom PageNumber Style");
             Console.WriteLine("     /STYLE   To Translate the current document with Character Styles");
+            Console.WriteLine("     /PREPROCESS   To preprocess the document and get the parameteres and shapes exported as images");
         }
 
 

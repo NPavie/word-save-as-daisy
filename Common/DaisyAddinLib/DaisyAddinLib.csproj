@@ -172,8 +172,8 @@
       <DependentUpon>ConverterForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Converters\AddInHelper.cs" />
-    <Compile Include="Converters\ConvertResult.cs" />
-    <Compile Include="Converters\ConvertResultType.cs" />
+    <Compile Include="Converters\ConverterResult.cs" />
+    <Compile Include="Converters\ConverterResultType.cs" />
     <Compile Include="Converters\PrepopulateDaisyOutput.cs" />
     <Compile Include="Converters\PrepopulateDaisyXml.cs" />
     <Compile Include="Converters\SingleConverter.cs" />
@@ -242,7 +242,7 @@
     <Compile Include="MultipleSub.designer.cs">
       <DependentUpon>MultipleSub.cs</DependentUpon>
     </Compile>
-    <Compile Include="Converters\OoxToDaisyParameters.cs" />
+    <Compile Include="Converters\ConverterParameters.cs" />
     <Compile Include="OoxPageStylesValidator.cs" />
     <Compile Include="PathBrowserControl.cs">
       <SubType>UserControl</SubType>

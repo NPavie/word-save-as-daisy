@@ -7,7 +7,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 	/// <summary>
 	/// Input parameters for convert operaton.
 	/// </summary>
-    public class OoxToDaisyParameters
+    public class ConverterParameters
     {
         public string InputFile { get; set; }
         public string TempInputFile { get; set; }

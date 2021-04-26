@@ -5,6 +5,7 @@ using Extensibility;
 using Microsoft.Office.Interop.Word;
 using Daisy.DaisyConverter.DaisyConverterLib.Converters;
 using NUnit.Framework;
+using Daisy.DaisyConverter.DaisyConverterLib;
 
 namespace Word2007Addin.IntegrationTests
 {
@@ -358,7 +359,12 @@ namespace Word2007Addin.IntegrationTests
 			Array array = new object[0];
 			connect.OnConnection(word, ext_ConnectMode.ext_cm_External, null, ref array);
 
-			connect.SaveAsSingleDaisyInQuiteMode(word.ActiveDocument, preporator, ouputDirectoryPath);
+			connect.convertDocumentToDTBook(
+				new PluginEventsQuiteHandler(),
+				word.ActiveDocument,
+				"DaisySingle",
+				preporator.BuildTranslationParameters(),
+				ouputDirectoryPath);
 		}
 
 

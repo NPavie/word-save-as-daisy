@@ -138,7 +138,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 		/// </summary>
 		/// <param name="parameters"></param>
 		/// <param name="manager"></param>
-		public DesignForm(OoxToDaisyParameters parameters, ResourceManager manager) {
+		public DesignForm(ConverterParameters parameters, ResourceManager manager) {
 			
 			btnID = parameters.ControlName;
 			inputFileName = parameters.InputFile;
@@ -158,7 +158,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 		/// <param name="projectDirectory"></param>
 		/// <param name="scriptPath"></param>
 		/// <param name="manager"></param>
-		public DesignForm(OoxToDaisyParameters parameters, string projectDirectory, string scriptPath, ResourceManager manager) {
+		public DesignForm(ConverterParameters parameters, string projectDirectory, string scriptPath, ResourceManager manager) {
 			
 			btnID = parameters.ControlName;
 			inputFileName = parameters.InputFile;

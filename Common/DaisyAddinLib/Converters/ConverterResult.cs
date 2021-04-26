@@ -3,9 +3,9 @@
 	/// <summary>
 	/// Provides details about convertation.
 	/// </summary>
-	public class ConvertResult
+	public class ConverterResult
 	{
-		private ConvertResult(ConvertResultType resultType)
+		private ConverterResult(ConverterResultType resultType)
 		{
 			ResultType = resultType;
 		}
@@ -14,18 +14,18 @@
 		/// Creates success result.
 		/// </summary>
 		/// <returns></returns>
-		public static ConvertResult Success()
+		public static ConverterResult Success()
 		{
-			return new ConvertResult(ConvertResultType.Success);
+			return new ConverterResult(ConverterResultType.Success);
 		}
 
 		/// <summary>
 		/// Creates cancel result.
 		/// </summary>
 		/// <returns></returns>
-		public static ConvertResult Cancel()
+		public static ConverterResult Cancel()
 		{
-			return new ConvertResult(ConvertResultType.Cancel);
+			return new ConverterResult(ConverterResultType.Cancel);
 		}
 
 		/// <summary>
@@ -33,9 +33,9 @@
 		/// </summary>
 		/// <param name="error"></param>
 		/// <returns></returns>
-		public static ConvertResult ValidationError(string error)
+		public static ConverterResult ValidationError(string error)
 		{
-			var result = new ConvertResult(ConvertResultType.ValidationError);
+			var result = new ConverterResult(ConverterResultType.ValidationError);
 			result.ValidationErrorMessage = error;
 			return result;
 		}
@@ -45,9 +45,9 @@
 		/// </summary>
 		/// <param name="errorMessage"></param>
 		/// <returns></returns>
-		public static ConvertResult UnknownError(string errorMessage)
+		public static ConverterResult UnknownError(string errorMessage)
 		{
-			var result = new ConvertResult(ConvertResultType.UnknownError);
+			var result = new ConverterResult(ConverterResultType.UnknownError);
 			result.UnknownErrorMessage = errorMessage;
 			return result;
 		}
@@ -65,6 +65,6 @@
 		/// <summary>
 		/// Result type.
 		/// </summary>
-		public ConvertResultType ResultType { get; set; }
+		public ConverterResultType ResultType { get; set; }
 	}
 }
