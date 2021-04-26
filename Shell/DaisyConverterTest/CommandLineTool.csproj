@@ -51,7 +51,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <OutputPath>bin\x86\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <Prefer32Bit>false</Prefer32Bit>
@@ -162,6 +162,10 @@
     <ProjectReference Include="..\..\Converter\Converter.csproj">
       <Project>{b7552412-f668-429f-a90d-c63764148051}</Project>
       <Name>Converter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Word2007\DaisyWord2007AddIn\DaisyWord2007AddIn.csproj">
+      <Project>{9b3a86f5-d5a5-4cc2-a995-2362a28d0ea9}</Project>
+      <Name>DaisyWord2007AddIn</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

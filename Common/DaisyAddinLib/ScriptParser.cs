@@ -157,6 +157,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
             {
                 System.Windows.Forms.MessageBox.Show(ex.ToString());
             }
+            // TODO add pipeline output and error redirection to a log file for pipeline debugging ...
             PipelineProcess.WaitForExit();
             //Deleting the files
             if (File.Exists(inputPath))

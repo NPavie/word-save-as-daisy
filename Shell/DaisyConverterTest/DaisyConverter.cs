@@ -114,7 +114,7 @@ namespace Daisy.DaisyConverter.CommandLineTool {
         String errorText = "";
         const string wordRelationshipType = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument";
 
-        DaisyAddinLib addinLib = new Daisy.DaisyConverter.Word.Addin();
+        
 
 #if MONO
 		static bool SetConsoleCtrlHandler(ControlHandlerFonction handlerRoutine, bool add) 
@@ -424,9 +424,17 @@ namespace Daisy.DaisyConverter.CommandLineTool {
                 report.AddLog(input, "Translating file: " + input + " into " + output, Report.INFO_LEVEL);
                 // Preprocess shapes
                 Microsoft.Office.Interop.Word.Application app = new Microsoft.Office.Interop.Word.Application();
-                
+                object _input = (object)input;
+                MSword.Document doc = app.Documents.Open(ref _input);
+                DaisyAddinLib addinLib = new Daisy.DaisyConverter.Word.Addin();
+                ProcessingData result = WordPreprocessing.prepareConversion(
+                    new PluginEventsQuiteHandler(),
+                    doc,
+                    addinLib,
+                    "DaisySingle",
+                    null);
 
-                
+
                 string shapeOutput = preprocessOnly ? Path.GetDirectoryName(output) : Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\SaveAsDAISY";
                 try {
                     Exception threadEx = null;
