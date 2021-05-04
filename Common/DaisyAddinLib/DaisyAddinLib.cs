@@ -97,7 +97,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         /// <param name="singleConverter"></param>
         public void ConvertToDaisy(ConverterParameters parameters, Hashtable translateParams, string outputFilePath, string outputPipeline, SingleConverter singleConverter)
         {
-            if (parameters.MasterSubFlag == "No" || parameters.MasterSubFlag == "NoMasterSub")
+            if (parameters.ParseSubDocuments == "No" || parameters.ParseSubDocuments == "NoMasterSub")
             {
                 //outputFilePath = AddInHelper.buttonIsSingleWordToXMLConversion(parameters.ControlName) ?
                 //        outputFilePath + parameters.GetInputFileNameWithoutExtension + ".xml" :
@@ -111,7 +111,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
                         parameters.ControlName, 
                         outputPipeline);
             }
-            else if (parameters.MasterSubFlag == "Yes")
+            else if (parameters.ParseSubDocuments == "Yes")
             {
                 singleConverter.OoxToDaisyOwn(
                     parameters.TempInputFile,
@@ -137,23 +137,10 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         ) {
             SingleConverter singleConverter = null;
             if (translateParams == null) {
+                myForm = new DesignForm(parameters, this.resourceManager);
                 
-                if (parameters.ScriptPath != null && parameters.ScriptPath.Length > 0) {
-                    myForm = new DesignForm(
-                           parameters.ScriptPath,
-                           parameters.InputFile,
-                           parameters.Directory,
-                           parameters.Version,
-                           parameters.ControlName,
-                           parameters.TempInputFile,
-                           this.resourceManager,
-                           parameters.MasterSubFlag);
-                } else {
-                    myForm = new DesignForm(parameters, this.resourceManager);
-                }
-
                 if(myForm.DoTranslate() == 1) {
-                    translateParams = myForm.HTable;
+                    translateParams = myForm.ParametersHash;
                     outputFilePath = myForm.OutputFilepath;
                     outputPipeline = myForm.PipeOutput;
                     singleConverter = new SingleConverterUI(

@@ -979,7 +979,7 @@ namespace DaisyTranslatorWord2003Addin
 					parameters.ImageIds = imageId;
 					parameters.InlineShapes = inlineShapes;
 					parameters.InlineIds = inlineId;
-					parameters.MasterSubFlag = masterSubFlag;
+					parameters.ParseSubDocuments = masterSubFlag;
 					if (control.Tag == "DaisySingle" || control.Tag == "Button1")
 					{
 						this.addinLib.StartSingleWordConversion(parameters);
@@ -1008,7 +1008,7 @@ namespace DaisyTranslatorWord2003Addin
 				parameters.ImageIds = imageId;
 				parameters.InlineShapes = inlineShapes;
 				parameters.InlineIds = inlineId;
-				parameters.MasterSubFlag = masterSubFlag;
+				parameters.ParseSubDocuments = masterSubFlag;
 
 				this.addinLib.StartSingleWordConversion(parameters);
 			}

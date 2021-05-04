@@ -45,7 +45,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 		int translateFlag = 0;
 		XmlDocument XmlPackage;
 		private ResourceManager resManager;
-		Hashtable myHt = new Hashtable();
+		Hashtable parametersHash = new Hashtable();
 		string officeVersion = "";
 		PackageRelationship packRelationship = null;
 		string inputFileName, embedFilePath, tempInput, trackChangeFlag, outputFilePath, masterSubFlag;
@@ -60,10 +60,12 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 		String strBrtextBox = "";
 		TableLayoutPanel oTableLayoutPannel = new TableLayoutPanel();
 
+		ConverterParameters Parameters { get; }
+
 		/// <summary>
 		/// Returns Hash Table having information about Title,Creator,Publisher,UID
 		/// </summary>
-		public Hashtable HTable { get { return myHt; } }
+		public Hashtable ParametersHash { get { return parametersHash; } }
 
 		/// <summary>
 		/// Return Title information 
@@ -91,47 +93,6 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 
 		public string PipeOutput { get { return strBrtextBox; } }
 
-		/// <summary>
-		/// Constuctor which initializes all components of the Form
-		/// </summary>
-		/// <param name="scriptPath"></param>
-		/// <param name="inputPath"></param>
-		/// <param name="projectDirectory"></param>
-		/// <param name="version"></param>
-		/// <param name="control"></param>
-		/// <param name="tempInputFile"></param>
-		/// <param name="manager"></param>
-		/// <param name="masterSubFlag"></param>
-		public DesignForm(
-				string scriptPath,
-				string inputPath,
-				string projectDirectory,
-				string version,
-				string control,
-				string tempInputFile,
-				ResourceManager manager,
-				String masterSubFlag) {
-			
-			btnID = control;
-			mInputPath = inputPath;
-			this.officeVersion = version;
-			mProjectDirectory = projectDirectory;
-			tempInput = tempInputFile;
-			this.resManager = manager;
-			this.masterSubFlag = masterSubFlag;
-
-			mParser = new ScriptParser(scriptPath);
-			useAScript = true;
-			FileInfo f = new FileInfo(scriptPath);
-			
-
-			InitializeComponent();
-
-			if (!AddInHelper.buttonIsSingleWordToXMLConversion(btnID)) {
-				//this.Text = f.Name.Replace(f.Extension, "");
-				this.Text = mParser.NiceName;
-			}
-		}
 
 		/// <summary>
 		/// Default form for converting a word file to DTbook XML
@@ -139,43 +100,27 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 		/// <param name="parameters"></param>
 		/// <param name="manager"></param>
 		public DesignForm(ConverterParameters parameters, ResourceManager manager) {
-			
+			Parameters = parameters;
+
 			btnID = parameters.ControlName;
-			inputFileName = parameters.InputFile;
 			tempInput = parameters.TempInputFile;
 			this.resManager = manager;
 			this.officeVersion = parameters.Version;
-			this.masterSubFlag = parameters.MasterSubFlag;
+			this.masterSubFlag = parameters.ParseSubDocuments;
 
-			InitializeComponent();
-		}
-
-		/// <summary>
-		/// Form for converting a word to dtbook XML and apply a pipeline script afterward 
-		/// (post process or conversion to another format)
-		/// </summary>
-		/// <param name="parameters"></param>
-		/// <param name="projectDirectory"></param>
-		/// <param name="scriptPath"></param>
-		/// <param name="manager"></param>
-		public DesignForm(ConverterParameters parameters, string projectDirectory, string scriptPath, ResourceManager manager) {
-			
-			btnID = parameters.ControlName;
-			inputFileName = parameters.InputFile;
-			tempInput = parameters.TempInputFile;
-			this.resManager = manager;
-			this.officeVersion = parameters.Version;
-			this.masterSubFlag = parameters.MasterSubFlag;
-
-			mInputPath = parameters.InputFile;
-			mProjectDirectory = projectDirectory;
-			if (scriptPath != null && scriptPath.Length > 0) {
-				mParser = new ScriptParser(scriptPath);
-				useAScript = true;
-				FileInfo f = new FileInfo(scriptPath);
-				if (!AddInHelper.buttonIsSingleWordToXMLConversion(btnID))
-					this.Text = f.Name.Replace(f.Extension, "");
+			// if a script is defined in the parameters
+			useAScript = parameters.ScriptPath != null && parameters.ScriptPath.Length > 0;
+			if (useAScript) {
+				mInputPath = parameters.InputFile;
+				mProjectDirectory = parameters.Directory;
+				mParser = new ScriptParser(parameters.ScriptPath);
+				if (!AddInHelper.buttonIsSingleWordToXMLConversion(btnID)) {
+					this.Text = mParser.NiceName;
+				}
+			} else {
+				inputFileName = parameters.InputFile;
 			}
+			
 			InitializeComponent();
 		}
 
@@ -228,7 +173,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 
 				UpdatePopulateOutputXml(IsTranslateToSingleDaisy && !useAScript ? outputFilePath : strBrtextBox);
 
-				myHt = BuildTranslationParameters();
+				parametersHash = updateParametersHash();
 
 				translateFlag = 1;
 				this.Close();
@@ -380,21 +325,19 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 			return true;
 		}
 
-		private Hashtable BuildTranslationParameters()
+		private Hashtable updateParametersHash()
 		{
-			TranslationParametersBuilder preporator = new TranslationParametersBuilder();
+			Parameters.withParameter("OutputFile", tBx_Browse.Text)
+				.withParameter("Title", tBx_Title.Text)
+				.withParameter("Creator", tBx_Creator.Text)
+				.withParameter("Publisher", tBx_Publisher.Text)
+				.withParameter("UID", uId == tBx_Uid.Text ? "AUTO-UID-" + tBx_Uid.Text : tBx_Uid.Text)
+				.withParameter("Subject", string.Empty)
+				.withParameter("TrackChanges", TrackChange())
+				.withParameter("Version", officeVersion)
+				.withParameter("MasterSubFlag", masterSubFlag);
 
-			preporator.WithOutputFile(tBx_Browse.Text)
-				.WithTitle(tBx_Title.Text)
-				.WithCreator(tBx_Creator.Text)
-				.WithPublisher(tBx_Publisher.Text)
-				.WithUID(uId == tBx_Uid.Text ? "AUTO-UID-" + tBx_Uid.Text : tBx_Uid.Text)
-				.WithSubject(string.Empty)
-				.WithTrackChangesFlag(TrackChange())
-				.WithVersion(officeVersion)
-				.WithMasterSubFlag(masterSubFlag);
-
-			return preporator.BuildTranslationParameters();
+			return Parameters.ConversionParametersHash;
 		}
 
 		private void UpdatePopulateOutputXml(string outputPath)

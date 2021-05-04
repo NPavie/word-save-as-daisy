@@ -30,6 +30,8 @@ using Daisy.DaisyConverter.DaisyConverterLib.Converters;
 
 namespace DaisyWord2007AddIn {
 
+
+
     /// <summary>
     /// MS Word processing functions meant to be used in the addin or external C# programs with word interop capabilities
     /// </summary>
@@ -45,10 +47,10 @@ namespace DaisyWord2007AddIn {
         }
 
         /// <summary>
-        /// Function to test if a Document is open
+        /// Function to test if a word Document is open
         /// </summary>
         /// <returns>message</returns>
-        public static bool isOpen(string documentPath) {
+        public static bool documentIsOpen(string documentPath) {
             try {
                 Package pack;
                 pack = Package.Open(documentPath, FileMode.Open, FileAccess.ReadWrite);
@@ -152,11 +154,6 @@ namespace DaisyWord2007AddIn {
 
             // FIX 05/03/2021 : Error is raised here for onedrive files that are using "http(s)" urls
             // For now we replace the copy by a standard office save and reopen the original file
-            //File.Copy((string)currentDoc.FullName, (string)newName);
-            //newDoc.SaveAs(ref tmpFileName, ref format, ref missing, ref missing, ref addToRecentFiles, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing);
-            //try {
-            //    File.Delete((string)newName);
-            //} catch (IOException) {}
 
             // Save a copy and reopen the the original document
             currentDoc.SaveAs(ref tmpFileName, ref format, ref missing, ref missing, ref addToRecentFiles, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing);
@@ -182,10 +179,9 @@ namespace DaisyWord2007AddIn {
             // FIX 05/03/2021 : OriginalFilePath is used as InputFile in OoxToDaisyParameters. 
             // For onedrive url (starting with https) the temp copy is used as input path instead of the real one
             result.Settings.InputFile = currentDoc.FullName.StartsWith("http") ? docFile : currentDoc.FullName;
-            //result.OriginalFilePath = currentDoc.FullName.StartsWith("http") ? docFile : currentDoc.FullName;
             result.Settings.TempInputFile = docFile;
 
-            result.Settings.MasterSubFlag = requestSubDocumentsProcessing(docFile, eventsHandler);
+            result.Settings.ParseSubDocuments = requestSubDocumentsProcessing(docFile, eventsHandler);
             //result.InitializeWindow.Show();
             //Application.DoEvents();
             try {
@@ -193,7 +189,7 @@ namespace DaisyWord2007AddIn {
                 Thread staThread = new Thread(
                     delegate () {
                         try {
-                            WordPreprocessing.saveShapes(
+                            WordPreprocessing.exportShapes(
                                 currentDoc,
                                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + "SaveAsDAISY");
                         } catch (Exception ex) {
@@ -216,7 +212,7 @@ namespace DaisyWord2007AddIn {
                 Thread staThread = new Thread(
                     delegate () {
                         try {
-                            WordPreprocessing.saveInlineShapes(
+                            WordPreprocessing.exportInlineShapes(
                                 currentDoc,
                                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + "SaveAsDAISY");
                         } catch (Exception ex) {
@@ -240,7 +236,7 @@ namespace DaisyWord2007AddIn {
                     result.Settings.ListMathMl);
 
             //this.applicationObject.ActiveDocument.Save();
-            if (result.Settings.MasterSubFlag == "Yes") {
+            if (result.Settings.ParseSubDocuments == "Yes") {
                 result.IsSuccess = preprocessSubDocuments(eventsHandler, result, currentDoc);
             } else {
                 
@@ -254,7 +250,7 @@ namespace DaisyWord2007AddIn {
 
         #region Shapes
 
-        static public void saveShapes(
+        static public void exportShapes(
             MSword.Document doc,
             string outputPath
         ) {
@@ -310,7 +306,7 @@ namespace DaisyWord2007AddIn {
         /// </summary>
         /// <param name="doc"></param>
         /// <param name="outputFolderPath"></param>
-        static public void saveInlineShapes(
+        static public void exportInlineShapes(
             MSword.Document doc,
             string outputFolderPath
         ) {
@@ -402,26 +398,6 @@ namespace DaisyWord2007AddIn {
             OLECLOSE_PROMPTSAVE = 2,
         }
         #endregion
-
-
-        static public int parseEquations(
-            IPluginEventsHandler eventsHandler,
-            MSword.Application WordInstance,
-            string documentPath,
-            Hashtable mathMLEquationsTable
-        ) {
-            object addToRecentFiles = false;
-            object readOnly = false;
-            object isVisible = false;
-            object missing = Type.Missing;
-            object saveChanges = MSword.WdSaveOptions.wdDoNotSaveChanges;
-            object originalFormat = MSword.WdOriginalFormat.wdOriginalDocumentFormat;
-            object newName = documentPath;
-            MSword.Document doc = WordInstance.Documents.Open(ref newName, ref missing, ref readOnly, ref addToRecentFiles, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref isVisible, ref missing, ref missing, ref missing, ref missing);
-            int result = parseEquations(eventsHandler,doc,mathMLEquationsTable);
-            doc.Close(saveChanges,originalFormat);
-            return result;
-        }
 
         /// <summary>
         /// Search the equations in the stories of a document.
@@ -1064,7 +1040,7 @@ namespace DaisyWord2007AddIn {
             //Checking whether any original or Subdocumets is already Open or not
             foreach (string docPathAndType in subList) {
                 string[] splitted = docPathAndType.Split('|');
-                if (isOpen(splitted[0])) {
+                if (documentIsOpen(splitted[0])) {
                     eventsHandler.OnError("Some Sub documents are in open state.\r\nPlease close all the Sub documents before Translation.");
                     return false;
                 }
@@ -1091,14 +1067,14 @@ namespace DaisyWord2007AddIn {
 
                 MSword.Document subDoc = WordInstance.Documents.Open(ref newName, ref missing, ref readOnly, ref addToRecentFiles, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref isVisible, ref missing, ref missing, ref missing, ref missing);
                 try {
-                    WordPreprocessing.saveShapes(
+                    WordPreprocessing.exportShapes(
                         subDoc,
                         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + "SaveAsDAISY");
                 } catch (Exception e) {
                     warnings.Add(e.Message);
                 }
                 try {
-                    WordPreprocessing.saveInlineShapes(
+                    WordPreprocessing.exportInlineShapes(
                        subDoc,
                        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + "SaveAsDAISY");
                 } catch (Exception e) {

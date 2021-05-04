@@ -68,7 +68,7 @@ namespace DaisyWord2007AddIn {
         const string wordRelationshipType = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument";
         PackageRelationship packRelationship = null;
         XmlDocument currentDocXml, validation_xml;
-        String docFile, path_For_Xml, templateName, path_For_Pipeline;
+        String docFile, path_For_Xml, path_For_Pipeline;
         public ArrayList docValidation = new ArrayList();
         private IRibbonUI daisyRibbon;
         private bool showValidateTabBool = false;
@@ -140,9 +140,7 @@ namespace DaisyWord2007AddIn {
         /// </summary>
         void applicationObject_DocumentChange() {
             if(this.applicationObject.Documents.Count > 0) {
-                MSword.Document currentDoc = this.applicationObject.ActiveDocument;
-                templateName = (currentDoc.get_AttachedTemplate() as MSword.Template).Name;
-                CheckforAttchments(currentDoc);
+                CheckforAttchments(this.applicationObject.ActiveDocument);
             }
             showValidateTabBool = false;
             if (daisyRibbon != null) daisyRibbon.InvalidateControl("toggleValidate");
@@ -157,8 +155,6 @@ namespace DaisyWord2007AddIn {
         /// </summary>
         /// <param name="Doc">Current Document</param>
         void applicationObject_DocumentOpen(Microsoft.Office.Interop.Word.Document Doc) {
-            //MSword.Document doc = this.applicationObject.ActiveDocument;
-            templateName = (Doc.get_AttachedTemplate() as MSword.Template).Name;
             CheckforAttchments(Doc);
         }
 
@@ -167,10 +163,7 @@ namespace DaisyWord2007AddIn {
         /// Function to check whether the Daisy Styles are new or not
         /// </summary>
         public void CheckforAttchments(MSword.Document doc) {
-            //MSword.Document doc = this.applicationObject.ActiveDocument;
-            string templateName = (doc.get_AttachedTemplate() as MSword.Template).Name;
             Dictionary<int, string> objArray = new Dictionary<int, string>();
-
             for (int iCountStyles = 1; iCountStyles <= doc.Styles.Count; iCountStyles++) {
                 object ActualVal = iCountStyles;
                 string strValue = doc.Styles.get_Item(ref ActualVal).NameLocal.ToString();
@@ -183,7 +176,7 @@ namespace DaisyWord2007AddIn {
         }
 
         /// <summary>
-        /// Function to remove Unwanted bookmarks befreo saving the document
+        /// Function to remove Unwanted bookmarks before saving the document
         /// </summary>
         /// <param name="Doc"></param>
         /// <param name="SaveAsUI"></param>
@@ -292,7 +285,12 @@ namespace DaisyWord2007AddIn {
 
         }
 
-        /*Function which returns XML file to get Ribbon in Word2007*/
+        /// <summary>
+        /// Select the UI XML description of the Ribbon, 
+        /// depending on word version and if a pipeline distribution is present near the assembly
+        /// </summary>
+        /// <param name="RibbonID"></param>
+        /// <returns></returns>
         string IRibbonExtensibility.GetCustomUI(string RibbonID) {
             path_For_Pipeline = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\pipeline-lite-ms";
             if (Directory.Exists(path_For_Pipeline)) {
@@ -306,7 +304,12 @@ namespace DaisyWord2007AddIn {
             }
         }
 
-        /*Function to get data of a file */
+        /// <summary>
+        /// Retrieve the content of a textual resource from the assembly manifest
+        /// (Note: Only used to retrieve UI XML)
+        /// </summary>
+        /// <param name="resourceName"></param>
+        /// <returns></returns>
         private string GetResource(string resourceName) {
             Assembly asm = Assembly.GetExecutingAssembly();
             foreach (string name in asm.GetManifestResourceNames()) {
@@ -314,7 +317,6 @@ namespace DaisyWord2007AddIn {
                     System.IO.TextReader tr = new System.IO.StreamReader(asm.GetManifestResourceStream(name));
                     //Debug.Assert(tr != null);
                     string resource = tr.ReadToEnd();
-
                     tr.Close();
                     return resource;
                 }
@@ -322,91 +324,44 @@ namespace DaisyWord2007AddIn {
             return null;
         }
 
-        // TODO : merge image selection functions as one single switch ?
-
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImage(IRibbonControl control) {
-            return this.addinLib.GetLogo("speaker.jpg");
+        #region Icons
+        /// <summary>
+        /// Icons filenames mapping with ribbon control IDs
+        /// </summary>
+        private static readonly Dictionary<string, string> controlsIconNames = new Dictionary<string, string> () {
+            { "Daisy", "speaker.jpg" },
+            { "DaisyMenu", "speaker.jpg" },
+            { "DaisySingle", "Singlexml.png" },
+            { "DaisyDTBookSingle", "speaker.jpg" },
+            { "DaisyMultiple", "Multiplexml.png" },
+            { "DaisyDTBookMultiple", "subfolder.png" },
+            { "DaisyMnu", "speaker.jpg" },
+            { "DaisyTabSingle", "Singlexml.png" },
+            { "DaisyTabDTBookSingle", "speaker.jpg" },
+            { "DaisyTabMultiple", "Multiplexml.png" },
+            { "DaisyTabDTBookMultiple", "subfolder.png" },
+            { "Button1", "speaker.jpg" },
+            { "Button2", "subfolder.png" },
+            { "Button3", "ABBR.png" },
+            { "Button4", "ABBR2.png" },
+            { "Button5", "ACR.png" },
+            { "Button6", "ACR2.png" },
+            { "toggleValidate", "validate.png" },
+            { "Button7", "import.png" },
+            { "Button11", "footnotes.png" },
+            { "Button12", "Language.png" },
+            { "Button10", "gear.png" },
+            { "Button8", "version.png" },
+            { "Button9", "help.png" },
+            { "DaisyHelpMnu", "speaker.jpg" }
+        };
+        public stdole.IPictureDisp iconSelector(IRibbonControl control) {
+            return this.addinLib.GetLogo(controlsIconNames[control.Id]);
         }
 
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImageSingleXML(IRibbonControl control) {
-            return this.addinLib.GetLogo("Singlexml.png");
-        }
+        #endregion Icons
 
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImageMultipleXML(IRibbonControl control) {
-            return this.addinLib.GetLogo("Multiplexml.png");
-        }
-
-
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImage1(IRibbonControl control) {
-            return this.addinLib.GetLogo("ABBR.png");
-        }
-
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImage2(IRibbonControl control) {
-            return this.addinLib.GetLogo("ABBR2.png");
-        }
-
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImage3(IRibbonControl control) {
-            return this.addinLib.GetLogo("ACR.png");
-        }
-
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImage4(IRibbonControl control) {
-            return this.addinLib.GetLogo("ACR2.png");
-        }
-
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImage5(IRibbonControl control) {
-            return this.addinLib.GetLogo("help.png");
-        }
-
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImage6(IRibbonControl control) {
-            return this.addinLib.GetLogo("DaisyLogo.png");
-        }
-
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImage7(IRibbonControl control) {
-            return this.addinLib.GetLogo("subfolder.png");
-        }
-
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImage8(IRibbonControl control) {
-            return this.addinLib.GetLogo("version.png");
-        }
-
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImage9(IRibbonControl control) {
-            return this.addinLib.GetLogo("validate.png");
-        }
-
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImage10(IRibbonControl control) {
-            return this.addinLib.GetLogo("import.png");
-        }
-
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImage11(IRibbonControl control) {
-            return this.addinLib.GetLogo("footnotes.png");
-        }
-
-
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImage12(IRibbonControl control) {
-            return this.addinLib.GetLogo("gear.png");
-        }
-
-
-        /*Function to get image before the label*/
-        public stdole.IPictureDisp GetImage13(IRibbonControl control) {
-            return this.addinLib.GetLogo("Language.png");
-        }
-
+        #region Labels and Descriptions
 
         /*Function to get label in the Word2007 Ribbon*/
         public string GetLabel(IRibbonControl control) {
@@ -416,6 +371,8 @@ namespace DaisyWord2007AddIn {
         public string GetDescription(IRibbonControl control) {
             return this.addinLib.GetString(control.Id + "Description");
         }
+
+        #endregion Labels and Descriptions
 
         public void OnLoad(IRibbonUI ribbon) {
             daisyRibbon = ribbon;
@@ -773,9 +730,10 @@ namespace DaisyWord2007AddIn {
                     string.Empty,
                     new Initialize()
                 );
-                if (!result.IsCanceled) {
-                    MessageBox.Show(result.LastMessage, "Conversion stopped");
-                } 
+                
+                if (!(result.IsCanceled || result.IsSuccess)) {
+                    MessageBox.Show(result.LastMessage, "Conversion aborted");
+                }
                 applicationObject.ActiveDocument.Save();
             } catch (Exception e) {
                 ExceptionReport report = new ExceptionReport(e);
@@ -962,7 +920,7 @@ namespace DaisyWord2007AddIn {
             
             foreach (string documentPathAndType in documents) {
                 string[] splitted = documentPathAndType.ToString().Split('|');
-                if (WordPreprocessing.isOpen(splitted[0].ToString())) {
+                if (WordPreprocessing.documentIsOpen(splitted[0].ToString())) {
                     openedDocuments.Add(splitted[0].ToString());
                 }
             }
@@ -993,14 +951,14 @@ namespace DaisyWord2007AddIn {
 
                 MSword.Document subDoc = this.applicationObject.Documents.Open(ref newName, ref missing, ref readOnly, ref addToRecentFiles, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref isVisible, ref missing, ref missing, ref missing, ref missing);
                 try {
-                    WordPreprocessing.saveShapes(
+                    WordPreprocessing.exportShapes(
                         subDoc,
                         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + "SaveAsDAISY");
                 } catch (Exception e) {
                     warnings.Add(e.Message);
                 }
                 try {
-                    WordPreprocessing.saveInlineShapes(
+                    WordPreprocessing.exportInlineShapes(
                        subDoc,
                        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + "SaveAsDAISY");
                 } catch (Exception e) {
