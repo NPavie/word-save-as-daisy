@@ -41,7 +41,7 @@ namespace Word2007Addin.IntegrationTests {
             string originalOutputPath = new FileInfo(@"TestData\FromSingleDocx\Test 1\Output\F1.xml").FullName;
 
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters.withParameter("OutputFile", outputDirectoryPath)
                 .withParameter("Title", "Help")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -72,7 +72,7 @@ namespace Word2007Addin.IntegrationTests {
             string originalOutputPath = new FileInfo(@"TestData\FromSingleDocx\Test 2\Output\F 2.xml").FullName;
 
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters.withParameter("OutputFile", outputDirectoryPath)
                 .withParameter("Title", "Document")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -102,7 +102,7 @@ namespace Word2007Addin.IntegrationTests {
             string originalOutputPath = new FileInfo(@"TestData\FromSingleDocx\Test 3\Output\F 3.xml").FullName;
 
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters.withParameter("OutputFile", outputDirectoryPath)
                 .withParameter("Title", "Testing")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -132,7 +132,7 @@ namespace Word2007Addin.IntegrationTests {
             string originalOutputPath = new FileInfo(@"TestData\FromSingleDocx\Test 4\Output\F4.xml").FullName;
 
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters.withParameter("OutputFile", outputDirectoryPath)
                 .withParameter("Title", "Blood")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -162,7 +162,7 @@ namespace Word2007Addin.IntegrationTests {
             string originalOutputPath = new FileInfo(@"TestData\FromSingleDocx\Test 5\Output\F5.xml").FullName;
 
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters.withParameter("OutputFile", outputDirectoryPath)
                 .withParameter("Title", "Service")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -192,7 +192,7 @@ namespace Word2007Addin.IntegrationTests {
             string originalOutputPath = new FileInfo(@"TestData\FromSingleDocx\Test 6\Output\F6.xml").FullName;
 
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters.withParameter("OutputFile", outputDirectoryPath)
                 .withParameter("Title", "Belarus")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -222,7 +222,7 @@ namespace Word2007Addin.IntegrationTests {
             string originalOutputPath = new FileInfo(@"TestData\FromSingleDocx\Test 7\Output\F7.xml").FullName;
 
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters.withParameter("OutputFile", outputDirectoryPath)
                 .withParameter("Title", "Blog")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -252,7 +252,7 @@ namespace Word2007Addin.IntegrationTests {
             string originalOutputPath = new FileInfo(@"TestData\FromSingleDocx\Test 8\Output\F8.xml").FullName;
 
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters.withParameter("OutputFile", outputDirectoryPath)
                 .withParameter("Title", "Trial")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -282,7 +282,7 @@ namespace Word2007Addin.IntegrationTests {
             string originalOutputPath = new FileInfo(@"TestData\FromSingleDocx\Test 9\Output\F9.xml").FullName;
 
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters.withParameter("OutputFile", outputDirectoryPath)
                 .withParameter("Title", "Tool")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -312,7 +312,7 @@ namespace Word2007Addin.IntegrationTests {
             string originalOutputPath = new FileInfo(@"TestData\FromSingleDocx\Test 10\Output\F10.xml").FullName;
 
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters.withParameter("OutputFile", outputDirectoryPath)
                 .withParameter("Title", "Problem")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -335,7 +335,7 @@ namespace Word2007Addin.IntegrationTests {
 
         #region help methods
 
-        public void SaveAsSingleDaisy(string inputFile, string ouputDirectoryPath, ConverterParameters parameters) {
+        public void SaveAsSingleDaisy(string inputFile, string ouputDirectoryPath, ConversionParameters parameters) {
             Application word = OpenMsWordDocument(inputFile);
 
             Connect connect = new Connect();

@@ -477,8 +477,7 @@ namespace Daisy.DaisyConverter.CommandLineTool {
                 if (!preprocessOnly) {
                     converted = ConvertFile(input, output, transformDirection, table);
                 } else {
-                    ProcessingData temp = new ProcessingData(app.Version);
-                    
+                   
                     // copy generated shapes to output
                     string parametersOutput = Path.Combine(shapeOutput, "parametersTable.csv");
                     string content = "key;value;\r\n";

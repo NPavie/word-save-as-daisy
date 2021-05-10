@@ -44,7 +44,7 @@ namespace Word2007Addin.IntegrationTests {
             //string transitionalOuput = new FileInfo(@"output\1\F 2.xml").FullName;
             string originalOutputPath = new FileInfo(@"TestData\FromMultipleDocx\Test 1\Output\Doc 1-2.xml").FullName;
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
 
             parameters
                 .withParameter("Title", "m 1-2")
@@ -78,7 +78,7 @@ namespace Word2007Addin.IntegrationTests {
             //string transitionalOuput = new FileInfo(@"output\2\F 2.xml").FullName;
             string originalOutputPath = new FileInfo(@"TestData\FromMultipleDocx\Test 2\Output\Doc 2-3.xml").FullName;
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters
                 .withParameter("Title", "m 2-3")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -107,7 +107,7 @@ namespace Word2007Addin.IntegrationTests {
             string outputFilePath = new FileInfo(@"output\3\Doc.xml").FullName;
             string originalOutputPath = new FileInfo(@"TestData\FromMultipleDocx\Test 3\Output\Doc 3-4.xml").FullName;
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters
                 .withParameter("Title", "m 3-4")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -136,7 +136,7 @@ namespace Word2007Addin.IntegrationTests {
             string outputFilePath = new FileInfo(@"output\4\Doc.xml").FullName;
             string originalOutputPath = new FileInfo(@"TestData\FromMultipleDocx\Test 4\Output\Doc4-5.xml").FullName;
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters
                 .withParameter("Title", "m 4-5")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -165,7 +165,7 @@ namespace Word2007Addin.IntegrationTests {
             string outputFilePath = new FileInfo(@"output\5\Doc.xml").FullName;
             string originalOutputPath = new FileInfo(@"TestData\FromMultipleDocx\Test 5\Output\Doc 5-6.xml").FullName;
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters
                 .withParameter("Title", "m 5-6")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -194,7 +194,7 @@ namespace Word2007Addin.IntegrationTests {
             string outputFilePath = new FileInfo(@"output\6\Doc.xml").FullName;
             string originalOutputPath = new FileInfo(@"TestData\FromMultipleDocx\Test 6\Output\Doc 6-7.xml").FullName;
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters
                 .withParameter("Title", "m 6-7")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -223,7 +223,7 @@ namespace Word2007Addin.IntegrationTests {
             string outputFilePath = new FileInfo(@"output\7\Doc.xml").FullName;
             string originalOutputPath = new FileInfo(@"TestData\FromMultipleDocx\Test 7\Output\Doc 7-8.xml").FullName;
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters
                 .withParameter("Title", "m 7-8")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -252,7 +252,7 @@ namespace Word2007Addin.IntegrationTests {
             string outputFilePath = new FileInfo(@"output\8\Doc.xml").FullName;
             string originalOutputPath = new FileInfo(@"TestData\FromMultipleDocx\Test 8\Output\Doc 8-9.xml").FullName;
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters
                 .withParameter("Title", "m 8-9")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -281,7 +281,7 @@ namespace Word2007Addin.IntegrationTests {
             string outputFilePath = new FileInfo(@"output\9\Doc.xml").FullName;
             string originalOutputPath = new FileInfo(@"TestData\FromMultipleDocx\Test 9\Output\Doc 9-10.xml").FullName;
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters
                 .withParameter("Title", "m 9-10")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -310,7 +310,7 @@ namespace Word2007Addin.IntegrationTests {
             string outputFilePath = new FileInfo(@"output\10\Doc.xml").FullName;
             string originalOutputPath = new FileInfo(@"TestData\FromMultipleDocx\Test 10\Output\Doc 10-1.xml").FullName;
 
-            ConverterParameters parameters = new ConverterParameters();
+            ConversionParameters parameters = new ConversionParameters();
             parameters
                 .withParameter("Title", "m 10-1")
                 .withParameter("Creator", "Balandin Vyacheslav")
@@ -342,7 +342,7 @@ namespace Word2007Addin.IntegrationTests {
             return inputFiles;
         }
 
-        public void convertAndMergeDocumentsToDaisy(ArrayList inputFiles, string ouputFilePath, ConverterParameters parameters) {
+        public void convertAndMergeDocumentsToDaisy(ArrayList inputFiles, string ouputFilePath, ConversionParameters parameters) {
             Application word = OpenMsWordDocument(string.Empty);
 
             Connect connect = new Connect();

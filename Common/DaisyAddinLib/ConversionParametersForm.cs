@@ -40,7 +40,7 @@ using System.Diagnostics;
 
 namespace Daisy.DaisyConverter.DaisyConverterLib
 {
-	public partial class DesignForm : Form
+	public partial class ConversionParametersForm : Form
 	{
 		int translateFlag = 0;
 		XmlDocument XmlPackage;
@@ -60,7 +60,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 		String strBrtextBox = "";
 		TableLayoutPanel oTableLayoutPannel = new TableLayoutPanel();
 
-		ConverterParameters Parameters { get; }
+		ConversionParameters Parameters { get; }
 
 		/// <summary>
 		/// Returns Hash Table having information about Title,Creator,Publisher,UID
@@ -99,7 +99,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 		/// </summary>
 		/// <param name="parameters"></param>
 		/// <param name="manager"></param>
-		public DesignForm(ConverterParameters parameters, ResourceManager manager) {
+		public ConversionParametersForm(ConversionParameters parameters, ResourceManager manager) {
 			Parameters = parameters;
 
 			btnID = parameters.ControlName;

@@ -381,7 +381,7 @@ namespace DaisyWord2007AddIn {
 
 
         public void GetDaisySettings(IRibbonControl control) {
-            DAISY_Settings daisyfrm = new DAISY_Settings();
+            ConverterSettingsForm daisyfrm = new ConverterSettingsForm();
             daisyfrm.ShowDialog();
         }
 

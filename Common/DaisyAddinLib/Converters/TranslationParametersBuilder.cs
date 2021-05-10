@@ -104,7 +104,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib.Converters
 
 			AddParameter("MasterSub", MasterSubFlag, parameters);
 
-			DaisyTranslationSettings daisySt = new DaisyTranslationSettings();
+			ConverterSettings daisySt = new ConverterSettings();
 			string imgoption = daisySt.GetImageOption;
 			string resampleValue = daisySt.GetResampleValue;
 			string characterStyle = daisySt.GetCharacterStyle;

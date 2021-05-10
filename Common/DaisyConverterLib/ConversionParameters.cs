@@ -5,10 +5,10 @@ using System.Collections.Generic;
 namespace Daisy.DaisyConverter.DaisyConverterLib
 {
     /// <summary>
-    /// Input parameters for convert operaton.
+    /// Input parameters for convert operations.
     /// This class also include the former TranslationParametersBuilder
     /// </summary>
-    public class ConverterParameters
+    public class ConversionParameters
     {
         public string InputFile { get; set; }
         public string TempInputFile { get; set; }
@@ -23,7 +23,11 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         
 		public string ScriptPath { get; set; }
 		public string Directory { get; set; }
-        
+
+        public string TempOutputFile { get; set; }
+
+        public string PipelineOutput { get; set; }
+
         // From the "TranslationParametersBuilder" class
         public string OutputFile { get; set; }
         public string Title { get; set; }
@@ -59,7 +63,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         /// <param name="name">Name of the Class field to set</param>
         /// <param name="value">Object to assign to the field (this object will type casted to the targeted parameter type) </param>
         /// <returns>The converter itself</returns>
-        public ConverterParameters withParameter(string name, object value) {
+        public ConversionParameters withParameter(string name, object value) {
             switch (name) {
                 case "InputFile":
                     InputFile = (string)value; break;
@@ -120,12 +124,13 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
                 if (Publisher != null) parameters.Add("Publisher", Publisher);
                 if (UID != null) parameters.Add("UID", UID);
                 if (Subject != null) parameters.Add("Subject", Subject);
-                if (TrackChanges != null) parameters.Add("TrackChanges", TrackChanges);
                 if (Version != null) parameters.Add("Version", Version);
-                if (ParseSubDocuments != null) parameters.Add("ParseSubDocuments", ParseSubDocuments);
+                // TO BE CHANGED if the value changes in xslts
+                if (TrackChanges != null) parameters.Add("TRACK", TrackChanges);
+                if (ParseSubDocuments != null) parameters.Add("MasterSubFlag", ParseSubDocuments);
 
                 // also retrieve global settings
-                DaisyTranslationSettings globalSettings = new DaisyTranslationSettings();
+                ConverterSettings globalSettings = new ConverterSettings();
                 string imgoption = globalSettings.GetImageOption;
                 string resampleValue = globalSettings.GetResampleValue;
                 string characterStyle = globalSettings.GetCharacterStyle;

@@ -38,7 +38,7 @@ namespace Daisy.DaisyConverter.Word
         public Addin()
             : base(new Daisy.DaisyConverter.Word.Converter())
         {
-            this.OverrideResourceManager = new System.Resources.ResourceManager("Addin.resources.Labels", Assembly.GetExecutingAssembly());
+            this.CustomResourceManager = new System.Resources.ResourceManager("Addin.resources.Labels", Assembly.GetExecutingAssembly());
         }
     }
 }

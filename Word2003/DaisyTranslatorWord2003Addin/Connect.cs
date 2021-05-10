@@ -354,7 +354,7 @@ namespace DaisyTranslatorWord2003Addin
 
 		void _BtnSettings_Click(CommandBarButton Ctrl, ref bool CancelDefault)
 		{
-			DAISY_Settings daisyfrm = new DAISY_Settings();
+			ConverterSettingsForm daisyfrm = new ConverterSettingsForm();
 			daisyfrm.ShowDialog();
 		}
 
@@ -969,7 +969,7 @@ namespace DaisyTranslatorWord2003Addin
 			{
 				try
 				{
-					ConverterParameters parameters = new ConverterParameters();
+					ConversionParameters parameters = new ConversionParameters();
 					parameters.InputFile = inputFile;
 					parameters.TempInputFile = tempInput;
 					parameters.Version = this.applicationObject.Version;
@@ -998,7 +998,7 @@ namespace DaisyTranslatorWord2003Addin
 			}
 			else
 			{
-				ConverterParameters parameters = new ConverterParameters();
+				ConversionParameters parameters = new ConversionParameters();
 				parameters.InputFile = inputFile;
 				parameters.TempInputFile = tempInput;
 				parameters.Version = this.applicationObject.Version;

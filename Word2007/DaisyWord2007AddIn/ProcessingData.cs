@@ -34,11 +34,11 @@ namespace DaisyWord2007AddIn
 		}
 
 		// converter settings, to be initialized when needed
-		private ConverterParameters converterSettings = null;
-		public ConverterParameters Settings { 
+		private ConversionParameters converterSettings = null;
+		public ConversionParameters Settings { 
 			get {
 				if (converterSettings == null) {
-					converterSettings = new ConverterParameters();
+					converterSettings = new ConversionParameters();
 					converterSettings.ListMathMl = new Hashtable();
 					converterSettings.ObjectShapes = new ArrayList();
 					converterSettings.ImageIds = new ArrayList();

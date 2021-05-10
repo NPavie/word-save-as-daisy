@@ -44,13 +44,17 @@ using System.Xml.Xsl;
 
 namespace Daisy.DaisyConverter.DaisyConverterLib
 {
-
-    public partial class ConverterForm : Form
+    /// <summary>
+    /// Conversion progress dialog.
+    /// This dialog is the one managing the conversion process
+    /// </summary>
+    public partial class ConversionProgressDialog : Form
     {
         delegate void WorkCompleteCallback(Exception e);
 
         private int size = 1;
         private float step;
+        private ConversionParameters parameters;
         private Hashtable table, listMathMl;
         private Exception exception;
         private ArrayList lostElements;
@@ -61,7 +65,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         string control = "";
         string path_For_Pipeline = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\pipeline-lite-ms";
         /* Constructor which initializes all components of the Form */
-        public ConverterForm(AbstractConverter converter, string inputFile, string outputFile, ResourceManager manager, bool isDirect, Hashtable listMathMl, Hashtable table, string control, string output_Pipeline)
+        public ConversionProgressDialog(AbstractConverter converter, string inputFile, string outputFile, ResourceManager manager, bool isDirect, Hashtable listMathMl, Hashtable table, string control, string output_Pipeline)
         {
             InitializeComponent();
             this.converter = converter;

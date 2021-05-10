@@ -19,12 +19,12 @@ using System.Runtime.InteropServices;
 
 namespace Daisy.DaisyConverter.DaisyConverterLib
 {
-    public partial class DAISY_Settings : Form
+    public partial class ConverterSettingsForm : Form
     {
         XmlDocument SettingsXml = new XmlDocument();
         String xmlfile_path;
 
-        public DAISY_Settings()
+        public ConverterSettingsForm()
         {
             InitializeComponent();
         }
@@ -37,7 +37,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 
             if (!File.Exists(xmlfile_path + "\\DAISY_settingsVer21.xml"))
             {
-            	DaisyTranslationSettings.CreateDefaultSettings(xmlfile_path);
+            	ConverterSettings.CreateDefaultSettings(xmlfile_path);
             }
 
 			SettingsXml.Load(xmlfile_path + "\\DAISY_settingsVer21.xml");
@@ -89,7 +89,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
             {
 				if (!File.Exists(xmlfile_path + "\\DAISY_settingsVer21.xml"))
 				{
-					DaisyTranslationSettings.CreateDefaultSettings(xmlfile_path);
+					ConverterSettings.CreateDefaultSettings(xmlfile_path);
 				}
 
 				SettingsXml.Load(xmlfile_path + "\\DAISY_settingsVer21.xml");

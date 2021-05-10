@@ -45,7 +45,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
     {
         private AbstractConverter converter;
         private ChainResourceManager resourceManager;
-        DesignForm myForm;
+        ConversionParametersForm myForm;
 
         /// <summary>
         /// Constructor
@@ -63,7 +63,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         /// <summary>
         /// Override default resource manager.
         /// </summary>
-        public System.Resources.ResourceManager OverrideResourceManager
+        public System.Resources.ResourceManager CustomResourceManager
         {
             set { this.resourceManager.Add(value); }
         }
@@ -95,7 +95,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         /// <param name="outputFilePath"></param>
         /// <param name="outputPipeline"></param>
         /// <param name="singleConverter"></param>
-        public void ConvertToDaisy(ConverterParameters parameters, Hashtable translateParams, string outputFilePath, string outputPipeline, SingleConverter singleConverter)
+        public void ConvertToDaisy(ConversionParameters parameters, Hashtable translateParams, string outputFilePath, string outputPipeline, SingleConverter singleConverter)
         {
             if (parameters.ParseSubDocuments == "No" || parameters.ParseSubDocuments == "NoMasterSub")
             {
@@ -103,7 +103,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
                 //        outputFilePath + parameters.GetInputFileNameWithoutExtension + ".xml" :
                 //        Path.Combine(outputFilePath, "convertedDocument" + ".xml");
                 outputFilePath = (outputFilePath + parameters.GetInputFileNameWithoutExtension + ".xml").Replace(',','_');
-                singleConverter.OoxToDaisy(
+                singleConverter.convertToDaisy(
                         parameters.InputFile, 
                         outputFilePath, 
                         parameters.ListMathMl, 
@@ -130,14 +130,14 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         /// - Function which shows UI to take input from user
         /// </summary>
         public void StartSingleWordConversion(
-            ConverterParameters parameters,
+            ConversionParameters parameters,
             Hashtable translateParams = null,
             string outputFilePath = "",
             string outputPipeline = ""
         ) {
             SingleConverter singleConverter = null;
             if (translateParams == null) {
-                myForm = new DesignForm(parameters, this.resourceManager);
+                myForm = new ConversionParametersForm(parameters, this.resourceManager);
                 
                 if(myForm.DoTranslate() == 1) {
                     translateParams = myForm.ParametersHash;

@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DaisySaveASDescription" xml:space="preserve">
     <value>Saves this file in DAISY Format</value>
@@ -306,5 +306,49 @@
   </data>
   <data name="DaisySaveDocumentBeforelanguage" xml:space="preserve">
     <value>Please save the document before updating the Language details</value>
+  </data>
+  <data name="translation.oox2Daisy.commentReference" xml:space="preserve">
+    <value>Comment Reference is not translated</value>
+    <comment>(From Addin project)</comment>
+  </data>
+  <data name="translation.oox2Daisy.ExternalImage" xml:space="preserve">
+    <value>External Images are not translated</value>
+    <comment>(From Addin project)</comment>
+  </data>
+  <data name="translation.oox2Daisy.GeometricShapeElement" xml:space="preserve">
+    <value>Geometric shapes are not translated</value>
+    <comment>(From Addin project)</comment>
+  </data>
+  <data name="translation.oox2Daisy.Image" xml:space="preserve">
+    <value>Images are not translated</value>
+    <comment>(From Addin project)</comment>
+  </data>
+  <data name="translation.oox2Daisy.ImageCaption" xml:space="preserve">
+    <value>Caption above the Image is not translated</value>
+    <comment>(From Addin project)</comment>
+  </data>
+  <data name="translation.oox2Daisy.ImageContent" xml:space="preserve">
+    <value>Image is Corrupted</value>
+    <comment>(From Addin project)</comment>
+  </data>
+  <data name="translation.oox2Daisy.object" xml:space="preserve">
+    <value>Object is not translated</value>
+    <comment>(From Addin project)</comment>
+  </data>
+  <data name="translation.oox2Daisy.sdtElement" xml:space="preserve">
+    <value> is not translated</value>
+    <comment>(From Addin project)</comment>
+  </data>
+  <data name="translation.oox2Daisy.shapeElement" xml:space="preserve">
+    <value>Shapes are not translated</value>
+    <comment>(From Addin project)</comment>
+  </data>
+  <data name="translation.oox2Daisy.TableCaption" xml:space="preserve">
+    <value>Caption below the Table is not translated</value>
+    <comment>(From Addin project)</comment>
+  </data>
+  <data name="translation.oox2Daisy.UncoveredElement" xml:space="preserve">
+    <value> is not translated</value>
+    <comment>(From Addin project)</comment>
   </data>
 </root>

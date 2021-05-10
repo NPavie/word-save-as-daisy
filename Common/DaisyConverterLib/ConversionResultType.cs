@@ -1,6 +1,6 @@
 ﻿namespace Daisy.DaisyConverter.DaisyConverterLib
 {
-	public enum ConverterResultType
+	public enum ConversionResultType
 	{
 		Success,
 		ValidationError,

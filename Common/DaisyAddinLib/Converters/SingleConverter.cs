@@ -247,19 +247,17 @@ namespace Daisy.DaisyConverter.DaisyConverterLib.Converters
 			DeleteTemporaryImages();
 		}
 
-		private ConverterResult ConvertOoxToDaisy(string inputFile, string outputFile, Hashtable listMathMl, Hashtable table, string control, string output_Pipeline)
+		public ConversionResult convertToDaisy(string inputFile, string outputFile, Hashtable listMathMl, Hashtable table, string control, string output_Pipeline)
 		{
-			try
-			{
-				using (ConverterForm form = new ConverterForm(this.converter, inputFile, outputFile, this.resourceManager, true, listMathMl, table, control, output_Pipeline))
-				{
+			
+			try {
+				using (ConversionProgressDialog form = new ConversionProgressDialog(this.converter, inputFile, outputFile, this.resourceManager, true, listMathMl, table, control, output_Pipeline)) {
 					if (DialogResult.OK != form.ShowDialog())
-						return ConverterResult.Cancel();
+						return ConversionResult.Cancel();
 
-					if (!String.IsNullOrEmpty(form.ValidationError))
-					{
+					if (!String.IsNullOrEmpty(form.ValidationError)) {
 						OnValidationError(form.ValidationError, inputFile, outputFile);
-						return ConverterResult.ValidationError(form.ValidationError);
+						return ConversionResult.ValidationError(form.ValidationError);
 					}
 
 					if (form.HasLostElements) {
@@ -274,37 +272,25 @@ namespace Daisy.DaisyConverter.DaisyConverterLib.Converters
 						ExecuteScript(outputFile);
 					}
 				}
-			}
-			catch (IOException e)
-			{
+			} catch (IOException e) {
 				// this is meant to catch "file already accessed by another process", though there's no .NET fine-grain exception for this.
 				AddinLogger.Error(e);
 				OnUnknownError("UnableToCreateOutputLabel", e.Message);
-				return ConverterResult.UnknownError(e.Message + Environment.NewLine + e.StackTrace);
-			}
-			catch (Exception e)
-			{
+				return ConversionResult.UnknownError(e.Message + Environment.NewLine + e.StackTrace);
+			} catch (Exception e) {
 				AddinLogger.Error(e);
 				OnUnknownError("DaisyUnexpectedError", e.GetType() + ": " + e.Message + " (" + e.StackTrace + ")");
 
-				if (File.Exists(outputFile))
-				{
+				if (File.Exists(outputFile)) {
 					File.Delete(outputFile);
 				}
 
-				return ConverterResult.UnknownError(e.Message + Environment.NewLine + e.StackTrace);
+				return ConversionResult.UnknownError(e.Message + Environment.NewLine + e.StackTrace);
+			} finally {
+				DeleteTemporaryImages();
 			}
 
-			return ConverterResult.Success();
-		}
-
-		public ConverterResult OoxToDaisy(string inputFile, string outputFile, Hashtable listMathMl, Hashtable table, string control, string output_Pipeline)
-		{
-			ConverterResult result = ConvertOoxToDaisy(inputFile, outputFile, listMathMl, table, control, output_Pipeline);
-
-			DeleteTemporaryImages();
-
-			return result;
+			return ConversionResult.Success();
 		}
 
 		#region help methods

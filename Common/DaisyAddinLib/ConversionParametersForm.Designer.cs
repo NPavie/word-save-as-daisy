@@ -1,6 +1,6 @@
 namespace Daisy.DaisyConverter.DaisyConverterLib
 {
-    partial class DesignForm
+    partial class ConversionParametersForm
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DesignForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConversionParametersForm));
             this.label_paneltitle = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.tBx_Browse = new System.Windows.Forms.TextBox();

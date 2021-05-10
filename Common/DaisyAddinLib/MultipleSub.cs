@@ -179,7 +179,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
                         tBx_output.Text = tBx_output.Text + ".xml";
 
                     fileOutputPath = tBx_output.Text;
-                    DaisyTranslationSettings daisySt = new DaisyTranslationSettings();
+                    ConverterSettings daisySt = new ConverterSettings();
                     String imgoption = daisySt.GetImageOption;
                     String resampleValue = daisySt.GetResampleValue;
                     String characterStyle = daisySt.GetCharacterStyle;
@@ -325,7 +325,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
                         tBx_output.Text = Path.Combine(tBx_output.Text, "MultipleNarrator" + ".xml");
 
                     fileOutputPath = tBx_output.Text;
-                    DaisyTranslationSettings daisySt = new DaisyTranslationSettings();
+                    ConverterSettings daisySt = new ConverterSettings();
                     String imgoption = daisySt.GetImageOption;
                     String resampleValue = daisySt.GetResampleValue;
                     String characterStyle = daisySt.GetCharacterStyle;

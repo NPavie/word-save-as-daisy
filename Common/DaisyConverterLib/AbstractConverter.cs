@@ -41,7 +41,9 @@ using System.Windows.Forms;
 namespace Daisy.DaisyConverter.DaisyConverterLib
 {
     /// <summary>
-    /// Core conversion methods 
+    /// Core conversion methods
+    /// Is not really use as a real abstract class
+    /// (only implementation is only used to put the conversion xslts in a separate project...)
     /// </summary>
     public abstract class AbstractConverter
     {
@@ -344,14 +346,14 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         /// <summary>
         /// Imporant function to be documented !
         /// </summary>
-        /// <param name="inputName"></param>
         /// <param name="inputFile"></param>
+        /// <param name="tempInputFile"></param>
+        /// <param name="tempOutputFile"></param>
         /// <param name="outputFile"></param>
-        /// <param name="actualoutputfile"></param>
         /// <param name="listMathMl"></param>
         /// <param name="table"></param>
         /// <param name="output_Pipeline"></param>
-        private void _Transform(String inputName, string inputFile, string outputFile, string actualoutputfile, Hashtable listMathMl, Hashtable table, string output_Pipeline)
+        private void _Transform(String inputFile, string tempInputFile, string tempOutputFile, string outputFile, Hashtable listMathMl, Hashtable table, string output_Pipeline)
         {
             // this throws an exception in the the following cases:
             // - input file is not a valid file
@@ -363,26 +365,26 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 
             try
             {
-                XslCompiledTransform xslt = this.Load(outputFile == null);
-                zipResolver = new ZipResolver(inputFile);
+                XslCompiledTransform xslt = this.Load(tempOutputFile == null);
+                zipResolver = new ZipResolver(tempInputFile);
 
                 XsltArgumentList parameters = new XsltArgumentList();
                 parameters.XsltMessageEncountered += new XsltMessageEncounteredEventHandler(MessageCallBack);
                 parameters.XsltMessageEncountered += new XsltMessageEncounteredEventHandler(MessageCallBackMaster);
 
-                if (outputFile != null)
+                if (tempOutputFile != null)
                 {
-                    if (actualoutputfile.ToLower().EndsWith(".xml"))
+                    if (outputFile.ToLower().EndsWith(".xml"))
                     {
-                        int length = actualoutputfile.LastIndexOf("\\");
-                        string s1 = actualoutputfile.Substring(0, length);
+                        int length = outputFile.LastIndexOf("\\");
+                        string s1 = outputFile.Substring(0, length);
 
 
-                        DaisyClass val = new DaisyClass(inputName, inputFile, s1, listMathMl, zipResolver.Archive, output_Pipeline);
+                        DaisyClass val = new DaisyClass(inputFile, tempInputFile, s1, listMathMl, zipResolver.Archive, output_Pipeline);
                         parameters.AddExtensionObject("urn:Daisy", val);
 
 
-                        parameters.AddParam("outputFile", "", outputFile);
+                        parameters.AddParam("outputFile", "", tempOutputFile);
 
                         foreach (DictionaryEntry myEntry in table)
                         {
@@ -392,25 +394,25 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 
                         XmlWriter finalWriter;
 #if DEBUG
-						StreamWriter streamWriter = new StreamWriter(outputFile, true, System.Text.Encoding.UTF8) {AutoFlush = true};
+						StreamWriter streamWriter = new StreamWriter(tempOutputFile, true, System.Text.Encoding.UTF8) {AutoFlush = true};
                     	finalWriter = new XmlTextWriter(streamWriter);
 #else
                     	finalWriter = new XmlTextWriter(outputFile, System.Text.Encoding.UTF8);
 #endif
 
 #if DEBUG
-                    	Debug.WriteLine("OUTPUT FILE : '" + outputFile + "'");
+                    	Debug.WriteLine("OUTPUT FILE : '" + tempOutputFile + "'");
 #endif
 
                         writer = GetWriter(finalWriter);
                     }
                     else
                     {
-                        DaisyClass val = new DaisyClass(inputName, inputFile, actualoutputfile, listMathMl, zipResolver.Archive, output_Pipeline);
+                        DaisyClass val = new DaisyClass(inputFile, tempInputFile, outputFile, listMathMl, zipResolver.Archive, output_Pipeline);
                         parameters.AddExtensionObject("urn:Daisy", val);
 
 
-                        parameters.AddParam("outputFile", "", outputFile);
+                        parameters.AddParam("outputFile", "", tempOutputFile);
 
                         foreach (DictionaryEntry myEntry in table)
                         {
@@ -419,7 +421,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 
 
                         XmlWriter finalWriter;
-                        finalWriter = new XmlTextWriter(outputFile, System.Text.Encoding.UTF8);
+                        finalWriter = new XmlTextWriter(tempOutputFile, System.Text.Encoding.UTF8);
 
                         writer = GetWriter(finalWriter);
                     }
@@ -428,10 +430,10 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
                 else
                 {
 
-                    int length = inputFile.LastIndexOf("\\");
-                    string s1 = inputFile.Substring(0, length);
+                    int length = tempInputFile.LastIndexOf("\\");
+                    string s1 = tempInputFile.Substring(0, length);
 
-                    DaisyClass val = new DaisyClass(inputName, inputFile, s1, listMathMl, zipResolver.Archive, output_Pipeline);
+                    DaisyClass val = new DaisyClass(inputFile, tempInputFile, s1, listMathMl, zipResolver.Archive, output_Pipeline);
                     parameters.AddExtensionObject("urn:Daisy", val);
 
 					if (table != null)
@@ -458,6 +460,138 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
                     zipResolver.Dispose();
             }
         }
+
+        private void _Transform(ConversionParameters conversion) {
+            // this throws an exception in the the following cases:
+            // - input file is not a valid file
+            // - input file is an encrypted file
+
+            XmlReader source = null;
+            XmlWriter writer = null;
+            ZipResolver zipResolver = null;
+
+            try {
+                XslCompiledTransform xslt = this.Load(conversion.TempOutputFile == null);
+                zipResolver = new ZipResolver(conversion.TempInputFile);
+
+                XsltArgumentList parameters = new XsltArgumentList();
+                parameters.XsltMessageEncountered += new XsltMessageEncounteredEventHandler(MessageCallBack);
+                parameters.XsltMessageEncountered += new XsltMessageEncounteredEventHandler(MessageCallBackMaster);
+
+                string s1 = conversion.OutputFile.ToLower().EndsWith(".xml") ? 
+                    conversion.OutputFile.Substring(0, conversion.OutputFile.LastIndexOf("\\")) :
+                    conversion.OutputFile;
+
+                DaisyClass val = new DaisyClass(
+                            conversion.InputFile,
+                            conversion.TempInputFile,
+                            s1,
+                            conversion.ListMathMl,
+                            zipResolver.Archive,
+                            conversion.PipelineOutput);
+                parameters.AddExtensionObject("urn:Daisy", val);
+
+
+                parameters.AddParam("outputFile", "", conversion.TempOutputFile);
+
+                foreach (DictionaryEntry myEntry in conversion.ConversionParametersHash) {
+                    parameters.AddParam(myEntry.Key.ToString(), "", myEntry.Value.ToString());
+                }
+
+                if (conversion.TempOutputFile != null) {
+                    if (conversion.OutputFile.ToLower().EndsWith(".xml")) {
+                        int length = conversion.OutputFile.LastIndexOf("\\");
+                        string s1 = conversion.OutputFile.Substring(0, length);
+
+
+                        DaisyClass val = new DaisyClass(
+                            conversion.InputFile,
+                            conversion.TempInputFile,
+                            s1,
+                            conversion.ListMathMl,
+                            zipResolver.Archive,
+                            conversion.PipelineOutput);
+                        parameters.AddExtensionObject("urn:Daisy", val);
+
+
+                        parameters.AddParam("outputFile", "", conversion.TempOutputFile);
+
+                        foreach (DictionaryEntry myEntry in conversion.ConversionParametersHash) {
+                            parameters.AddParam(myEntry.Key.ToString(), "", myEntry.Value.ToString());
+                        }
+
+
+                        XmlWriter finalWriter;
+#if DEBUG
+                        StreamWriter streamWriter = new StreamWriter(
+                            conversion.TempOutputFile,
+                            true, System.Text.Encoding.UTF8
+                        ) { AutoFlush = true };
+                        finalWriter = new XmlTextWriter(streamWriter);
+#else
+                    	finalWriter = new XmlTextWriter(outputFile, System.Text.Encoding.UTF8);
+#endif
+
+#if DEBUG
+                        Debug.WriteLine("OUTPUT FILE : '" + conversion.TempOutputFile + "'");
+#endif
+
+                        writer = GetWriter(finalWriter);
+                    } else {
+                        DaisyClass val = new DaisyClass(
+                            conversion.InputFile,
+                            conversion.TempInputFile,
+                            conversion.OutputFile,
+                            conversion.ListMathMl,
+                            zipResolver.Archive,
+                            conversion.PipelineOutput);
+                        parameters.AddExtensionObject("urn:Daisy", val);
+
+
+                        parameters.AddParam("outputFile", "", conversion.TempOutputFile);
+
+                        foreach (DictionaryEntry myEntry in conversion.ConversionParametersHash) {
+                            parameters.AddParam(myEntry.Key.ToString(), "", myEntry.Value.ToString());
+                        }
+
+
+                        XmlWriter finalWriter;
+                        finalWriter = new XmlTextWriter(conversion.TempOutputFile, System.Text.Encoding.UTF8);
+
+                        writer = GetWriter(finalWriter);
+                    }
+
+                } else {
+
+                    int length = conversion.TempInputFile.LastIndexOf("\\");
+                    string s1 = conversion.TempInputFile.Substring(0, length);
+
+                    DaisyClass val = new DaisyClass(inputFile, conversion.TempInputFile, s1, listMathMl, zipResolver.Archive, output_Pipeline);
+                    parameters.AddExtensionObject("urn:Daisy", val);
+
+                    if (table != null) {
+                        foreach (DictionaryEntry myEntry in table)
+                            parameters.AddParam(myEntry.Key.ToString(), "", myEntry.Value.ToString());
+                    }
+
+
+                    writer = new XmlTextWriter(new StringWriter());
+                }
+
+                source = this.Source;
+                // Apply the transformation
+
+                xslt.Transform(source, parameters, writer, zipResolver);
+            } finally {
+                if (writer != null)
+                    writer.Close();
+                if (source != null)
+                    source.Close();
+                if (zipResolver != null)
+                    zipResolver.Dispose();
+            }
+        }
+
 
         private void MessageCallBack(object sender, XsltMessageEncounteredEventArgs e)
         {

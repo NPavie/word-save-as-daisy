@@ -3,9 +3,9 @@
 	/// <summary>
 	/// Provides details about convertation.
 	/// </summary>
-	public class ConverterResult
+	public class ConversionResult
 	{
-		private ConverterResult(ConverterResultType resultType)
+		private ConversionResult(ConversionResultType resultType)
 		{
 			ResultType = resultType;
 		}
@@ -14,18 +14,18 @@
 		/// Creates success result.
 		/// </summary>
 		/// <returns></returns>
-		public static ConverterResult Success()
+		public static ConversionResult Success()
 		{
-			return new ConverterResult(ConverterResultType.Success);
+			return new ConversionResult(ConversionResultType.Success);
 		}
 
 		/// <summary>
 		/// Creates cancel result.
 		/// </summary>
 		/// <returns></returns>
-		public static ConverterResult Cancel()
+		public static ConversionResult Cancel()
 		{
-			return new ConverterResult(ConverterResultType.Cancel);
+			return new ConversionResult(ConversionResultType.Cancel);
 		}
 
 		/// <summary>
@@ -33,9 +33,9 @@
 		/// </summary>
 		/// <param name="error"></param>
 		/// <returns></returns>
-		public static ConverterResult ValidationError(string error)
+		public static ConversionResult ValidationError(string error)
 		{
-			var result = new ConverterResult(ConverterResultType.ValidationError);
+			var result = new ConversionResult(ConversionResultType.ValidationError);
 			result.ValidationErrorMessage = error;
 			return result;
 		}
@@ -45,9 +45,9 @@
 		/// </summary>
 		/// <param name="errorMessage"></param>
 		/// <returns></returns>
-		public static ConverterResult UnknownError(string errorMessage)
+		public static ConversionResult UnknownError(string errorMessage)
 		{
-			var result = new ConverterResult(ConverterResultType.UnknownError);
+			var result = new ConversionResult(ConversionResultType.UnknownError);
 			result.UnknownErrorMessage = errorMessage;
 			return result;
 		}
@@ -65,6 +65,6 @@
 		/// <summary>
 		/// Result type.
 		/// </summary>
-		public ConverterResultType ResultType { get; set; }
+		public ConversionResultType ResultType { get; set; }
 	}
 }

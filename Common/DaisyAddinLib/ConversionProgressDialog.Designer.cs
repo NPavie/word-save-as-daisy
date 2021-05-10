@@ -28,7 +28,7 @@
 
 namespace Daisy.DaisyConverter.DaisyConverterLib
 {
-    partial class ConverterForm
+    partial class ConversionProgressDialog
     {
         /// <summary>
         /// Variable nécessaire au concepteur.
@@ -56,7 +56,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         /// </summary>
         private void InitializeComponent()
         {
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConverterForm));
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConversionProgressDialog));
 			this.progressBar1 = new System.Windows.Forms.ProgressBar();
 			this.cancelButton = new System.Windows.Forms.Button();
 			this.lblProgress = new System.Windows.Forms.Label();

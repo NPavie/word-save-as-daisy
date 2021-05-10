@@ -1,6 +1,6 @@
 namespace Daisy.DaisyConverter.DaisyConverterLib
 {
-    partial class DAISY_Settings
+    partial class ConverterSettingsForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DAISY_Settings));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConverterSettingsForm));
             this.radiobtn_custom = new System.Windows.Forms.RadioButton();
             this.radiobtn_auto = new System.Windows.Forms.RadioButton();
             this.checkbox_translate = new System.Windows.Forms.CheckBox();
