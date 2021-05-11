@@ -226,10 +226,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Addin\Addin.csproj">
-      <Project>{5FBF8430-AF2F-4E5E-BA37-7A70310BA709}</Project>
-      <Name>Addin</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Common\DaisyAddinLib\DaisyAddinLib.csproj">
       <Project>{599773FF-1E86-4AC2-8B24-34BBAC707370}</Project>
       <Name>DaisyAddinLib</Name>

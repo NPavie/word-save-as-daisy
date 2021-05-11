@@ -157,7 +157,6 @@
     <Compile Include="BaseUserControl.Designer.cs">
       <DependentUpon>BaseUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="ChainResourceManager.cs" />
     <Compile Include="CleanOutputDirDlg.cs">
       <SubType>Form</SubType>
       <CustomToolNamespace>Sonata.DaisyConverter.DaisyConverterLib</CustomToolNamespace>
@@ -174,12 +173,7 @@
     <Compile Include="Converters\AddInHelper.cs" />
     <Compile Include="Converters\PrepopulateDaisyOutput.cs" />
     <Compile Include="Converters\PrepopulateDaisyXml.cs" />
-    <Compile Include="Converters\SingleConverter.cs" />
     <Compile Include="Converters\SingleConverterUI.cs" />
-    <Compile Include="Converters\SubdocumentInfo.cs" />
-    <Compile Include="Converters\SubdocumentsList.cs" />
-    <Compile Include="Converters\TranslationParametersBuilder.cs" />
-    <Compile Include="Converters\SubdocumentsManager.cs" />
     <Compile Include="ConverterSettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -205,7 +199,7 @@
     <Compile Include="Fidility.Designer.cs">
       <DependentUpon>Fidility.cs</DependentUpon>
     </Compile>
-    <Compile Include="DaisyAddinLib.cs">
+    <Compile Include="Addin.cs">
     </Compile>
     <Compile Include="InfoBox.cs">
       <SubType>Form</SubType>
@@ -266,10 +260,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="ScriptParameter.cs" />
-    <Compile Include="ScriptParser.cs" />
     <Compile Include="ShapesObject.cs" />
-    <Compile Include="StringDataType.cs" />
     <Compile Include="StrUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

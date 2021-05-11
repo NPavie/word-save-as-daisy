@@ -135,9 +135,11 @@
   <ItemGroup>
     <Compile Include="AbstractConverter.cs" />
     <Compile Include="AbstractPostProcessor.cs" />
+    <Compile Include="ChainResourceManager.cs" />
     <Compile Include="ConversionParameters.cs" />
     <Compile Include="ConversionResult.cs" />
     <Compile Include="ConversionResultType.cs" />
+    <Compile Include="ConverterHelper.cs" />
     <Compile Include="ConverterSettings.cs" />
     <Compile Include="Daisyclass.cs" />
     <Compile Include="EmbeddedResourceResolver.cs" />
@@ -148,7 +150,14 @@
     <Compile Include="PageStylesValidation\PageStyle.cs" />
     <Compile Include="PageStylesValidation\PageStylesValidator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScriptParameter.cs" />
+    <Compile Include="ScriptParser.cs" />
     <Compile Include="SharedXmlUrlResolver.cs" />
+    <Compile Include="SingleConverter.cs" />
+    <Compile Include="StringDataType.cs" />
+    <Compile Include="SubdocumentInfo.cs" />
+    <Compile Include="SubdocumentsList.cs" />
+    <Compile Include="SubdocumentsManager.cs" />
     <Compile Include="ZipResolver.cs" />
   </ItemGroup>
   <ItemGroup>
