@@ -20,7 +20,7 @@ namespace DaisyTranslatorWord2003Addin
         String pronounceAbbrAcr = "No", allOccurences = "No";
         XmlDocument dc = new XmlDocument();
         XmlDocument manageAbbrAcr = new XmlDocument();
-        public DaisyAddinLib addinLib;
+        public Addin addinLib;
         object type = MsoDocProperties.msoPropertyTypeString;
 
         /// <summary>

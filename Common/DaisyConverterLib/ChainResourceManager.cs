@@ -5,7 +5,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 	/// <summary>
 	//  Chained resource managers
 	/// </summary>
-	internal class ChainResourceManager : System.Resources.ResourceManager
+	public class ChainResourceManager : System.Resources.ResourceManager
 	{
 		private ArrayList managers;
 

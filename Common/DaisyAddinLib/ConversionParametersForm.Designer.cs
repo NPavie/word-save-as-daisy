@@ -282,7 +282,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
             this.Name = "DesignForm";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
-            this.Load += new System.EventHandler(this.DesignForm_Load);
+            this.Load += new System.EventHandler(this.ConversionParametersFrom_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.grpBox_Properties.ResumeLayout(false);

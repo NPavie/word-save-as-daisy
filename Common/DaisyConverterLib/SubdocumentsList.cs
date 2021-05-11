@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib.Converters
+namespace Daisy.DaisyConverter.DaisyConverterLib
 {
 	public class SubdocumentsList
 	{

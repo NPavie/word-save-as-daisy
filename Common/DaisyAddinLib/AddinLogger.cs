@@ -28,7 +28,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 			RollingFileAppender appender = new RollingFileAppender
 			                               	{
 			                               		AppendToFile = true,
-			                               		File = AddInHelper.AppDataSaveAsDAISYDirectory + @"logs\addin.log",
+			                               		File = ConverterHelper.AppDataSaveAsDAISYDirectory + @"logs\addin.log",
 			                               		ImmediateFlush = true,
 			                               		Name = "AddinFileAppender",
 			                               		RollingStyle = RollingFileAppender.RollingMode.Size,

@@ -76,7 +76,7 @@ namespace DaisyWord2007AddIn {
 
 
         private MSword.Application applicationObject;
-        private DaisyAddinLib addinLib;
+        private Addin addinLib;
 
         ToolStripMenuItem PipelineMenuItem = null;
         private ArrayList footntRefrns;

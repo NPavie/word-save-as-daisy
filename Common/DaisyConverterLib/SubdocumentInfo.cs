@@ -1,4 +1,4 @@
-﻿namespace Daisy.DaisyConverter.DaisyConverterLib.Converters
+﻿namespace Daisy.DaisyConverter.DaisyConverterLib
 {
 	public class SubdocumentInfo
 	{

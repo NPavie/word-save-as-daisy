@@ -31,7 +31,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 		/// <returns></returns>
 		public static bool IsSingleDaisyTranslate(string buttonName)
 		{
-			return buttonIsSingleWordToXMLConversion(buttonName) || !PipelineIsInstalled();
+			return buttonIsSingleWordToXMLConversion(buttonName) || !ConverterHelper.PipelineIsInstalled();
 		}
 
 		/// <summary>
@@ -44,31 +44,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 			return buttonName == "DaisyMultiple" || buttonName == "DaisyTabMultiple" || buttonName == "Button2";
 		}
 
-		/// <summary>
-		/// Gets path to pipeline root directory.
-		/// </summary>
-		public static string PipelinePath
-		{
-			get { return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\pipeline-lite-ms"; }
-		}
-
-		/// <summary>
-		/// Indicates if pipeline exists.
-		/// </summary>
-		/// <returns></returns>
-		public static bool PipelineIsInstalled()
-		{
-			return Directory.Exists(PipelinePath);
-		}
-
-		/// <summary>
-		/// Gets path to the addin directory in AppData.
-		/// </summary>
-		public static string AppDataSaveAsDAISYDirectory
-		{
-			get { return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\SaveAsDAISY"; }
-		}
-
+		
 		
 	}
 }

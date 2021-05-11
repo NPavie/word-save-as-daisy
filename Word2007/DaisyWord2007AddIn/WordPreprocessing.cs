@@ -64,7 +64,7 @@ namespace DaisyWord2007AddIn {
         public static ProcessingData prepareConversion(
             IPluginEventsHandler eventsHandler,
             MSword.Document documentToConvert,
-            DaisyAddinLib addin = null,
+            Addin addin = null,
             string conversionMode = "DaisySingle",
             Pipeline scripts = null
         ) {

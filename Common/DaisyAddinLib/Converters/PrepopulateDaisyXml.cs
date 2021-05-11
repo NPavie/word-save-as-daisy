@@ -13,7 +13,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 		/// </summary>
 		private string PathForXml
 		{
-			get { return AddInHelper.AppDataSaveAsDAISYDirectory + "\\prepopulated_daisy.xml"; }
+			get { return ConverterHelper.AppDataSaveAsDAISYDirectory + "\\prepopulated_daisy.xml"; }
 		}
 
 		/// <summary>
@@ -60,8 +60,8 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 			elmtDaisy.AppendChild(elmtPublisher);
 			elmtPublisher.InnerText = Publisher;
 
-			if (!Directory.Exists(AddInHelper.AppDataSaveAsDAISYDirectory))
-				Directory.CreateDirectory(AddInHelper.AppDataSaveAsDAISYDirectory);
+			if (!Directory.Exists(ConverterHelper.AppDataSaveAsDAISYDirectory))
+				Directory.CreateDirectory(ConverterHelper.AppDataSaveAsDAISYDirectory);
 			
 			docuemnt.Save(PathForXml);
 		}

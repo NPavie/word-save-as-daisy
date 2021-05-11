@@ -426,7 +426,7 @@ namespace Daisy.DaisyConverter.CommandLineTool {
                 Microsoft.Office.Interop.Word.Application app = new Microsoft.Office.Interop.Word.Application();
                 object _input = (object)input;
                 MSword.Document doc = app.Documents.Open(ref _input);
-                DaisyAddinLib addinLib = new Daisy.DaisyConverter.Word.Addin();
+                Addin addinLib = new Daisy.DaisyConverter.Word.Addin();
                 ProcessingData result = WordPreprocessing.prepareConversion(
                     new PluginEventsQuiteHandler(),
                     doc,

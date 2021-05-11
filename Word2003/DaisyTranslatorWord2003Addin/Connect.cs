@@ -1017,7 +1017,7 @@ namespace DaisyTranslatorWord2003Addin
 		private MSword.Application applicationObject;
 		private CommandBarControl importButton, single, multiple, singleXml, Singlescript, mutipleXml, multipleScript;
 		private CommandBarButton import, btnImport, btnMasterSub;
-		private DaisyAddinLib addinLib;
+		private Addin addinLib;
 
 
 		#region Document Properties

@@ -41,7 +41,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 	/// <summary>
     /// Base class MS Office add-in implementations.
     /// </summary>
-    public class DaisyAddinLib
+    public class Addin
     {
         private AbstractConverter converter;
         private ChainResourceManager resourceManager;
@@ -51,7 +51,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         /// Constructor
         /// </summary>
         /// <param name="converter">An implementation of AbstractConverter</param>
-        public DaisyAddinLib(AbstractConverter converter)
+        public Addin(AbstractConverter converter)
         {
             this.converter = converter;
             this.resourceManager = new ChainResourceManager();
@@ -161,7 +161,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
                     parameters,
                     translateParams,
                     parameters.ScriptPath.Length > 0 ?
-                        AddInHelper.AppDataSaveAsDAISYDirectory :
+                        ConverterHelper.AppDataSaveAsDAISYDirectory :
                         outputFilePath,
                     outputPipeline,
                     singleConverter);
@@ -198,7 +198,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
                 return null;
             }
             System.Drawing.Bitmap image = new System.Drawing.Bitmap(streamIcon);
-            return DaisyAddinLib.ConvertImage.Convert(image);
+            return Addin.ConvertImage.Convert(image);
         }
 
         /// <summary>

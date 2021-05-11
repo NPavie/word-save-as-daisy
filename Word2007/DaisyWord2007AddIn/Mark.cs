@@ -16,7 +16,7 @@ namespace DaisyWord2007AddIn {
         bool checkAbbrAcr;
         int checkCustomXml = 0;
         MSword.Document currentDoc;
-        public DaisyAddinLib addinLib;
+        public Addin addinLib;
         String pronounceAbbrAcr = "No", allOccurences = "No";
         XmlDocument customXml = new XmlDocument();
         XmlDocument manageAbbrAcr = new XmlDocument();

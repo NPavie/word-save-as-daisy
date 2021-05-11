@@ -5,7 +5,7 @@ using System.IO.Packaging;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib.Converters
+namespace Daisy.DaisyConverter.DaisyConverterLib
 {
 	/// <summary>
 	/// Implementation of convertation.

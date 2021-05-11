@@ -172,8 +172,6 @@
       <DependentUpon>ConversionProgressDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Converters\AddInHelper.cs" />
-    <Compile Include="Converters\ConversionResult.cs" />
-    <Compile Include="Converters\ConversionResultType.cs" />
     <Compile Include="Converters\PrepopulateDaisyOutput.cs" />
     <Compile Include="Converters\PrepopulateDaisyXml.cs" />
     <Compile Include="Converters\SingleConverter.cs" />
@@ -188,7 +186,6 @@
     <Compile Include="ConverterSettingsForm.designer.cs">
       <DependentUpon>ConverterSettingsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ConverterSettings.cs" />
     <Compile Include="ConversionParametersForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -242,7 +239,6 @@
     <Compile Include="MultipleSub.designer.cs">
       <DependentUpon>MultipleSub.cs</DependentUpon>
     </Compile>
-    <Compile Include="Converters\ConversionParameters.cs" />
     <Compile Include="OoxPageStylesValidator.cs" />
     <Compile Include="PathBrowserControl.cs">
       <SubType>UserControl</SubType>

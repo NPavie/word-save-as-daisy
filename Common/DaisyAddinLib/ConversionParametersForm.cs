@@ -461,7 +461,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void DesignForm_Load(object sender, EventArgs e)
+		private void ConversionParametersFrom_Load(object sender, EventArgs e)
 		{
 			tBx_Uid.Text = GenerateId().ToString();
 			uId = tBx_Uid.Text;
