@@ -36,7 +36,7 @@ using System.Threading;
 using System.Xml.Schema;
 using System.Xml.XPath;
 using System.Xml.Xsl;
-using Daisy.DaisyConverter.DaisyConverterLib;
+using Daisy.SaveAsDAISY.DaisyConverterLib;
 using System.Xml;
 using System.Resources;
 using System.IO.Packaging;
@@ -47,7 +47,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using DaisyWord2007AddIn;
 
-namespace Daisy.DaisyConverter.CommandLineTool {
+namespace Daisy.SaveAsDAISY.CommandLineTool {
     enum ControlType : int {
         CTRL_C_EVENT = 0,
         CTRL_BREAK_EVENT = 1,
@@ -426,9 +426,9 @@ namespace Daisy.DaisyConverter.CommandLineTool {
                 Microsoft.Office.Interop.Word.Application app = new Microsoft.Office.Interop.Word.Application();
                 object _input = (object)input;
                 MSword.Document doc = app.Documents.Open(ref _input);
-                Addin addinLib = new Daisy.DaisyConverter.Word.Addin();
-                ProcessingData result = WordPreprocessing.prepareConversion(
-                    new PluginEventsQuiteHandler(),
+                Addin addinLib = new Daisy.SaveAsDAISY.Addin();
+                PreprocessingData result = WordPreprocessing.prepareConversion(
+                    new ConsoleEventsHandler(),
                     doc,
                     addinLib,
                     "DaisySingle",
@@ -495,7 +495,7 @@ namespace Daisy.DaisyConverter.CommandLineTool {
                     }
                     File.WriteAllText(parametersOutput,content);
 
-                    AbstractConverter converter = ConverterFactory.Instance(transformDirection);
+                    WordToDTBookXMLConverter converter = ConverterFactory.Instance(transformDirection);
                     converter.ExternalResources = this.xslPath;
                     converter.SkipedPostProcessors = this.skipedPostProcessors;
                     converter.DirectTransform = transformDirection == Direction.DocxToXml;
@@ -517,7 +517,7 @@ namespace Daisy.DaisyConverter.CommandLineTool {
         private bool ConvertFile(string input, string output, Direction transformDirection, Hashtable table) {
             try {
                 DateTime start = DateTime.Now;
-                AbstractConverter converter = ConverterFactory.Instance(transformDirection);
+                WordToDTBookXMLConverter converter = ConverterFactory.Instance(transformDirection);
                 converter.ExternalResources = this.xslPath;
                 converter.SkipedPostProcessors = this.skipedPostProcessors;
                 converter.DirectTransform = transformDirection == Direction.DocxToXml;

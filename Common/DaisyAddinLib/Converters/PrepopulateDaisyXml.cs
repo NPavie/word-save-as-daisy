@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Xml;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
 	/// <summary>
 	/// Provides access to prepopulated_daisy xml file from AppData\..\SaveAsDAISY directory.

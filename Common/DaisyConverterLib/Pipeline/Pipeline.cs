@@ -4,7 +4,7 @@ using System.Text;
 using System.IO;
 
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
     public class Pipeline
     {
@@ -13,6 +13,12 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         {
 
             PopulateScriptsDictionary(ScriptsDirectory);
+        }
+
+        /// <summary>
+        /// Default pipeline installation when an addin is deployed
+        /// </summary>
+        public Pipeline() : this(ConverterHelper.PipelinePath + Path.DirectorySeparatorChar + @"\scripts") {
         }
 
         private void PopulateScriptsDictionary(string DirPath)

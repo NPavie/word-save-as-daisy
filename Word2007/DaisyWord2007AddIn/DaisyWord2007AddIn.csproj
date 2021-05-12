@@ -182,7 +182,6 @@
     <Compile Include="Mark.Designer.cs">
       <DependentUpon>Mark.cs</DependentUpon>
     </Compile>
-    <Compile Include="ProcessingData.cs" />
     <Compile Include="progressBar.cs">
       <SubType>Form</SubType>
     </Compile>

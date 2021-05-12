@@ -38,11 +38,11 @@ using System.Collections;
 using System.Windows.Forms;
 using System.ComponentModel;
 using System.Collections.Generic;
-using Daisy.DaisyConverter.DaisyConverterLib;
+using Daisy.SaveAsDAISY.DaisyConverterLib;
 using System.Reflection;
 using System.Xml.Xsl;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
     /// <summary>
     /// Conversion progress dialog.
@@ -59,13 +59,13 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         private Exception exception;
         private ArrayList lostElements;
         private ResourceManager manager;
-        private AbstractConverter converter;
+        private WordToDTBookXMLConverter converter;
         private bool cancel, isDirect, converting, computeSize;
         private string inputFile, outputFile, validationError, output_Pipeline;
         string control = "";
         string path_For_Pipeline = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\pipeline-lite-ms";
         /* Constructor which initializes all components of the Form */
-        public ConversionProgressDialog(AbstractConverter converter, string inputFile, string outputFile, ResourceManager manager, bool isDirect, Hashtable listMathMl, Hashtable table, string control, string output_Pipeline)
+        public ConversionProgressDialog(WordToDTBookXMLConverter converter, string inputFile, string outputFile, ResourceManager manager, bool isDirect, Hashtable listMathMl, Hashtable table, string control, string output_Pipeline)
         {
             InitializeComponent();
             this.converter = converter;
@@ -138,9 +138,9 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
             try
             {
                 converter.RemoveMessageListeners();
-                converter.AddProgressMessageListener(new AbstractConverter.MessageListener(ProgressMessageInterceptor));
-                converter.AddFeedbackMessageListener(new AbstractConverter.MessageListener(FeedbackMessageInterceptor));
-                converter.AddFeedbackValidationListener(new AbstractConverter.MessageListener(FeedbackValidationInterceptor));
+                converter.AddProgressMessageListener(new WordToDTBookXMLConverter.XSLTMessagesListener(ProgressMessageInterceptor));
+                converter.AddFeedbackMessageListener(new WordToDTBookXMLConverter.XSLTMessagesListener(FeedbackMessageInterceptor));
+                converter.AddFeedbackValidationListener(new WordToDTBookXMLConverter.XSLTMessagesListener(FeedbackValidationInterceptor));
                 converter.DirectTransform = this.isDirect;
                 this.computeSize = true;
                 converter.ComputeSize(this.inputFile, this.table);

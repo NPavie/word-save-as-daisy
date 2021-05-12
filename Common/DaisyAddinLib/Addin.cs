@@ -32,18 +32,18 @@ using System.IO;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Collections;
-using Daisy.DaisyConverter.DaisyConverterLib.Converters;
+using Daisy.SaveAsDAISY.DaisyConverterLib;
 using stdole;
 
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY
 {
 	/// <summary>
     /// Base class MS Office add-in implementations.
     /// </summary>
     public class Addin
     {
-        private AbstractConverter converter;
+        private WordToDTBookXMLConverter converter;
         private ChainResourceManager resourceManager;
         ConversionParametersForm myForm;
 
@@ -51,7 +51,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         /// Constructor
         /// </summary>
         /// <param name="converter">An implementation of AbstractConverter</param>
-        public Addin(AbstractConverter converter)
+        public Addin(WordToDTBookXMLConverter converter)
         {
             this.converter = converter;
             this.resourceManager = new ChainResourceManager();
@@ -59,7 +59,9 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
             this.resourceManager.Add(new System.Resources.ResourceManager("DaisyAddinLib.resources.Labels",
                 Assembly.GetExecutingAssembly()));
         }
-        
+
+        public Addin() : this(new WordToDTBookXMLConverter() ){}
+
         /// <summary>
         /// Override default resource manager.
         /// </summary>
@@ -95,19 +97,16 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         /// <param name="outputFilePath"></param>
         /// <param name="outputPipeline"></param>
         /// <param name="singleConverter"></param>
-        public void ConvertToDaisy(ConversionParameters parameters, Hashtable translateParams, string outputFilePath, string outputPipeline, SingleConverter singleConverter)
+        public void ConvertToDaisy(ConversionParameters parameters, string outputFilePath, string outputPipeline, SingleConverter singleConverter)
         {
             if (parameters.ParseSubDocuments == "No" || parameters.ParseSubDocuments == "NoMasterSub")
             {
-                //outputFilePath = AddInHelper.buttonIsSingleWordToXMLConversion(parameters.ControlName) ?
-                //        outputFilePath + parameters.GetInputFileNameWithoutExtension + ".xml" :
-                //        Path.Combine(outputFilePath, "convertedDocument" + ".xml");
                 outputFilePath = (outputFilePath + parameters.GetInputFileNameWithoutExtension + ".xml").Replace(',','_');
                 singleConverter.convertToDaisy(
                         parameters.InputFile, 
                         outputFilePath, 
-                        parameters.ListMathMl, 
-                        translateParams,
+                        parameters.ListMathMl,
+                        parameters.ConversionParametersHash,
                         parameters.ControlName, 
                         outputPipeline);
             }
@@ -115,10 +114,9 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
             {
                 singleConverter.OoxToDaisyOwn(
                     parameters.TempInputFile,
-                    parameters.TempInputA, 
                     parameters.InputFile, 
-                    outputFilePath, 
-                    translateParams, 
+                    outputFilePath,
+                    parameters.ConversionParametersHash,
                     parameters.ControlName, 
                     parameters.ListMathMl,
                     outputPipeline);
@@ -131,16 +129,15 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         /// </summary>
         public void StartSingleWordConversion(
             ConversionParameters parameters,
-            Hashtable translateParams = null,
             string outputFilePath = "",
             string outputPipeline = ""
         ) {
             SingleConverter singleConverter = null;
-            if (translateParams == null) {
+            if (!parameters.HasBeenFilled) {
                 myForm = new ConversionParametersForm(parameters, this.resourceManager);
                 
                 if(myForm.DoTranslate() == 1) {
-                    translateParams = myForm.ParametersHash;
+                    parameters = myForm.Parameters;
                     outputFilePath = myForm.OutputFilepath;
                     outputPipeline = myForm.PipeOutput;
                     singleConverter = new SingleConverterUI(
@@ -159,7 +156,6 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
             if (singleConverter != null) {
                 ConvertToDaisy(
                     parameters,
-                    translateParams,
                     parameters.ScriptPath.Length > 0 ?
                         ConverterHelper.AppDataSaveAsDAISYDirectory :
                         outputFilePath,

@@ -1,4 +1,4 @@
-namespace Daisy.DaisyConverter.DaisyConverterLib.PageStylesValidation
+namespace Daisy.SaveAsDAISY.DaisyConverterLib.PageStylesValidation
 {
 	public class ValidatoinResult
 	{

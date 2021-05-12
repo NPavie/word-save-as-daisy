@@ -28,7 +28,7 @@
 
 
 using Microsoft.Office.Interop.Word;
-using Daisy.DaisyConverter.DaisyConverterLib.Converters;
+using Daisy.SaveAsDAISY.DaisyConverterLib;
 
 namespace DaisyWord2007AddIn {
     using System;
@@ -44,7 +44,8 @@ namespace DaisyWord2007AddIn {
     using Microsoft.Office.Core;
     using System.Runtime.InteropServices;
     using MSword = Microsoft.Office.Interop.Word;
-    using Daisy.DaisyConverter.DaisyConverterLib;
+    using Daisy.SaveAsDAISY;
+    using Daisy.SaveAsDAISY.DaisyConverterLib;
     using System.Globalization;
     
 
@@ -82,14 +83,14 @@ namespace DaisyWord2007AddIn {
         private ArrayList footntRefrns;
         
 
-        private Pipeline _pipelineConversionScripts = null;
-        public Pipeline PipelineConversionScripts {
+        private Pipeline _postprocessingPipeline = null;
+        public Pipeline postprocessingPipeline {
             get {
-                if (_pipelineConversionScripts == null)
-                    _pipelineConversionScripts = new Pipeline(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\pipeline-lite-ms\scripts");
-                return _pipelineConversionScripts;
+                if (_postprocessingPipeline == null)
+                    _postprocessingPipeline = new Pipeline();
+                return _postprocessingPipeline;
             }
-            set => _pipelineConversionScripts = value;
+            set => _postprocessingPipeline = value;
         }
 
         FileInfo postprocessScriptFile;
@@ -100,7 +101,7 @@ namespace DaisyWord2007AddIn {
         /// </summary>
         public Connect() {
             try {
-                this.addinLib = new Daisy.DaisyConverter.Word.Addin();
+                this.addinLib = new Addin();
             } catch (Exception e) {
                 MessageBox.Show(e.Message);
                 //throw;
@@ -509,7 +510,7 @@ namespace DaisyWord2007AddIn {
                     object routeDocument = Type.Missing;
                     //object Encoding = Microsoft.Office.Core.MsoEncoding.msoEncodingUSASCII;
                     //Getting validation xml from executing assembly
-                    path_For_Xml = AddInHelper.AppDataSaveAsDAISYDirectory;
+                    path_For_Xml = ConverterHelper.AppDataSaveAsDAISYDirectory;
 
                     validation_xml = new XmlDocument();
                     //chcking for validation xml
@@ -687,27 +688,26 @@ namespace DaisyWord2007AddIn {
         /// <param name="pipelineOutput"></param>
         /// <param name="preprocessingWindow"></param>
         /// <returns></returns>
-        public ProcessingData convertDocumentToDTBook(
-            IPluginEventsHandler eventsHandler,
+        public PreprocessingData convertDocumentToDTBook(
+            IConversionEventsHandler eventsHandler,
             Document documentToConvert,
             string conversionMode = "DaisySingle",
-            Hashtable conversionParameters = null,
+            ConversionParameters parameters = null,
             string output = "",
             string pipelineOutput = "",
             Initialize preprocessingWindow = null
         ) {
             if (preprocessingWindow != null) preprocessingWindow.Show();
-             ProcessingData preprocessingResults = WordPreprocessing.prepareConversion(
+             PreprocessingData preprocessingResults = WordPreprocessing.prepareConversion(
                     eventsHandler,
                     documentToConvert,
                     this.addinLib,
                     conversionMode,
-                    this.PipelineConversionScripts);
+                    this.postprocessingPipeline);
             if (preprocessingWindow != null) preprocessingWindow.Close();
             if (preprocessingResults.IsSuccess) {
                 this.addinLib.StartSingleWordConversion(
                     preprocessingResults.Settings,
-                    conversionParameters,
                     output,
                     pipelineOutput);
             }
@@ -720,8 +720,8 @@ namespace DaisyWord2007AddIn {
         /// <param name="control"></param>
         public void SaveAsDaisy(IRibbonControl control) {
             try {
-                IPluginEventsHandler eventsHandler = new PluginEventsUIHandler();
-                ProcessingData result = convertDocumentToDTBook(
+                IConversionEventsHandler eventsHandler = new PluginEventsUIHandler();
+                PreprocessingData result = convertDocumentToDTBook(
                     eventsHandler,
                     applicationObject.ActiveDocument,
                     control.Tag,
@@ -898,7 +898,7 @@ namespace DaisyWord2007AddIn {
         /// <param name="parameters"></param>
         /// <returns></returns>
         public bool convertAndMergeDocumentsToDTBook(
-            IPluginEventsHandler eventsHandler,
+            IConversionEventsHandler eventsHandler,
             ArrayList documents,
             string outputFilePath,
             string outputPipelinePath,
@@ -1000,16 +1000,16 @@ namespace DaisyWord2007AddIn {
         /// </summary>
         /// <param name="control"></param>
         public void Mutiple(IRibbonControl control) {
-            IPluginEventsHandler eventsHandler = new PluginEventsUIHandler();
+            IConversionEventsHandler eventsHandler = new PluginEventsUIHandler();
             Application.DoEvents();
 
             MultipleSub mulsubDoc;
             if (AddInHelper.IsSingleDaisyFromMultipleButton(control.Tag)) {
-                if (PipelineConversionScripts.ScriptsInfo.TryGetValue("_postprocess", out postprocessScriptFile))
+                if (postprocessingPipeline.ScriptsInfo.TryGetValue("_postprocess", out postprocessScriptFile))
                     mulsubDoc = new MultipleSub(this.addinLib.ResManager, this.applicationObject.Version, control.Tag, postprocessScriptFile.FullName, "");
                 else mulsubDoc = new MultipleSub(this.addinLib.ResManager, this.applicationObject.Version, control.Tag);
             } else {
-                mulsubDoc = new MultipleSub(this.addinLib.ResManager, this.applicationObject.Version, control.Tag, PipelineConversionScripts.ScriptsInfo[control.Tag].FullName, "");
+                mulsubDoc = new MultipleSub(this.addinLib.ResManager, this.applicationObject.Version, control.Tag, postprocessingPipeline.ScriptsInfo[control.Tag].FullName, "");
             }
             int subDocFlag = mulsubDoc.DoTranslate();
 
@@ -1061,7 +1061,7 @@ namespace DaisyWord2007AddIn {
 
             //PipelineConversionScripts = new Pipeline(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\pipeline-lite-ms\scripts");
             if (control.Id == "DaisyDTBookSingle" || control.Id == "DaisyTabDTBookSingle") {
-                foreach (KeyValuePair<string, FileInfo> k in PipelineConversionScripts.ScriptsInfo) if (!k.Key.Equals("_postprocess"))  {
+                foreach (KeyValuePair<string, FileInfo> k in postprocessingPipeline.ScriptsInfo) if (!k.Key.Equals("_postprocess"))  {
                     
                     PipelineMenuItem = new ToolStripMenuItem();
                     PipelineMenuItem.Text = k.Key;
@@ -1071,7 +1071,7 @@ namespace DaisyWord2007AddIn {
                 }
                 MyStringBuilder.Append(@"</menu>");
             } else if (control.Id == "DaisyDTBookMultiple" || control.Id == "DaisyTabDTBookMultiple") {
-                foreach (KeyValuePair<string, FileInfo> k in PipelineConversionScripts.ScriptsInfo) if (!k.Key.Equals("_postprocess")) {
+                foreach (KeyValuePair<string, FileInfo> k in postprocessingPipeline.ScriptsInfo) if (!k.Key.Equals("_postprocess")) {
                     PipelineMenuItem = new ToolStripMenuItem();
                     PipelineMenuItem.Text = k.Key;
                     PipelineMenuItem.AccessibleName = k.Key;

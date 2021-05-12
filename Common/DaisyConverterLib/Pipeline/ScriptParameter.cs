@@ -6,7 +6,7 @@ using System.Xml.XPath;
 using System.IO;
 using System.Diagnostics;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
 
     public class ScriptParameter

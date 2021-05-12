@@ -3,9 +3,8 @@ using System.IO;
 using DaisyWord2007AddIn;
 using Extensibility;
 using Microsoft.Office.Interop.Word;
-using Daisy.DaisyConverter.DaisyConverterLib.Converters;
 using NUnit.Framework;
-using Daisy.DaisyConverter.DaisyConverterLib;
+using Daisy.SaveAsDAISY.DaisyConverterLib;
 
 namespace Word2007Addin.IntegrationTests {
     [TestFixture]
@@ -344,10 +343,10 @@ namespace Word2007Addin.IntegrationTests {
             connect.OnConnection(word, ext_ConnectMode.ext_cm_External, null, ref array);
 
             connect.convertDocumentToDTBook(
-                new PluginEventsQuiteHandler(),
+                new ConsoleEventsHandler(),
                 word.ActiveDocument,
                 "DaisySingle",
-                parameters.ConversionParametersHash,
+                parameters,
                 ouputDirectoryPath);
         }
 

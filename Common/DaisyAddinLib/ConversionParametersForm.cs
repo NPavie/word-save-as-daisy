@@ -35,10 +35,10 @@ using System.Reflection;
 using System.Collections;
 using System.IO.Packaging;
 using System.Windows.Forms;
-using Daisy.DaisyConverter.DaisyConverterLib.Converters;
+using Daisy.SaveAsDAISY.DaisyConverterLib;
 using System.Diagnostics;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
 	public partial class ConversionParametersForm : Form
 	{
@@ -60,7 +60,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 		String strBrtextBox = "";
 		TableLayoutPanel oTableLayoutPannel = new TableLayoutPanel();
 
-		ConversionParameters Parameters { get; }
+		public ConversionParameters Parameters { get; }
 
 		/// <summary>
 		/// Returns Hash Table having information about Title,Creator,Publisher,UID
@@ -157,7 +157,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 
 		private bool IsTranslateToSingleDaisy
 		{
-			get { return AddInHelper.buttonIsSingleWordToXMLConversion(btnID) || !AddInHelper.PipelineIsInstalled(); }
+			get { return AddInHelper.buttonIsSingleWordToXMLConversion(btnID) || !ConverterHelper.PipelineIsInstalled(); }
 		}
 
 		public void Translate()
@@ -335,7 +335,10 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 				.withParameter("Subject", string.Empty)
 				.withParameter("TrackChanges", TrackChange())
 				.withParameter("Version", officeVersion)
-				.withParameter("MasterSubFlag", masterSubFlag);
+				.withParameter("MasterSubFlag", masterSubFlag)
+				.withParameter("PipelineOutput", PipeOutput)
+				.withParameter("OutputFile", outputFilePath);
+
 
 			return Parameters.ConversionParametersHash;
 		}

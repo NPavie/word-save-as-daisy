@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib.PageStylesValidation
+namespace Daisy.SaveAsDAISY.DaisyConverterLib.PageStylesValidation
 {
 	public class PageStylesValidator
 	{

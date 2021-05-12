@@ -29,11 +29,11 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Daisy.DaisyConverter.DaisyConverterLib;
+using Daisy.SaveAsDAISY.DaisyConverterLib;
 
-namespace Daisy.DaisyConverter.Word
+namespace Daisy.SaveAsDAISY.Word
 {
-    public class Converter : AbstractConverter
+    public class Converter : WordToDTBookXMLConverter
     {
         public Converter()
             : base(Assembly.GetExecutingAssembly())

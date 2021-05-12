@@ -13,9 +13,9 @@ using System.ComponentModel;
 using System.IO.Compression;
 using System.Drawing.Imaging;
 using System.Collections.Generic;
-using Daisy.DaisyConverter.DaisyConverterLib.PageStylesValidation;
+using Daisy.SaveAsDAISY.DaisyConverterLib.PageStylesValidation;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib {
+namespace Daisy.SaveAsDAISY.DaisyConverterLib {
     /// <summary>
     /// Document-related functions wrapper class and global variable, to be called in XSLT
     /// </summary>

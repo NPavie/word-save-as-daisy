@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
 	/// <summary>
-	//  Chained resource managers
+	///  Chained resource managers
 	/// </summary>
 	public class ChainResourceManager : System.Resources.ResourceManager
 	{

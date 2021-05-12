@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
     /// <summary>
     /// Input parameters for convert operations.
@@ -10,7 +10,14 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
     /// </summary>
     public class ConversionParameters
     {
+        /// <summary>
+        /// Original input file path.
+        /// In case of OneDrive document, this is replaced by the document copy in the temporary folder.
+        /// </summary>
         public string InputFile { get; set; }
+        /// <summary>
+        /// Temporary copy of the original input file
+        /// </summary>
         public string TempInputFile { get; set; }
         public string TempInputA { get; set; }
         
@@ -39,6 +46,8 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         public string Version { get; set; }
         public string ParseSubDocuments { get; set; }
 
+        public bool HasBeenFilled { get; set; }
+
         public string GetInputFileNameWithoutExtension
         {
             get
@@ -59,6 +68,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
 
         /// <summary>
         /// Function to mimic the TranslationParametersBuilder with* construction
+        /// 
         /// </summary>
         /// <param name="name">Name of the Class field to set</param>
         /// <param name="value">Object to assign to the field (this object will type casted to the targeted parameter type) </param>
@@ -105,9 +115,12 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
                     Version = (string)value; break;
                 case "ParseSubDocuments":
                     ParseSubDocuments = (string)value; break;
+                case "PipelineOutput":
+                    PipelineOutput = (string)value; break;
                 default:
                     break;
             }
+            HasBeenFilled = true;
             return this;
         }
 

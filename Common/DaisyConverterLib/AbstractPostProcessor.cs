@@ -30,10 +30,10 @@ using System;
 using System.Xml;
 using System.Collections;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
-
-    /// <summary>
+    
+    /// <summary> (Note : seems to be not used)
     /// An <c>XmlWriter</c> implementation for table post processings
     public abstract class AbstractPostProcessor : XmlWriter
     {

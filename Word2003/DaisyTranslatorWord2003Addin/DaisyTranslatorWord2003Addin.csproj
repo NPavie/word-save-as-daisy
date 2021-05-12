@@ -232,6 +232,10 @@
       <Project>{599773FF-1E86-4AC2-8B24-34BBAC707370}</Project>
       <Name>DaisyAddinLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Common\DaisyConverterLib\DaisyConverterLib.csproj">
+      <Project>{8cb777eb-36ed-45d8-84ff-bdd64ad5026e}</Project>
+      <Name>DaisyConverterLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Common\ManagedAggregator\ManagedAggregator.csproj">
       <Project>{9f777c87-f4fc-4954-bf3e-1ef20ee2d11d}</Project>
       <Name>ManagedAggregator</Name>

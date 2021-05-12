@@ -29,7 +29,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
 
     /// <summary>Thrown whenever an error occurs during the build.</summary>

@@ -9,9 +9,9 @@ using System.Xml.Xsl;
 using System.Collections;
 using System.IO.Packaging;
 using System.Reflection;
-using Daisy.DaisyConverter.DaisyConverterLib;
+using Daisy.SaveAsDAISY.DaisyConverterLib;
 
-namespace Daisy.DaisyConverter.CommandLineTool {
+namespace Daisy.SaveAsDAISY.CommandLineTool {
     class MultipleOOXML {
         private Report report;
         const string wordRelationshipType = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument";
@@ -297,7 +297,7 @@ namespace Daisy.DaisyConverter.CommandLineTool {
                 mergeXmlDoc = new XmlDocument();
                 mergeDocLanguage = new ArrayList();
 
-                AbstractConverter converter = ConverterFactory.Instance(transformDirection);
+                WordToDTBookXMLConverter converter = ConverterFactory.Instance(transformDirection);
                 converter.ExternalResources = this.xslPath;
                 converter.SkipedPostProcessors = this.skipedPostProcessors;
                 converter.DirectTransform = transformDirection == Direction.DocxToXml;
@@ -306,7 +306,7 @@ namespace Daisy.DaisyConverter.CommandLineTool {
                     string[] splt = subList[i].ToString().Split('|');
                     docName = splt[0];
                     converter.RemoveMessageListeners();
-                    converter.AddFeedbackMessageListener(new AbstractConverter.MessageListener(FeedbackMessageInterceptor));
+                    converter.AddFeedbackMessageListener(new WordToDTBookXMLConverter.XSLTMessagesListener(FeedbackMessageInterceptor));
                     converter.Transform(splt[0], null, null, null, true, "");
                 }
 
@@ -358,7 +358,7 @@ namespace Daisy.DaisyConverter.CommandLineTool {
                 error_MasterSub = "";
                 mergeXmlDoc = new XmlDocument();
                 mergeDocLanguage = new ArrayList();
-                AbstractConverter converter = ConverterFactory.Instance(transformDirection);
+                WordToDTBookXMLConverter converter = ConverterFactory.Instance(transformDirection);
                 converter.ExternalResources = this.xslPath;
                 converter.SkipedPostProcessors = this.skipedPostProcessors;
                 converter.DirectTransform = transformDirection == Direction.DocxToXml;
@@ -367,7 +367,7 @@ namespace Daisy.DaisyConverter.CommandLineTool {
                     string[] splt = subList[i].ToString().Split('|');
                     docName = splt[0];
                     converter.RemoveMessageListeners();
-                    converter.AddFeedbackMessageListener(new AbstractConverter.MessageListener(FeedbackMessageInterceptor));
+                    converter.AddFeedbackMessageListener(new WordToDTBookXMLConverter.XSLTMessagesListener(FeedbackMessageInterceptor));
                     converter.Transform(splt[0], null, null, null, true, "");
                 }
 

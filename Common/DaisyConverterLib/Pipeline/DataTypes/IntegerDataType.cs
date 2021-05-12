@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml;
 using System.Windows.Forms;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
     class IntegerDataType
     {

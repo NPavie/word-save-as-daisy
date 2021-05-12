@@ -1,36 +1,35 @@
 ﻿using System.Collections;
 using System.IO;
-using Daisy.DaisyConverter.DaisyConverterLib;
 
-namespace DaisyWord2007AddIn
-{
-	public class ProcessingData
+namespace Daisy.SaveAsDAISY.DaisyConverterLib {
+	public class PreprocessingData
 	{
-		public ProcessingData()
+		public PreprocessingData()
 		{}
 
-		public ProcessingData(string wordVersion, string conversionMode = "", Pipeline scripts = null ) : base() {
+		public PreprocessingData(string wordVersion,  Pipeline pipeline = null, string pipelineScriptKey = "" ) : base() {
 			Settings.Version = wordVersion;
 			FileInfo postprocessScriptFile;
-			if (scripts == null) {
+			if (pipeline == null) {
 				Settings.ScriptPath = null;
-			} else if (!AddInHelper.buttonIsSingleWordToXMLConversion(conversionMode)) {
-				Settings.ScriptPath = scripts.ScriptsInfo[conversionMode].FullName;
+			} else if (pipelineScriptKey != "") {
+				Settings.ScriptPath = pipeline.ScriptsInfo[pipelineScriptKey].FullName;
 				Settings.Directory = string.Empty;
-			} else if (scripts.ScriptsInfo.TryGetValue("_postprocess", out postprocessScriptFile)) {
-				// Note : adding a postprocess script for dtbook pipeline special treatment
+			} else if (pipeline.ScriptsInfo.TryGetValue("_postprocess", out postprocessScriptFile)) {
+				// Note : adding a default postprocess script for dtbook pipeline special treatment
+				// This script is alledgedly not visible to users
 				Settings.ScriptPath = postprocessScriptFile.FullName;
 				Settings.Directory = string.Empty;
 			} else Settings.ScriptPath = null;
 		}
 
-		public static ProcessingData Failed(string error)
+		public static PreprocessingData Failed(string error)
 		{
-			return new ProcessingData() { IsSuccess = false, IsCanceled = false, LastMessage = error };
+			return new PreprocessingData() { IsSuccess = false, IsCanceled = false, LastMessage = error };
 		}
 
-		public static ProcessingData Canceled(string message) {
-			return new ProcessingData() { IsSuccess = false, IsCanceled = true, LastMessage = message };
+		public static PreprocessingData Canceled(string message) {
+			return new PreprocessingData() { IsSuccess = false, IsCanceled = true, LastMessage = message };
 		}
 
 		// converter settings, to be initialized when needed

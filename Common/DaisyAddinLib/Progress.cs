@@ -14,13 +14,13 @@ using System.Xml.XPath;
 using System.Xml.Xsl;
 using System.Windows.Forms;
 using System.IO.Packaging;
-using Daisy.DaisyConverter.DaisyConverterLib;
+using Daisy.SaveAsDAISY.DaisyConverterLib;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
     public partial class Progress : Form
     {
-        private AbstractConverter converter;
+        private WordToDTBookXMLConverter converter;
         XmlDocument mergeXmlDoc;
         ArrayList mergeDocLanguage, subList;
         private Exception exception;
@@ -44,7 +44,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         private Hashtable listMathMl;
         private Hashtable multipleMathMl;
         /*Constructor*/
-        public Progress(AbstractConverter converter, ResourceManager manager, String outputfile, ArrayList list, Hashtable table, String inputFile, string control, Hashtable listMathMl, string output_Pipeline)
+        public Progress(WordToDTBookXMLConverter converter, ResourceManager manager, String outputfile, ArrayList list, Hashtable table, String inputFile, string control, Hashtable listMathMl, string output_Pipeline)
         {
             InitializeComponent();
             this.converter = converter;
@@ -63,7 +63,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
         }
 
         /* Bunch of Docs Constructor*/
-        public Progress(AbstractConverter converter, ResourceManager manager, String outputfile, ArrayList list, String category, Hashtable propTable, string control, Hashtable multipleMathMl, string output_Pipeline)
+        public Progress(WordToDTBookXMLConverter converter, ResourceManager manager, String outputfile, ArrayList list, String category, Hashtable propTable, string control, Hashtable multipleMathMl, string output_Pipeline)
         {
             InitializeComponent();
             this.converter = converter;
@@ -257,8 +257,8 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
                     string[] splt = subList[i].ToString().Split('|');
                     docName = splt[0];
                     converter.RemoveMessageListeners();
-                    converter.AddProgressMessageListenerMaster(new AbstractConverter.MessageListener(ProgressMessageInterceptorMaster));
-                    converter.AddFeedbackMessageListener(new AbstractConverter.MessageListener(FeedbackMessageInterceptor));
+                    converter.AddProgressMessageListenerMaster(new WordToDTBookXMLConverter.XSLTMessagesListener(ProgressMessageInterceptorMaster));
+                    converter.AddFeedbackMessageListener(new WordToDTBookXMLConverter.XSLTMessagesListener(FeedbackMessageInterceptor));
 					converter.Transform(splt[0], null, table, null, true, "");
                 }
                 this.progressBar1.Maximum = this.size;
@@ -332,8 +332,8 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
                     string[] splt = subList[i].ToString().Split('|');
                     docName = splt[0];
                     converter.RemoveMessageListeners();
-                    converter.AddProgressMessageListenerMaster(new AbstractConverter.MessageListener(ProgressMessageInterceptorMaster));
-                    converter.AddFeedbackMessageListener(new AbstractConverter.MessageListener(FeedbackMessageInterceptor));
+                    converter.AddProgressMessageListenerMaster(new WordToDTBookXMLConverter.XSLTMessagesListener(ProgressMessageInterceptorMaster));
+                    converter.AddFeedbackMessageListener(new WordToDTBookXMLConverter.XSLTMessagesListener(FeedbackMessageInterceptor));
 					converter.Transform(splt[0], null, table, null, true, "");
                 }
 

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Packaging;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib {
+namespace Daisy.SaveAsDAISY.DaisyConverterLib {
     public class ConverterHelper {
 
 		/// <summary>
@@ -28,6 +29,17 @@ namespace Daisy.DaisyConverter.DaisyConverterLib {
 		/// </summary>
 		public static string AppDataSaveAsDAISYDirectory {
 			get { return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\SaveAsDAISY"; }
+		}
+
+		public static bool documentIsOpen(string documentPath) {
+			try {
+				Package pack;
+				pack = Package.Open(documentPath, FileMode.Open, FileAccess.ReadWrite);
+				pack.Close();
+			} catch {
+				return true;
+			}
+			return false;
 		}
 
 	}

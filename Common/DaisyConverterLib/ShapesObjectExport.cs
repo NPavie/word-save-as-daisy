@@ -4,7 +4,7 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
     public enum CLIPFORMAT : int
     {
@@ -100,7 +100,7 @@ namespace Daisy.DaisyConverter.DaisyConverterLib
     /// (In our test, the Clipboard calls are intercepted by Office
     /// and Word display a "save clipboard data" request on close
     /// </summary>
-    public abstract class ClipboardEx
+    public class ClipboardEx
     {
         public static System.Drawing.Imaging.Metafile GetEMF(IntPtr hWnd)
         {

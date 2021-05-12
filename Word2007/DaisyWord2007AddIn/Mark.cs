@@ -9,7 +9,7 @@ using Microsoft.Office.Core;
 using System.Collections.Generic;
 using System.ComponentModel;
 using MSword = Microsoft.Office.Interop.Word;
-using Daisy.DaisyConverter.DaisyConverterLib;
+using Daisy.SaveAsDAISY.DaisyConverterLib;
 
 namespace DaisyWord2007AddIn {
     public partial class Mark : Form {
@@ -30,7 +30,7 @@ namespace DaisyWord2007AddIn {
             InitializeComponent();
             currentDoc = doc;
             checkAbbrAcr = valueAbbrAcr;
-            this.addinLib = new Daisy.DaisyConverter.Word.Addin();
+            this.addinLib = new Daisy.SaveAsDAISY.Word.Addin();
 
             //Checking whether call is from Abbreviation button or Acronym button
             //to diifferenciate the Look and Feel of UI

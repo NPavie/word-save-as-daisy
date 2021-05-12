@@ -34,7 +34,7 @@ using System.Text;
 using System.Xml;
 using System.IO.Packaging;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
 	/// <summary>
 	/// An XmlUrlResolver for zip packaged files. 

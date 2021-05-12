@@ -19,14 +19,14 @@ using COMException = System.Runtime.InteropServices.COMException;
 using TYMED = System.Runtime.InteropServices.ComTypes.TYMED;
 using System.Collections;
 
-using Daisy.DaisyConverter.DaisyConverterLib;
+using Daisy.SaveAsDAISY.DaisyConverterLib;
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
 using Microsoft.Office.Interop.Word;
 using System.IO.Packaging;
 using System.Threading;
 using System.Xml;
-using Daisy.DaisyConverter.DaisyConverterLib.Converters;
+using Daisy.SaveAsDAISY;
 
 namespace DaisyWord2007AddIn {
 
@@ -61,25 +61,27 @@ namespace DaisyWord2007AddIn {
             return false;
         }
 
-        public static ProcessingData prepareConversion(
-            IPluginEventsHandler eventsHandler,
+        public static PreprocessingData prepareConversion(
+            IConversionEventsHandler eventsHandler,
             MSword.Document documentToConvert,
             Addin addin = null,
             string conversionMode = "DaisySingle",
-            Pipeline scripts = null
+            Pipeline postprocessingPipeline = null
         ) {
             MSword.Document currentDoc = documentToConvert;
             MSword.Application WordInstance = documentToConvert.Application;
-            ProcessingData result = new ProcessingData(WordInstance.Version, conversionMode, scripts);
+            PreprocessingData result = new PreprocessingData(WordInstance.Version, 
+                postprocessingPipeline, 
+                AddInHelper.buttonIsSingleWordToXMLConversion(conversionMode) ? "" : conversionMode); // Use default postprocessing script
             int fileIndex;
 
             if (addin == null) {
-                addin = new Daisy.DaisyConverter.Word.Addin();
+                addin = new Daisy.SaveAsDAISY.Addin();
             }
 
             if (!currentDoc.Saved || currentDoc.FullName.LastIndexOf('.') < 0) {
                 eventsHandler.OnStop(addin.GetString("DaisySaveDocumentBeforeExport"));
-                return ProcessingData.Failed("Please save your document before going further.");
+                return PreprocessingData.Failed("Please save your document before going further.");
             }
 
             fileIndex = currentDoc.FullName.LastIndexOf('.');
@@ -87,7 +89,7 @@ namespace DaisyWord2007AddIn {
 
             if (substr.ToLower() != ".docx") {
                 eventsHandler.OnStop(addin.GetString("DaisySaveDocumentin2007"));
-                return ProcessingData.Failed("The document is not a docx file saved on your system.");
+                return PreprocessingData.Failed("The document is not a docx file saved on your system.");
             }
             object missing = Type.Missing;
 
@@ -127,9 +129,9 @@ namespace DaisyWord2007AddIn {
                         int saveResult = dlg.Show(ref missing);
                         if (saveResult == -1) { // ok pressed, see https://docs.microsoft.com/fr-fr/dotnet/api/microsoft.office.interop.word.dialog.show?view=word-pia#Microsoft_Office_Interop_Word_Dialog_Show_System_Object__
                             docIsRenamed = true;
-                        } else return ProcessingData.Canceled("User canceled a renaming request for an invalid docx filename");
+                        } else return PreprocessingData.Canceled("User canceled a renaming request for an invalid docx filename");
                     } else if (userAnswer == DialogResult.Cancel) {
-                        return ProcessingData.Canceled("User canceled a renaming request for an invalid docx filename");
+                        return PreprocessingData.Canceled("User canceled a renaming request for an invalid docx filename");
                     }
                     // else a sanitize path in the DaisyAddinLib will replace commas by underscore.
                     // Other illegal characters regarding the conversion to DAISY book are replaced by underscore by the pipeline itself
@@ -408,7 +410,7 @@ namespace DaisyWord2007AddIn {
         /// <param name="mathMLEquationsTable">Table to store the equations list per document story</param>
         /// <returns>The number of equations found</returns>
         static public int parseEquations(
-            IPluginEventsHandler eventsHandler,
+            IConversionEventsHandler eventsHandler,
             MSword.Document doc,
             Hashtable mathMLEquationsTable
         ) {
@@ -973,7 +975,7 @@ namespace DaisyWord2007AddIn {
 
         #region SubDocuments
 
-        public static string requestSubDocumentsProcessing(string tempInput, IPluginEventsHandler eventsHandler) {
+        public static string requestSubDocumentsProcessing(string tempInput, IConversionEventsHandler eventsHandler) {
 
             const string wordRelationshipType = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument";
             PackageRelationship packRelationship = null;
@@ -1008,8 +1010,8 @@ namespace DaisyWord2007AddIn {
         /// <param name="master">Opened master document</param>
         /// <returns>true if the preprocessinf completed successfully</returns>
         public static bool preprocessSubDocuments(
-            IPluginEventsHandler eventsHandler,
-            ProcessingData preprocessingResult,
+            IConversionEventsHandler eventsHandler,
+            PreprocessingData preprocessingResult,
             Document master
         ) {
             SubdocumentsList subdocuments = SubdocumentsManager.FindSubdocuments(

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Daisy.DaisyConverter.Word.Properties {
+namespace Daisy.SaveAsDAISY.Word.Properties {
     using System;
     
     

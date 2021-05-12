@@ -2,19 +2,21 @@ using System;
 using System.Collections;
 using System.Windows.Forms;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib.Converters
+using Daisy.SaveAsDAISY.DaisyConverterLib;
+
+namespace Daisy.SaveAsDAISY
 {
 	/// <summary>
 	/// Implements convertation with UI messages/dialogs.
 	/// </summary>
     public class SingleConverterUI : SingleConverter
     {
-        public SingleConverterUI(AbstractConverter converter) 
+        public SingleConverterUI(WordToDTBookXMLConverter converter) 
 			: base(converter)
         {
         }
 
-        public SingleConverterUI(AbstractConverter converter, ScriptParser scriptToExecute) 
+        public SingleConverterUI(WordToDTBookXMLConverter converter, ScriptParser scriptToExecute) 
 			: base(converter, scriptToExecute)
         {
         }

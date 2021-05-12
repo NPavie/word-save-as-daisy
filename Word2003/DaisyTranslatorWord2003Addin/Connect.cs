@@ -40,7 +40,8 @@ namespace DaisyTranslatorWord2003Addin
 	using Microsoft.Office.Core;
 	using System.Runtime.InteropServices;
 	using MSword = Microsoft.Office.Interop.Word;
-	using Daisy.DaisyConverter.DaisyConverterLib;
+	using Daisy.SaveAsDAISY.DaisyConverterLib;
+	using Daisy.SaveAsDAISY;
 	using System.Drawing;
 	using System.Drawing.Imaging;
 
@@ -136,7 +137,7 @@ namespace DaisyTranslatorWord2003Addin
 		/// </summary>
 		public Connect()
 		{
-			this.addinLib = new Daisy.DaisyConverter.Word.Addin();
+			this.addinLib = new Daisy.SaveAsDAISY.Addin();
 		}
 
 		/// <summary>

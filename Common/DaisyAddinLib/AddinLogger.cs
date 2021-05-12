@@ -4,7 +4,7 @@ using log4net.Appender;
 using log4net.Config;
 using log4net.Layout;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
 	public class AddinLogger
 	{

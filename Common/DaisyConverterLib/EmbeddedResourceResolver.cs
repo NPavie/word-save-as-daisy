@@ -34,7 +34,7 @@ using System.Reflection;
 using System.Xml;
 using System.Windows.Forms;
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
 	/// <summary>
 	/// An XmlUrlResolver for embedded resources.

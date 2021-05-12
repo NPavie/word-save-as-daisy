@@ -6,7 +6,7 @@ using System.Xml;
 using System.Windows.Forms;
 
 
-namespace Daisy.DaisyConverter.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
     public class EnumDataType
     {

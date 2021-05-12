@@ -7,7 +7,7 @@
     <ProjectGuid>{599773FF-1E86-4AC2-8B24-34BBAC707370}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DaisyAddinLib</RootNamespace>
+    <RootNamespace>Daisy.SaveAsDAISY</RootNamespace>
     <AssemblyName>DaisyAddinLib</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>DaisyTranslatorPhaseTwo.snk</AssemblyOriginatorKeyFile>
@@ -144,7 +144,6 @@
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
     <Compile Include="AddinLogger.cs" />
-    <Compile Include="BoolDataType.cs" />
     <Compile Include="BoolControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -186,7 +185,6 @@
     <Compile Include="ConversionParametersForm.Designer.cs">
       <DependentUpon>ConversionParametersForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="eDataType.cs" />
     <Compile Include="EnumControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -213,14 +211,13 @@
     <Compile Include="Initialize.Designer.cs">
       <DependentUpon>Initialize.cs</DependentUpon>
     </Compile>
-    <Compile Include="IntegerDataType.cs" />
     <Compile Include="IntUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="IntUserControl.Designer.cs">
       <DependentUpon>IntUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="IPluginEventsHandler.cs" />
+    <Compile Include="PluginEventsUIHandler.cs" />
     <Compile Include="MasterSubValidation.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -240,8 +237,6 @@
     <Compile Include="PathBrowserControl.Designer.cs">
       <DependentUpon>PathBrowserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="pDataType.cs" />
-    <Compile Include="PipelineInfo.cs" />
     <Compile Include="Progress.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -260,7 +255,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="ShapesObject.cs" />
     <Compile Include="StrUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
