@@ -36,6 +36,12 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 			}
 		}
 
+		public PrepopulateDaisyXml(string documentPath) : base() {
+			Creator = PackageUtilities.DocPropCreator(documentPath);
+			Title = PackageUtilities.DocPropTitle(documentPath);
+			Publisher = PackageUtilities.DocPropPublish(documentPath);
+		}
+
 		/// <summary>
 		/// Save current publisher/title/creator values to xml file.
 		/// </summary>

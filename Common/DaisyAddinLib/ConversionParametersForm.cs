@@ -62,6 +62,8 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 
 		public ConversionParameters Parameters { get; }
 
+		public DocumentParameters documentParameters { get; }
+
 		/// <summary>
 		/// Returns Hash Table having information about Title,Creator,Publisher,UID
 		/// </summary>
@@ -605,7 +607,7 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 			tBx_Publisher.Text = "";
 			tBx_Uid.Text = "";
 			int counter = 0;
-			if (AddInHelper.PipelineIsInstalled() && useAScript)
+			if (ConverterHelper.PipelineIsInstalled() && useAScript)
 			{
 				mLayoutPanel.Controls[0].Controls[0].Controls[1].Text = "";
 				foreach (Control c in oTableLayoutPannel.Controls)

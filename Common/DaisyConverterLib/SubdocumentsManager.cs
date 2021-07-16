@@ -14,6 +14,8 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 		const string WordSubdocumentRelationshipType = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/subDocument";
 		private const string LocalSettingsTemp = "/Local Settings/Temp/";
 
+		
+
 		/// <summary>
 		/// Find all subdocuments.
 		/// </summary>

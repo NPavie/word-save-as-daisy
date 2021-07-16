@@ -33,7 +33,7 @@ using Daisy.SaveAsDAISY.DaisyConverterLib;
 
 namespace Daisy.SaveAsDAISY.Word
 {
-    public class Converter : WordToDTBookXMLConverter
+    public class Converter : WordToDTBookXMLTransform
     {
         public Converter()
             : base(Assembly.GetExecutingAssembly())

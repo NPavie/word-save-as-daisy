@@ -38,29 +38,43 @@ using System.Xml.Schema;
 using System.Windows.Forms;
 using System.IO.Packaging;
 using System.Text;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
     /// <summary>
     /// Core conversion class that convert a word file (on disk) to XML
     /// </summary>
-    public class WordToDTBookXMLConverter
+    public class WordToDTBookXMLTransform
     {
         private const string SOURCE_XML = "source.xml";
 
+        /// <summary>
+        /// alldegedly allow to load
+        /// </summary>
         private bool isDirectTransform = true;
+
         private ArrayList skipedPostProcessors = null;
+        
         private string externalResource = null;
+        
+        /// <summary>
+        /// Current assembly reference
+        /// </summary>
         private Assembly resourcesAssembly;
+        
+        /// <summary>
+        /// List of compiled XSLTs
+        /// (Note : it seems to contains only the oox2daisy.xsl compiled transform for now)
+        /// </summary>
         private Hashtable compiledProcessors;
-        private static bool isValid;
-        private static string error;
 
         ArrayList MathEntities8879, MathEntities9573, MathMLEntities;
 
         private ArrayList fidilityLoss = new ArrayList();
-
-        String errorText = "";
+        
+        String LastErrorText = "";
 
         ChainResourceManager resourceManager;
 
@@ -84,6 +98,21 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
                 return fidilityLoss;
             }
         }
+
+        private IDictionary<string,List<string> > lostElements;
+        public IDictionary<string, List<string> > LostElements {
+            get {
+                return lostElements;
+            }
+        }
+
+        private ArrayList documentLanguages;
+        public ArrayList DocumentLanguages {
+            get {
+                return documentLanguages;
+            }
+        }
+
 
         /// <summary>
         /// Pull the chain of post processors for the direct conversion
@@ -140,9 +169,11 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
                 return new XsltSettings(true, false);
             }
         }
+
+        
         #endregion
 
-        public WordToDTBookXMLConverter(
+        public WordToDTBookXMLTransform(
             System.Resources.ResourceManager customResourceManager = null
         ) {
             this.resourcesAssembly = Assembly.GetExecutingAssembly();
@@ -248,7 +279,10 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
         }
 
         /// <summary>
-        /// Important function to be documented
+        /// Convert a document to dtbook xml
+        /// (including temp files creations)
+        /// 
+        /// TO BE REPLACED BY THE convert METHOD
         /// </summary>
         /// <param name="inputFile"></param>
         /// <param name="outputFile"></param>
@@ -281,7 +315,7 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 
                     if (modeValue)
                     {
-                        XmlValidation(outputFile);
+                        validateXML(outputFile);
 
                     }
 
@@ -307,23 +341,38 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
             }
         }
 
+        
+
         /// <summary>
-        /// Convert a single word document to DTBook XML using xslts
+        /// Transform a single word document into DTBook XML using xslts
+        /// (using new settings centralization classes)
         /// </summary>
-        /// <param name="inputDocumentPath">Path of the Word document</param>
-        /// <param name="outputPath">Output path where the resulting xml, dtds </param>
-        /// <param name="conversion">Current conversion parameters</param>
-        /// <param name="validate">If true, the resulting xml is also validated against the dtds</param>
-        /// <param name="mathMLSubSetKey">If defined, a subset of mathml entries are used for the conversion</param>
-        public void convert(string inputDocumentPath, string outputPath, ConversionParameters conversion, bool validate, string mathMLSubSetKey = "") {
+        /// <param name="document">Info of the document to convert</param>
+        /// <param name="conversion">Settings of the conversion</param>
+        public XmlDocument convertDocument(DocumentParameters document, ConversionParameters conversion, XmlDocument mergeTarget = null) {
+            
             fidilityLoss = new ArrayList();
 
             // temporary files
             string tempInputPath = Path.GetTempFileName();
-            string tempOutputPath = outputPath == null ? null : Path.GetTempFileName();
+            string tempOutputPath = (document.OutputPath == null && conversion.OutputPath == null) ? null : Path.GetTempFileName();
+
+            // conversion output : prioritize document specific output path (for merging) 
+            // then check if temp is null (true if there is no conversion output)
+            // then
+            string conversionOutput = document.OutputPath != null ? 
+                document.OutputPath : 
+                ( tempOutputPath == null ?
+                       tempInputPath.Substring(0, tempInputPath.LastIndexOf("\\")) :
+                       (conversion.OutputPath.ToLower().EndsWith(".xml") ?
+                           conversion.OutputPath.Substring(0, conversion.OutputPath.LastIndexOf("\\")) :
+                           conversion.OutputPath)
+                );
+
+            progressMessageIntercepted(this, new DaisyEventArgs("Transform " + document.InputPath + " to DTBook XML "+ conversionOutput));
 
             try {
-                File.Copy(inputDocumentPath, tempInputPath, true);
+                File.Copy(document.InputPath, tempInputPath, true);
                 File.SetAttributes(tempInputPath, FileAttributes.Normal);
 
                 XmlReader source = null;
@@ -338,17 +387,13 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
                     parameters.XsltMessageEncountered += new XsltMessageEncounteredEventHandler(onXSLTMessageEvent);
                     parameters.XsltMessageEncountered += new XsltMessageEncounteredEventHandler(onXSLTProgressMessageEvent);
 
-                    string conversionOutput = tempOutputPath == null ?
-                        tempInputPath.Substring(0, tempInputPath.LastIndexOf("\\")) :
-                        (outputPath.ToLower().EndsWith(".xml") ?
-                            outputPath.Substring(0, outputPath.LastIndexOf("\\")) :
-                            outputPath);
+                   
 
                     DaisyClass val = new DaisyClass(
-                                inputDocumentPath,
+                                document.InputPath,
                                 tempInputPath,
                                 conversionOutput,
-                                mathMLSubSetKey != "" ? (Hashtable) conversion.ListMathMl[mathMLSubSetKey] : conversion.ListMathMl,
+                                document.ListMathMl,
                                 zipResolver.Archive,
                                 conversion.PipelineOutput);
                     parameters.AddExtensionObject("urn:Daisy", val);
@@ -392,24 +437,24 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
                 }
 
 
-                if (conversion.OutputFile != null) {
-                    if (File.Exists(conversion.OutputFile)) {
-                        File.Delete(conversion.OutputFile);
+                if (conversion.OutputPath != null) {
+                    if (File.Exists(conversion.OutputPath)) {
+                        File.Delete(conversion.OutputPath);
                     }
-                    File.Move(conversion.TempOutputFile, conversion.OutputFile);
-                    CopyCSSToDestinationfolder(conversion.OutputFile);
+                    File.Move(conversion.TempOutputFile, conversion.OutputPath);
+                    CopyCSSToDestinationfolder(conversion.OutputPath);
                     // TODO: The handling of DTD and math needs to be cleanedup
-                    Int16 value = (Int16)conversion.OutputFile.LastIndexOf("\\");
-                    String tempStr = conversion.OutputFile.Substring(0, value);
-                    CopyDTDToDestinationfolder(conversion.OutputFile);
-                    CopyMATHToDestinationfolder(conversion.OutputFile);
-                    if (validate) {
-                        XmlValidation(conversion.OutputFile);
+                    Int16 value = (Int16)conversion.OutputPath.LastIndexOf("\\");
+                    String tempStr = conversion.OutputPath.Substring(0, value);
+                    CopyDTDToDestinationfolder(conversion.OutputPath);
+                    CopyMATHToDestinationfolder(conversion.OutputPath);
+                    if (conversion.Validate) {
+                        validateXML(conversion.OutputPath);
                     }
                     // We need to change this method : it does not only delete the dtds files,
                     // it updates the file dtds
-                    DeleteDTD(tempStr + "\\" + "dtbook-2005-3.dtd", conversion.OutputFile, validate);
-                    DeleteMath(tempStr, validate);
+                    DeleteDTD(tempStr + "\\" + "dtbook-2005-3.dtd", conversion.OutputPath, conversion.Validate);
+                    DeleteMath(tempStr, conversion.Validate);
                 }
             } finally {
                 if (File.Exists(conversion.TempInputFile)) {
@@ -420,6 +465,7 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
                     }
                 }
             }
+            return this.mergeInDocument(document, mergeTarget);
         }
 
         /// <summary>
@@ -515,6 +561,7 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 
         /// <summary>
         /// Imporant function to be documented !
+        /// (to be replaced by the convert method)
         /// </summary>
         /// <param name="inputFile"></param>
         /// <param name="tempInputFile"></param>
@@ -632,15 +679,13 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
         }
 
 
-        
-
         private XmlWriter GetWriter(XmlWriter writer)
         {
             string[] postProcessors = this.DirectPostProcessorsChain;
-            if (!this.isDirectTransform)
+            /*if (!this.isDirectTransform)
             {
                 postProcessors = this.ReversePostProcessorsChain;
-            }
+            }*/
             return InstanciatePostProcessors(postProcessors, writer);
         }
 
@@ -676,7 +721,7 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
             return false;
         }
 
-        #region XSLTs events handling and redispatching
+        #region XSLTs and conversion events handling and redispatching
         /// <summary>
         /// Progress and Feedback listener functions
         /// </summary>
@@ -689,15 +734,15 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
         /// </summary>
         private event XSLTMessagesListener progressMessageIntercepted;
         /// <summary>
-        /// Progress messages redispatcher
+        /// Progress messages redispatcher for master document
         /// </summary>
         private event XSLTMessagesListener progressMessageInterceptedMaster;
         /// <summary>
-        /// 
+        /// Feedback message redispatcher
         /// </summary>
         private event XSLTMessagesListener feedbackMessageIntercepted;
         /// <summary>
-        /// 
+        /// Validation
         /// </summary>
         private event XSLTMessagesListener feedbackValidationIntercepted;
 
@@ -709,7 +754,7 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
         private void onXSLTMessageEvent(object sender, XsltMessageEncounteredEventArgs e) {
             if (e.Message.StartsWith("progress:")) {
                 if (progressMessageIntercepted != null) {
-                    progressMessageIntercepted(this, null);
+                    progressMessageIntercepted(this, new DaisyEventArgs(e.Message));
                 }
             } else if (e.Message.StartsWith("translation.oox2Daisy.")) {
                 fidilityLoss.Add(e.Message);
@@ -729,12 +774,10 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
         private void onXSLTProgressMessageEvent(object sender, XsltMessageEncounteredEventArgs e) {
             if (e.Message.StartsWith("progress:")) {
                 if (progressMessageInterceptedMaster != null) {
-                    progressMessageInterceptedMaster(this, null);
+                    progressMessageInterceptedMaster(this, new DaisyEventArgs(e.Message));
                 }
             }
         }
-
-        
 
         public void AddProgressMessageListener(XSLTMessagesListener listener)
         {
@@ -872,12 +915,50 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
         #endregion
 
         #region XML validation
-        /*Function to do validation of Output XML file with DTD*/
-        public void XmlValidation(String outFile)
+
+        public class ValidationError {
+            public readonly ValidationEventArgs error;
+            public readonly string referenceText;
+            public ValidationError(ValidationEventArgs error, string referenceText) {
+                this.error = error;
+                this.referenceText = referenceText;
+            }
+
+        }
+        /// <summary>
+        /// List of ValidationError for the last validation request
+        /// </summary>
+        private ArrayList validationErrors;
+        /// <summary>
+        /// Schematron text report
+        /// </summary>
+        private string schematronReport;
+        private bool isValid;
+
+        /// <summary>
+        /// List of ValidationError (Read only public field)
+        /// </summary>
+        public ArrayList ValidationErrors { get => validationErrors; }
+        public string SchematronReport { get => schematronReport;}
+        public bool IsValid { get => isValid; }
+        
+
+
+        /// <summary>
+        /// Validate an XML file against DTDs.
+        /// 
+        /// Results/errors are send to all feedbackValidationIntercepted listeners
+        /// (exposed with the AddFeedbackValidationListener method).
+        /// 
+        /// </summary>
+        /// <param name="fileToValidate">File to be validated</param>
+        public void validateXML(String fileToValidate)
         {
             isValid = true;
-            error = "";
-            XmlTextReader xml = new XmlTextReader(outFile);
+            validationErrors = new ArrayList();
+            schematronReport = "";
+
+            XmlTextReader xml = new XmlTextReader(fileToValidate);
            
             XmlReaderSettings settings = new XmlReaderSettings();
 
@@ -899,56 +980,57 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
                     errTxt[2] = errTxt[1];
                     errTxt[1] = errTxt[0];
                     errTxt[0] = xsd.ReadString();
-                    errorText = "";
+                    LastErrorText = "";
                     for (int i = 4; i >= 0; i--)
-                        errorText = errorText + errTxt[i].ToString() + " ";
-                    if (errorText.Contains("\n"))
-                        errorText = errorText.Replace("\n", "");
-                    if (errorText.Contains("\r"))
-                        errorText = errorText.Replace("\r", "");
-                    if (errorText.Length > 100)
-                        errorText = errorText.Substring(0, 100);
+                        LastErrorText = LastErrorText + errTxt[i].ToString() + " ";
+                    if (LastErrorText.Contains("\n"))
+                        LastErrorText = LastErrorText.Replace("\n", "");
+                    if (LastErrorText.Contains("\r"))
+                        LastErrorText = LastErrorText.Replace("\r", "");
+                    if (LastErrorText.Length > 100)
+                        LastErrorText = LastErrorText.Substring(0, 100);
                 }
                 xsd.Close();
 
-                Stream stream = null;
+                // Schematron report generator
+                Stream schematronXslStream = null;
                 Assembly asm = Assembly.GetExecutingAssembly();
                 foreach (string name in asm.GetManifestResourceNames())
                 {
                     if (name.EndsWith("Schematron.xsl"))
                     {
-                        stream = asm.GetManifestResourceStream(name);
+                        schematronXslStream = asm.GetManifestResourceStream(name);
                         break;
                     }
                 }
 
-                XmlReader rdr = XmlReader.Create(stream);
-                XPathDocument doc = new XPathDocument(outFile);
+                XmlReader schematronXsl = XmlReader.Create(schematronXslStream);
+                XPathDocument validatedDocument = new XPathDocument(fileToValidate);
 
                 XslCompiledTransform trans = new XslCompiledTransform(true);
-                trans.Load(rdr);
+                trans.Load(schematronXsl);
 
-                XmlTextWriter myWriter = new XmlTextWriter(Path.GetDirectoryName(outFile) + "\\report.txt", null);
-                trans.Transform(doc, null, myWriter);
+                XmlTextWriter reportWriter = new XmlTextWriter(Path.GetDirectoryName(fileToValidate) + "\\report.txt", null);
+                trans.Transform(validatedDocument, null, reportWriter);
 
-                myWriter.Close();
-                rdr.Close();
+                reportWriter.Close();
+                schematronXsl.Close();
 
-                StreamReader reader = new StreamReader(Path.GetDirectoryName(outFile) + "\\report.txt");
+                StreamReader reader = new StreamReader(Path.GetDirectoryName(fileToValidate) + "\\report.txt");
                 if (!reader.EndOfStream)
                 {
-                    error += reader.ReadToEnd();
-
+                    schematronReport = reader.ReadToEnd();
+                    //errors += reader.ReadToEnd();
                     if (feedbackValidationIntercepted != null)
                     {
-                        feedbackValidationIntercepted(this, new DaisyEventArgs(error));
+                        feedbackValidationIntercepted(this, new DaisyEventArgs(schematronReport));
                     }
                 }
                 reader.Close();
 
-                if (File.Exists(Path.GetDirectoryName(outFile) + "\\report.txt"))
+                if (File.Exists(Path.GetDirectoryName(fileToValidate) + "\\report.txt"))
                 {
-                    File.Delete(Path.GetDirectoryName(outFile) + "\\report.txt");
+                    File.Delete(Path.GetDirectoryName(fileToValidate) + "\\report.txt");
                 }
 
                 // Check whether the document is valid or invalid.
@@ -956,7 +1038,14 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
                 {
                     if (feedbackValidationIntercepted != null)
                     {
-                        feedbackValidationIntercepted(this, new DaisyEventArgs(error));
+                        foreach (ValidationError found in ValidationErrors) {
+                            feedbackValidationIntercepted(
+                                this, new DaisyEventArgs(
+                                    " Line Number:Position : " + found.error.Exception.LineNumber + ":" + found.error.Exception.LinePosition + Environment.NewLine +
+                                    " Message : " + found.error.Message + Environment.NewLine + 
+                                    " Reference Text :  " + found.referenceText + Environment.NewLine));
+                        }
+                        
                     }
                 }
             }
@@ -964,22 +1053,18 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
             {
                 xsd.Close();
                 //dont have access permission
-                error = a.Message;
-
                 if (feedbackValidationIntercepted != null)
                 {
-                    feedbackValidationIntercepted(this, new DaisyEventArgs(error));
+                    feedbackValidationIntercepted(this, new DaisyEventArgs(a.Message));
                 }
             }
             catch (Exception a)
             {
                 xsd.Close();
                 //and other things that could go wrong
-                error = a.Message;
-
                 if (feedbackValidationIntercepted != null)
                 {
-                    feedbackValidationIntercepted(this, new DaisyEventArgs(error));
+                    feedbackValidationIntercepted(this, new DaisyEventArgs(a.Message));
                 }
             }
         }
@@ -987,78 +1072,176 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 
         /// <summary>
         /// XML Validation events callback
+        /// (Appended to the the validation error message, could be cleaner using an error/event stack)
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
         public void onValidationEvent(object sender, ValidationEventArgs args)
         {
             isValid = false;
-            error += " Line Number : " + args.Exception.LineNumber + " and " +
+            validationErrors.Add(new ValidationError(args,LastErrorText));
+            /*errors += " Line Number : " + args.Exception.LineNumber + " and " +
              " Line Position : " + args.Exception.LinePosition + Environment.NewLine +
-             " Message : " + args.Message + Environment.NewLine + " Reference Text :  " + errorText + Environment.NewLine;
+             " Message : " + args.Message + Environment.NewLine + " Reference Text :  " + errorText + Environment.NewLine;*/
         }
 
         #endregion XML validation
 
-        #region Master and Subdocuments
-        public void convertDocuments(ArrayList subList, string outputfilepath, ConversionParameters conversion) {
-            try {
-                int subDocFootNum = 1;
-                string errors = "";
+        #region Merging document
 
-                XmlDocument mergeXmlDoc = new XmlDocument();
-                ArrayList mergeDocLanguage = new ArrayList();
-                ArrayList lostElements = new ArrayList();
+        // Counter of merged document to be written as footnote
+        private int mergedDocumentCounter = 0;
+        // MathML data extracted
+        private string cutData = "";
 
-                /*this.computeSize = true;
-                converter.RemoveMessageListeners();
-                converter.AddProgressMessageListenerMaster(new WordToDTBookXMLConverter.XSLTMessagesListener(onProgressMessageReceived));
-                converter.AddFeedbackMessageListener(new WordToDTBookXMLConverter.XSLTMessagesListener(onFeedbackMessageReceived));
+        private string mergeErrors = "";
 
-                for (int i = 0; i < subList.Count; i++) {
-                    string[] splt = subList[i].ToString().Split('|');
-                    docName = splt[0];
+        public string MergeErrors { get => mergeErrors; }
 
-                    converter.Transform(splt[0], null, table, null, true, "");
-                }*/
+        /// <summary>
+        /// Merge a document with a previous document
+        /// </summary>
+        /// <param name="documentToMerge"></param>
+        /// <param name="mergeTarget">XmlDocument of previous merge operations, should be null if no previous merge operation has been done</param>
+        /// <param name="errorsMessage"></param>
+        /// <returns></returns>
+        public XmlDocument mergeInDocument(
+            DocumentParameters documentToMerge,
+            XmlDocument mergeTarget
+        ) {
+            cutData = mergeTarget == null ? "" : cutData;
+            ReplaceData(documentToMerge.OutputPath, out cutData);
 
-                string cutData = "";
+            XmlDocument tempDoc = new XmlDocument();
+            tempDoc.Load(documentToMerge.OutputPath);
+            if (mergeTarget == null || mergeTarget.ChildNodes.Count == 0) {
+                
+                // No (or empty) merge target,
+                // Prepare document merging data 
+                // (document languages and parts of documents that are not kept, like TOCs)
+                // Also keep a counter of document merged to add a footnote
+                documentLanguages = new ArrayList();
+                lostElements = new Dictionary<string, List<string> >();
+                mergedDocumentCounter = 0;
+                mergeErrors = "";
 
-                for (int i = 0; i < subList.Count; i++) {
-                    string[] splt = subList[i].ToString().Split('|');
-                    String outputFile = outputfilepath + "\\" + Path.GetFileNameWithoutExtension(splt[0]) + ".xml";
-                    String ridOutputFile = splt[1];
-                    string docName = splt[0];
-                    this.convert(splt[0], outputFile, conversion, true, "Doc" + i);
-                    ReplaceData(outputFile, out cutData);
-                    if (i == 0) {
-                        mergeXmlDoc.Load(outputFile);
-                    } else {
-                        MergeXml(outputFile, mergeXmlDoc, ridOutputFile, splt[0], ref subDocFootNum, ref mergeDocLanguage, ref lostElements, ref errors);
+                // return the current document
+                return tempDoc;
+            } else try { // merge the document in the target
+                    if (progressMessageIntercepted != null) {
+                        progressMessageIntercepted(this, new DaisyEventArgs("Merging document " + (mergedDocumentCounter + 1) + " with previous result - " + documentToMerge.InputPath));
                     }
-                    if (File.Exists(outputFile)) {
-                        File.Delete(outputFile);
-                    }
-                }
-                SetPageNum(mergeXmlDoc);
-                SetImage(mergeXmlDoc);
-                SetLanguage(mergeXmlDoc, mergeDocLanguage);
-                RemoveSubDoc(mergeXmlDoc);
-                mergeXmlDoc.Save(outputfilepath + "\\" + Path.GetFileNameWithoutExtension(tempInputFile) + ".xml");
-                ReplaceData(outputfilepath + "\\" + Path.GetFileNameWithoutExtension(tempInputFile) + ".xml", true);
-                CopyDTDToDestinationfolder(outputfilepath);
-                CopyMATHToDestinationfolder(outputfilepath);
-                XmlValidation(outputfilepath + "\\" + Path.GetFileNameWithoutExtension(tempInputFile) + ".xml");
-                ReplaceData(outputfilepath + "\\" + Path.GetFileNameWithoutExtension(tempInputFile) + ".xml", false);
-                if (File.Exists(outputfilepath + "\\dtbook-2005-3.dtd")) {
-                    File.Delete(outputfilepath + "\\dtbook-2005-3.dtd");
-                }
-                DeleteMath(outputfilepath, true);
-            } catch (Exception e) {
-                error_Exception = manager.GetString("TranslationFailed") + "\n" + manager.GetString("WellDaisyFormat") + "\n" + " \"" + Path.GetFileName(tempInputFile) + "\"\n" + error_MasterSub + "\n" + "Problem is:" + "\n" + e.Message + "\n";
+                    XmlNode tempNode = null;
 
+                    tempDoc = SetFootnote(tempDoc, "subDoc" + (mergedDocumentCounter + 1));
+
+                    for (int i = 0; i < tempDoc.SelectSingleNode("//head").ChildNodes.Count; i++) {
+                        tempNode = tempDoc.SelectSingleNode("//head").ChildNodes[i];
+
+                        if (tempNode.Attributes[0].Value == "dc:Language") {
+                            if (!documentLanguages.Contains(tempNode.Attributes[1].Value)) {
+                                documentLanguages.Add(tempNode.Attributes[1].Value);
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < tempDoc.SelectSingleNode("//bodymatter").ChildNodes.Count; i++) {
+                        tempNode = tempDoc.SelectSingleNode("//bodymatter").ChildNodes[i];
+
+                        if (tempNode != null) {
+                            XmlNode addBodyNode = mergeTarget.ImportNode(tempNode, true);
+                            if (addBodyNode != null)
+                                mergeTarget.SelectSingleNode(
+                                    "//subdoc[@rId='" + documentToMerge.ResourceId + "']"
+                                ).ParentNode.InsertBefore(
+                                    addBodyNode,
+                                    mergeTarget.SelectSingleNode(
+                                        "//subdoc[@rId='" + documentToMerge.ResourceId + "']"
+                                    )
+                                );
+                        }
+                    }
+
+                    tempNode = tempDoc.SelectSingleNode("//frontmatter/level1[@class='print_toc']");
+                    if (tempNode != null) {
+                        if(lostElements[documentToMerge.InputPath] == null) {
+                            lostElements[documentToMerge.InputPath] = new List<string>();
+                        }
+                        if(!lostElements[documentToMerge.InputPath].Contains("TOC not translated")) {
+                            lostElements[documentToMerge.InputPath].Add("TOC not translated");
+                        }
+                    }
+
+                    mergeTarget.SelectSingleNode(
+                        "//subdoc[@rId='" + documentToMerge.ResourceId + "']"
+                    ).ParentNode.RemoveChild(
+                        mergeTarget.SelectSingleNode(
+                            "//subdoc[@rId='" + documentToMerge.ResourceId + "']"
+                        )
+                    );
+
+                    XmlNode node = tempDoc.SelectSingleNode("//rearmatter");
+
+                    if (node != null) {
+                        for (int i = 0; i < tempDoc.SelectSingleNode("//rearmatter").ChildNodes.Count; i++) {
+                            tempNode = tempDoc.SelectSingleNode("//rearmatter").ChildNodes[i];
+
+                            if (tempNode != null) {
+                                XmlNode addRearNode = mergeTarget.ImportNode(tempNode, true);
+                                if (addRearNode != null)
+                                    mergeTarget.LastChild.LastChild.LastChild.AppendChild(addRearNode);
+                            }
+                        }
+                    }
+                    mergedDocumentCounter++;
+                } catch (Exception e) {
+                    mergeErrors = mergeErrors + "\n" + " \"" + documentToMerge.InputPath + "\"";
+                    mergeErrors = mergeErrors + "\n" + "Validation error:" + "\n" + e.Message + "\n";
+                }
+
+            if (File.Exists(documentToMerge.OutputPath)) {
+                File.Delete(documentToMerge.OutputPath);
             }
+
+            return mergeTarget;
         }
+
+
+        // 
+        /// <summary>
+        /// Finalize and save the merging document
+        /// </summary>
+        /// <param name="mergeTarget"></param>
+        /// <param name="conversion"></param>
+        /// <param name="mergeDocLanguage"></param>
+        public void finalizeAndSaveMergedDocument(
+            XmlDocument mergeTarget,
+            ConversionParameters conversion,
+            ArrayList mergeDocLanguage
+        ) {
+            if (progressMessageIntercepted != null) {
+                progressMessageIntercepted(this, new DaisyEventArgs("Cleaning and saving merged document to " + conversion.OutputPath));
+            }
+            string outputDirectory = conversion.OutputPath.EndsWith(".xml") ?
+                    Directory.GetParent(conversion.OutputPath).FullName :
+                    conversion.OutputPath;
+
+            SetPageNum(mergeTarget);
+            SetImage(mergeTarget);
+            SetLanguage(mergeTarget, documentLanguages);
+            RemoveSubDoc(mergeTarget);
+            mergeTarget.Save(conversion.OutputPath);
+            ReplaceData(conversion.OutputPath, true, cutData);
+            CopyDTDToDestinationfolder(outputDirectory);
+            CopyMATHToDestinationfolder(outputDirectory);
+            validateXML(conversion.OutputPath);
+            ReplaceData(conversion.OutputPath, false, cutData);
+            if (File.Exists(outputDirectory + "\\dtbook-2005-3.dtd")) {
+                File.Delete(outputDirectory + "\\dtbook-2005-3.dtd");
+            }
+            DeleteMath(outputDirectory, true);
+        }
+
 
         public XmlDocument SetFootnote(XmlDocument mergeXmlDoc, String SubDocFootnum) {
             int footnoteCount = 1, endnoteCount = 1;
@@ -1151,75 +1334,6 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
                 for (int i = 0; i < subDocList.Count; i++) {
                     subDocList.Item(i).ParentNode.RemoveChild(subDocList.Item(i));
                 }
-            }
-        }
-
-
-
-        public void MergeXml(
-            string outputFile,
-            XmlDocument mergeDoc,
-            String rId,
-            String inputFile,
-            ref int subDocFootNum,
-            ref ArrayList mergeDocLanguage,
-            ref ArrayList lostElements,
-            ref string errorsMessage
-        ) {
-            try {
-                XmlNode tempNode = null;
-                XmlDocument tempDoc = new XmlDocument();
-                tempDoc.Load(outputFile);
-
-                tempDoc = SetFootnote(tempDoc, "subDoc" + subDocFootNum);
-
-                for (int i = 0; i < tempDoc.SelectSingleNode("//head").ChildNodes.Count; i++) {
-                    tempNode = tempDoc.SelectSingleNode("//head").ChildNodes[i];
-
-                    if (tempNode.Attributes[0].Value == "dc:Language") {
-                        if (!mergeDocLanguage.Contains(tempNode.Attributes[1].Value)) {
-                            mergeDocLanguage.Add(tempNode.Attributes[1].Value);
-                        }
-                    }
-                }
-
-                for (int i = 0; i < tempDoc.SelectSingleNode("//bodymatter").ChildNodes.Count; i++) {
-                    tempNode = tempDoc.SelectSingleNode("//bodymatter").ChildNodes[i];
-
-                    if (tempNode != null) {
-                        XmlNode addBodyNode = mergeDoc.ImportNode(tempNode, true);
-                        if (addBodyNode != null)
-                            mergeDoc.SelectSingleNode("//subdoc[@rId='" + rId + "']").ParentNode.InsertBefore(addBodyNode, mergeDoc.SelectSingleNode("//subdoc[@rId='" + rId + "']"));
-                    }
-                }
-
-                tempNode = tempDoc.SelectSingleNode("//frontmatter/level1[@class='print_toc']");
-                if (tempNode != null) {
-                    if (!lostElements.Contains("TOC is not translated" + " for " + Path.GetFileName(inputFile))) {
-                        lostElements.Add("TOC is not translated" + " for " + Path.GetFileName(inputFile));
-                    }
-
-                }
-
-                mergeDoc.SelectSingleNode("//subdoc[@rId='" + rId + "']").ParentNode.RemoveChild(mergeDoc.SelectSingleNode("//subdoc[@rId='" + rId + "']"));
-
-                XmlNode node = tempDoc.SelectSingleNode("//rearmatter");
-
-                if (node != null) {
-                    for (int i = 0; i < tempDoc.SelectSingleNode("//rearmatter").ChildNodes.Count; i++) {
-                        tempNode = tempDoc.SelectSingleNode("//rearmatter").ChildNodes[i];
-
-                        if (tempNode != null) {
-                            XmlNode addRearNode = mergeDoc.ImportNode(tempNode, true);
-                            if (addRearNode != null)
-                                mergeDoc.LastChild.LastChild.LastChild.AppendChild(addRearNode);
-                        }
-                    }
-                }
-                subDocFootNum++;
-            } catch (Exception e) {
-                errorsMessage = errorsMessage + "\n" + " \"" + inputFile + "\"";
-                errorsMessage = errorsMessage + "\n" + "Validation error:" + "\n" + e.Message + "\n";
             }
         }
 

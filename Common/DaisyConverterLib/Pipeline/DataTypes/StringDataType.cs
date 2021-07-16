@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
-    class StringDataType
+    public class StringDataType
     {
         public ScriptParameter m_Parameter;
         private string m_Title;

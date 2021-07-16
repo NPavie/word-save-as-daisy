@@ -46,20 +46,7 @@ namespace DaisyWord2007AddIn {
             return BitConverter.ToInt64(buffer, 0);
         }
 
-        /// <summary>
-        /// Function to test if a word Document is open
-        /// </summary>
-        /// <returns>message</returns>
-        public static bool documentIsOpen(string documentPath) {
-            try {
-                Package pack;
-                pack = Package.Open(documentPath, FileMode.Open, FileAccess.ReadWrite);
-                pack.Close();
-            } catch {
-                return true;
-            }
-            return false;
-        }
+        
 
         public static PreprocessingData prepareConversion(
             IConversionEventsHandler eventsHandler,
@@ -70,7 +57,8 @@ namespace DaisyWord2007AddIn {
         ) {
             MSword.Document currentDoc = documentToConvert;
             MSword.Application WordInstance = documentToConvert.Application;
-            PreprocessingData result = new PreprocessingData(WordInstance.Version, 
+            PreprocessingData result = new PreprocessingData(
+                WordInstance.Version, 
                 postprocessingPipeline, 
                 AddInHelper.buttonIsSingleWordToXMLConversion(conversionMode) ? "" : conversionMode); // Use default postprocessing script
             int fileIndex;
@@ -172,18 +160,15 @@ namespace DaisyWord2007AddIn {
 
             string docFile = (string)tmpFileName;
 
-            PrepopulateDaisyXml prepopulateDaisyXml = new PrepopulateDaisyXml();
-            prepopulateDaisyXml.Creator = DocPropCreator(docFile);
-            prepopulateDaisyXml.Title = DocPropTitle(docFile);
-            prepopulateDaisyXml.Publisher = DocPropPublish(docFile);
+            PrepopulateDaisyXml prepopulateDaisyXml = new PrepopulateDaisyXml(docFile);
+            
             prepopulateDaisyXml.Save();
 
             // FIX 05/03/2021 : OriginalFilePath is used as InputFile in OoxToDaisyParameters. 
             // For onedrive url (starting with https) the temp copy is used as input path instead of the real one
-            result.Settings.InputFile = currentDoc.FullName.StartsWith("http") ? docFile : currentDoc.FullName;
-            result.Settings.TempInputFile = docFile;
-
-            result.Settings.ParseSubDocuments = requestSubDocumentsProcessing(docFile, eventsHandler);
+            result.conversionParameters.InputFile = currentDoc.FullName.StartsWith("http") ? docFile : currentDoc.FullName;
+            result.conversionParameters.TempInputFile = docFile;
+            result.conversionParameters.ParseSubDocuments = PreprocessingData.requestSubDocumentsConversion(docFile, eventsHandler);
             //result.InitializeWindow.Show();
             //Application.DoEvents();
             try {
@@ -235,10 +220,10 @@ namespace DaisyWord2007AddIn {
             WordPreprocessing.parseEquations(
                     eventsHandler,
                     currentDoc,
-                    result.Settings.ListMathMl);
+                    result.conversionParameters.ListMathMl);
 
             //this.applicationObject.ActiveDocument.Save();
-            if (result.Settings.ParseSubDocuments == "Yes") {
+            if (result.conversionParameters.ParseSubDocuments == "Yes") {
                 result.IsSuccess = preprocessSubDocuments(eventsHandler, result, currentDoc);
             } else {
                 
@@ -443,7 +428,7 @@ namespace DaisyWord2007AddIn {
                                         string strProgID;
                                         Guid autoConvert;
                                         strProgID = shape.OLEFormat.ProgID;
-                                        bRetVal = FindAutoConvert(ref strProgID, out autoConvert);
+                                        bRetVal = GetFinalCLSID(ref strProgID, out autoConvert);
 
                                         // if we are successful with the conversion of the CLSID we now need to query
                                         //  the application to see if it can actually do the work
@@ -501,47 +486,52 @@ namespace DaisyWord2007AddIn {
         }
 
 
-        static private bool FindAutoConvert(ref string ProgID, out Guid autoConvert) {
+        static private bool GetFinalCLSID(ref string ProgID, out Guid finalCLSID) {
             bool bRetVal = false;
             Guid oGuid;
             int iCOMRetVal = 0;
 
             iCOMRetVal = CLSIDFromProgID(ProgID, out oGuid);
-
-            if (iCOMRetVal == 0) {
-                RecurseAutoConvert(ref oGuid, out autoConvert);
+            
+            if (iCOMRetVal == 0) { // S_OK => Prog is associated to a Class
+                FindFinalCLSID(ref oGuid, out finalCLSID);
                 bRetVal = true;
             } else {
-                autoConvert = oGuid;
+                finalCLSID = oGuid;
             }
 
             return bRetVal;
         }
 
-        static private void RecurseAutoConvert(ref Guid oGuid, out Guid autoConvert) {
+        /// <summary>
+        /// If a class belong to an "auto-conversion" chain of classes in the registry,
+        /// get the final class of the chain.
+        /// </summary>
+        /// <param name="oldCLSID">original class ID</param>
+        /// <param name="newCLSID">CLSID of the class that is at the end of the auto-conversion chain</param>
+        static private void FindFinalCLSID(ref Guid oldCLSID, out Guid newCLSID) {
             int iCOMRetVal = 0;
-
-            iCOMRetVal = OleGetAutoConvert(ref oGuid, out autoConvert);
-            if (iCOMRetVal == 0) {
-                //If we have no error and the the CLSIDs are the same, then make sure that
-                // 
+            // Check if the class pointed by oldCLSID is set to be automatically to an other CLSID
+            iCOMRetVal = OleGetAutoConvert(ref oldCLSID, out newCLSID);
+            if (iCOMRetVal == 0) { // S_OK : no error during the call
+                // Check if the new CLSID is not the old one (meaning we found the final CLSID)
                 bool bGuidTheSame = false;
                 try {
-                    bGuidTheSame = IsEqualGUID(ref oGuid, ref autoConvert);
+                    bGuidTheSame = IsEqualGUID(ref oldCLSID, ref newCLSID);
                 } catch (COMException eCOM) {
                     MessageBox.Show(eCOM.Message);
                 } catch (Exception e) {
                     MessageBox.Show(e.Message);
                 }
-
+                // Not the same ? keep going with the search
                 if (bGuidTheSame == false) {
-                    oGuid = autoConvert;
-                    RecurseAutoConvert(ref oGuid, out autoConvert);
+                    oldCLSID = newCLSID;
+                    FindFinalCLSID(ref oldCLSID, out newCLSID);
                 }
             } else {
                 //There was some error in the auto conversion.
                 // See if this guid will do the conversion.
-                autoConvert = oGuid;
+                newCLSID = oldCLSID;
             }
         }
 
@@ -854,153 +844,10 @@ namespace DaisyWord2007AddIn {
         }
         #endregion // MathML
 
-        #region Document Properties search functions
-
-        /// <summary>
-        /// Function to get the Title of the Current Document
-        /// </summary>
-        /// <returns>Title</returns>
-        public static String DocPropTitle(string docFile) {
-            const string wordRelationshipType = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument";
-            PackageRelationship packRelationship = null;
-
-            int titleFlag = 0;
-            String styleVal = "";
-            string msgConcat = "";
-            Package pack;
-            pack = Package.Open(docFile, FileMode.Open, FileAccess.ReadWrite);
-            String strTitle = pack.PackageProperties.Title;
-            pack.Close();
-            if (strTitle != "")
-                return strTitle;
-            else {
-                pack = Package.Open(docFile, FileMode.Open, FileAccess.ReadWrite);
-                foreach (PackageRelationship searchRelation in pack.GetRelationshipsByType(wordRelationshipType)) {
-                    packRelationship = searchRelation;
-                    break;
-                }
-                Uri partUri = PackUriHelper.ResolvePartUri(packRelationship.SourceUri, packRelationship.TargetUri);
-                PackagePart mainPartxml = pack.GetPart(partUri);
-                XmlDocument doc = new XmlDocument();
-                doc.Load(mainPartxml.GetStream());
-                NameTable nt = new NameTable();
-                pack.Close();
-                XmlNamespaceManager nsManager = new XmlNamespaceManager(nt);
-                nsManager.AddNamespace("w", "http://schemas.openxmlformats.org/wordprocessingml/2006/main");
-                XmlNodeList getParagraph = doc.SelectNodes("//w:body/w:p/w:pPr/w:pStyle", nsManager);
-                for (int j = 0; j < getParagraph.Count; j++) {
-                    XmlAttributeCollection paraGraphAttribute = getParagraph[j].Attributes;
-                    for (int i = 0; i < paraGraphAttribute.Count; i++) {
-                        if (paraGraphAttribute[i].Name == "w:val") {
-                            styleVal = paraGraphAttribute[i].Value;
-                        }
-                        if (styleVal != "" && styleVal == "Title") {
-                            XmlNodeList getStyle = getParagraph[j].ParentNode.ParentNode.SelectNodes("w:r", nsManager);
-                            if (getStyle != null) {
-                                for (int k = 0; k < getStyle.Count; k++) {
-                                    XmlNode getText = getStyle[k].SelectSingleNode("w:t", nsManager);
-                                    msgConcat = msgConcat + " " + getText.InnerText;
-                                }
-                            }
-                            titleFlag = 1;
-                            break;
-                        }
-                        if (titleFlag == 1) {
-                            break;
-                        }
-                    }
-                    if (titleFlag == 1) {
-                        break;
-                    }
-                }
-
-                strTitle = msgConcat;
-
-            }
-            return strTitle;
-        }
-
-        /// <summary>
-        /// Function to get the Creator of the Current Document
-        /// </summary>
-        /// <returns>Creator</returns>
-        public static String DocPropCreator(string docFile) {
-
-            Package pack = Package.Open(docFile, FileMode.Open, FileAccess.ReadWrite);
-            String strCreator = pack.PackageProperties.Creator;
-            pack.Close();
-            if (strCreator != "")
-                return strCreator;
-            else
-                return "";
-        }
-
-        /// <summary>
-        ///  Function to get the Publisher of the Current Document
-        /// </summary>
-        /// <returns>Publisher</returns>
-        public static String DocPropPublish(string docFile) {
-            
-            const string appRelationshipType = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties";
-            const string appNamespace = "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes";
-            PackageRelationship packRelationship = null;
-
-            Package pack = Package.Open(docFile, FileMode.Open, FileAccess.ReadWrite);
-            foreach (PackageRelationship searchRelation in pack.GetRelationshipsByType(appRelationshipType)) {
-                packRelationship = searchRelation;
-                break;
-            }
-
-            Uri partUri = PackUriHelper.ResolvePartUri(packRelationship.SourceUri, packRelationship.TargetUri);
-            PackagePart mainPartxml = pack.GetPart(partUri);
-
-            XmlDocument doc = new XmlDocument();
-            doc.Load(mainPartxml.GetStream());
-
-            pack.Close();
-
-            NameTable nt = new NameTable();
-            XmlNamespaceManager nsManager = new XmlNamespaceManager(nt);
-            nsManager.AddNamespace("vt", appNamespace);
-
-            XmlNodeList node = doc.GetElementsByTagName("Company");
-            if (node != null)
-                return node.Item(0).InnerText;
-            else
-                return "";
-
-        }
-
-        #endregion
 
         #region SubDocuments
 
-        public static string requestSubDocumentsProcessing(string tempInput, IConversionEventsHandler eventsHandler) {
-
-            const string wordRelationshipType = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument";
-            PackageRelationship packRelationship = null;
-
-            Package pack = Package.Open(tempInput, FileMode.Open, FileAccess.ReadWrite);
-
-            foreach (PackageRelationship searchRelation in pack.GetRelationshipsByType(wordRelationshipType)) {
-                packRelationship = searchRelation;
-                break;
-            }
-
-            Uri partUri = PackUriHelper.ResolvePartUri(packRelationship.SourceUri, packRelationship.TargetUri);
-            PackagePart mainPartxml = pack.GetPart(partUri);
-            int cnt = 0;
-            foreach (PackageRelationship searchRelation in mainPartxml.GetRelationships()) {
-                packRelationship = searchRelation;
-                if (packRelationship.RelationshipType == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/subDocument") {
-                    if (packRelationship.TargetMode.ToString() == "External") {
-                        cnt++;
-                    }
-                }
-            }
-            pack.Close();
-            return cnt == 0 ? "NoMasterSub" : (eventsHandler.AskForTranslatingSubdocuments() ? "Yes" : "No");
-        }
+        
 
         /// <summary>
         /// Prepare conversion of subdocuments
@@ -1015,8 +862,8 @@ namespace DaisyWord2007AddIn {
             Document master
         ) {
             SubdocumentsList subdocuments = SubdocumentsManager.FindSubdocuments(
-                preprocessingResult.Settings.TempInputFile, 
-                preprocessingResult.Settings.InputFile);
+                preprocessingResult.conversionParameters.TempInputFile, 
+                preprocessingResult.conversionParameters.InputFile);
             //MessageBox.Show("Check for errors when retrieving subdocuments pathes");
             if (subdocuments.Errors.Count > 0) {
                 StringBuilder errorMessage = new StringBuilder();
@@ -1033,7 +880,7 @@ namespace DaisyWord2007AddIn {
 
             //MessageBox.Show("Doc sublist");
             ArrayList subList = new ArrayList();
-            subList.Add(preprocessingResult.Settings.TempInputFile + "|Master");
+            subList.Add(preprocessingResult.conversionParameters.TempInputFile + "|Master");
             foreach (string subdoc in subdocuments.GetSubdocumentsNameWithRelationship()) {
                 subList.Add(subdoc);
             }
@@ -1042,7 +889,7 @@ namespace DaisyWord2007AddIn {
             //Checking whether any original or Subdocumets is already Open or not
             foreach (string docPathAndType in subList) {
                 string[] splitted = docPathAndType.Split('|');
-                if (documentIsOpen(splitted[0])) {
+                if (PackageUtilities.documentIsOpen(splitted[0])) {
                     eventsHandler.OnError("Some Sub documents are in open state.\r\nPlease close all the Sub documents before Translation.");
                     return false;
                 }
@@ -1088,7 +935,7 @@ namespace DaisyWord2007AddIn {
                     subDoc,
                     multipleOwnMathMl
                 );
-                preprocessingResult.Settings.ListMathMl.Add("Doc" + i, multipleOwnMathMl);
+                preprocessingResult.conversionParameters.ListMathMl.Add("Doc" + i, multipleOwnMathMl);
 
                 subDoc.Close(saveChanges, originalFormat);
             }

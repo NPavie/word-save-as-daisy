@@ -6,12 +6,12 @@ using System.Text;
 
 namespace Daisy.SaveAsDAISY.CommandLineTool {
     class ConverterFactory {
-        private static WordToDTBookXMLConverter wordInstance;
+        private static WordToDTBookXMLTransform wordInstance;
 
         protected ConverterFactory() {
         }
 
-        public static WordToDTBookXMLConverter Instance(Direction transformDirection) {
+        public static WordToDTBookXMLTransform Instance(Direction transformDirection) {
             switch (transformDirection) {
                 case Direction.DocxToXml:
                     if (wordInstance == null) {

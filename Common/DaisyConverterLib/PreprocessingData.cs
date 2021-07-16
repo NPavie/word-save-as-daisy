@@ -1,26 +1,49 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.IO.Packaging;
+using System.Runtime.InteropServices;
+using System.Xml;
 
 namespace Daisy.SaveAsDAISY.DaisyConverterLib {
+
+	public interface IDocumentPreprocessor {
+
+		/// <summary>
+		/// Retrieve the list of shapes exported from the document to the outputFolderPath
+		/// </summary>
+		/// <param name="eventsHandler"></param>
+		/// <param name="documentOrPath"></param>
+		/// <param name="outputFolderPath"></param>
+		/// <returns></returns>
+		List<string> preprocessShapes(IConversionEventsHandler eventsHandler, object documentOrPath, string outputFolderPath);
+		
+		List<string> preprocessInlineShapes(IConversionEventsHandler eventsHandler, object documentOrPath, string outputFolderPath);
+
+		List<string> preprocessMathML(object documentOrPath, string outputFolderPath);
+
+	}
+
 	public class PreprocessingData
 	{
 		public PreprocessingData()
 		{}
 
 		public PreprocessingData(string wordVersion,  Pipeline pipeline = null, string pipelineScriptKey = "" ) : base() {
-			Settings.Version = wordVersion;
+			conversionParameters.Version = wordVersion;
 			FileInfo postprocessScriptFile;
 			if (pipeline == null) {
-				Settings.ScriptPath = null;
+				conversionParameters.ScriptPath = null;
 			} else if (pipelineScriptKey != "") {
-				Settings.ScriptPath = pipeline.ScriptsInfo[pipelineScriptKey].FullName;
-				Settings.Directory = string.Empty;
+				conversionParameters.ScriptPath = pipeline.ScriptsInfo[pipelineScriptKey].FullName;
+				conversionParameters.Directory = string.Empty;
 			} else if (pipeline.ScriptsInfo.TryGetValue("_postprocess", out postprocessScriptFile)) {
 				// Note : adding a default postprocess script for dtbook pipeline special treatment
 				// This script is alledgedly not visible to users
-				Settings.ScriptPath = postprocessScriptFile.FullName;
-				Settings.Directory = string.Empty;
-			} else Settings.ScriptPath = null;
+				conversionParameters.ScriptPath = postprocessScriptFile.FullName;
+				conversionParameters.Directory = string.Empty;
+			} else conversionParameters.ScriptPath = null;
 		}
 
 		public static PreprocessingData Failed(string error)
@@ -34,7 +57,7 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib {
 
 		// converter settings, to be initialized when needed
 		private ConversionParameters converterSettings = null;
-		public ConversionParameters Settings { 
+		public ConversionParameters conversionParameters { 
 			get {
 				if (converterSettings == null) {
 					converterSettings = new ConversionParameters();
@@ -47,10 +70,58 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib {
 				return converterSettings;
 			} 
 		}
+		/// <summary>
+		/// List of document that have been preprocessed
+		/// </summary>
+		private List<DocumentParameters> documents = null;
+		public List<DocumentParameters> Documents {
+			get {
+				if (documents == null) {
+					documents = new List<DocumentParameters>();
+				}
+				return documents;
+			}
+		}
 
 		public bool IsSuccess { get; set; }
 
 		public bool IsCanceled { get; set; }
 		public string LastMessage { get; set; }
+
+		/// <summary>
+		/// Function to generate Random ID
+		/// </summary>
+		/// <returns></returns>
+		static public long GenerateId() {
+			byte[] buffer = Guid.NewGuid().ToByteArray();
+			return BitConverter.ToInt64(buffer, 0);
+		}
+
+		public static string requestSubDocumentsConversion(string tempInput, IConversionEventsHandler eventsHandler) {
+
+			const string wordRelationshipType = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument";
+			PackageRelationship packRelationship = null;
+
+			Package pack = Package.Open(tempInput, FileMode.Open, FileAccess.ReadWrite);
+
+			foreach (PackageRelationship searchRelation in pack.GetRelationshipsByType(wordRelationshipType)) {
+				packRelationship = searchRelation;
+				break;
+			}
+
+			Uri partUri = PackUriHelper.ResolvePartUri(packRelationship.SourceUri, packRelationship.TargetUri);
+			PackagePart mainPartxml = pack.GetPart(partUri);
+			int cnt = 0;
+			foreach (PackageRelationship searchRelation in mainPartxml.GetRelationships()) {
+				packRelationship = searchRelation;
+				if (packRelationship.RelationshipType == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/subDocument") {
+					if (packRelationship.TargetMode.ToString() == "External") {
+						cnt++;
+					}
+				}
+			}
+			pack.Close();
+			return cnt == 0 ? "NoMasterSub" : (eventsHandler.AskForTranslatingSubdocuments() ? "Yes" : "No");
+		}
 	}
 }

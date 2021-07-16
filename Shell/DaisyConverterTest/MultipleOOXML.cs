@@ -297,7 +297,7 @@ namespace Daisy.SaveAsDAISY.CommandLineTool {
                 mergeXmlDoc = new XmlDocument();
                 mergeDocLanguage = new ArrayList();
 
-                WordToDTBookXMLConverter converter = ConverterFactory.Instance(transformDirection);
+                WordToDTBookXMLTransform converter = ConverterFactory.Instance(transformDirection);
                 converter.ExternalResources = this.xslPath;
                 converter.SkipedPostProcessors = this.skipedPostProcessors;
                 converter.DirectTransform = transformDirection == Direction.DocxToXml;
@@ -306,7 +306,7 @@ namespace Daisy.SaveAsDAISY.CommandLineTool {
                     string[] splt = subList[i].ToString().Split('|');
                     docName = splt[0];
                     converter.RemoveMessageListeners();
-                    converter.AddFeedbackMessageListener(new WordToDTBookXMLConverter.XSLTMessagesListener(FeedbackMessageInterceptor));
+                    converter.AddFeedbackMessageListener(new WordToDTBookXMLTransform.XSLTMessagesListener(FeedbackMessageInterceptor));
                     converter.Transform(splt[0], null, null, null, true, "");
                 }
 
@@ -358,7 +358,7 @@ namespace Daisy.SaveAsDAISY.CommandLineTool {
                 error_MasterSub = "";
                 mergeXmlDoc = new XmlDocument();
                 mergeDocLanguage = new ArrayList();
-                WordToDTBookXMLConverter converter = ConverterFactory.Instance(transformDirection);
+                WordToDTBookXMLTransform converter = ConverterFactory.Instance(transformDirection);
                 converter.ExternalResources = this.xslPath;
                 converter.SkipedPostProcessors = this.skipedPostProcessors;
                 converter.DirectTransform = transformDirection == Direction.DocxToXml;
@@ -367,7 +367,7 @@ namespace Daisy.SaveAsDAISY.CommandLineTool {
                     string[] splt = subList[i].ToString().Split('|');
                     docName = splt[0];
                     converter.RemoveMessageListeners();
-                    converter.AddFeedbackMessageListener(new WordToDTBookXMLConverter.XSLTMessagesListener(FeedbackMessageInterceptor));
+                    converter.AddFeedbackMessageListener(new WordToDTBookXMLTransform.XSLTMessagesListener(FeedbackMessageInterceptor));
                     converter.Transform(splt[0], null, null, null, true, "");
                 }
 

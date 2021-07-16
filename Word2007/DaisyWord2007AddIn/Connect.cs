@@ -703,11 +703,11 @@ namespace DaisyWord2007AddIn {
                     documentToConvert,
                     this.addinLib,
                     conversionMode,
-                    this.postprocessingPipeline);
+                    this.postprocessingPipeline); 
             if (preprocessingWindow != null) preprocessingWindow.Close();
             if (preprocessingResults.IsSuccess) {
                 this.addinLib.StartSingleWordConversion(
-                    preprocessingResults.Settings,
+                    preprocessingResults.conversionParameters,
                     output,
                     pipelineOutput);
             }
@@ -920,7 +920,7 @@ namespace DaisyWord2007AddIn {
             
             foreach (string documentPathAndType in documents) {
                 string[] splitted = documentPathAndType.ToString().Split('|');
-                if (WordPreprocessing.documentIsOpen(splitted[0].ToString())) {
+                if (PackageUtilities.documentIsOpen(splitted[0].ToString())) {
                     openedDocuments.Add(splitted[0].ToString());
                 }
             }

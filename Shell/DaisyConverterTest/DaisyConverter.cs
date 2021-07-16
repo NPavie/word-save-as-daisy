@@ -495,7 +495,7 @@ namespace Daisy.SaveAsDAISY.CommandLineTool {
                     }
                     File.WriteAllText(parametersOutput,content);
 
-                    WordToDTBookXMLConverter converter = ConverterFactory.Instance(transformDirection);
+                    WordToDTBookXMLTransform converter = ConverterFactory.Instance(transformDirection);
                     converter.ExternalResources = this.xslPath;
                     converter.SkipedPostProcessors = this.skipedPostProcessors;
                     converter.DirectTransform = transformDirection == Direction.DocxToXml;
@@ -517,7 +517,7 @@ namespace Daisy.SaveAsDAISY.CommandLineTool {
         private bool ConvertFile(string input, string output, Direction transformDirection, Hashtable table) {
             try {
                 DateTime start = DateTime.Now;
-                WordToDTBookXMLConverter converter = ConverterFactory.Instance(transformDirection);
+                WordToDTBookXMLTransform converter = ConverterFactory.Instance(transformDirection);
                 converter.ExternalResources = this.xslPath;
                 converter.SkipedPostProcessors = this.skipedPostProcessors;
                 converter.DirectTransform = transformDirection == Direction.DocxToXml;

@@ -43,7 +43,7 @@ namespace Daisy.SaveAsDAISY
     /// </summary>
     public class Addin
     {
-        private WordToDTBookXMLConverter converter;
+        private WordToDTBookXMLTransform converter;
         private ChainResourceManager resourceManager;
         ConversionParametersForm myForm;
 
@@ -51,16 +51,20 @@ namespace Daisy.SaveAsDAISY
         /// Constructor
         /// </summary>
         /// <param name="converter">An implementation of AbstractConverter</param>
-        public Addin(WordToDTBookXMLConverter converter)
+        public Addin(WordToDTBookXMLTransform converter)
         {
             this.converter = converter;
             this.resourceManager = new ChainResourceManager();
             // Add a default resource managers (for common labels)
-            this.resourceManager.Add(new System.Resources.ResourceManager("DaisyAddinLib.resources.Labels",
-                Assembly.GetExecutingAssembly()));
+            this.resourceManager.Add(
+                new System.Resources.ResourceManager(
+                    "DaisyAddinLib.resources.Labels",
+                    Assembly.GetExecutingAssembly()
+                )
+            );
         }
 
-        public Addin() : this(new WordToDTBookXMLConverter() ){}
+        public Addin() : this(new WordToDTBookXMLTransform() ){}
 
         /// <summary>
         /// Override default resource manager.
@@ -97,30 +101,16 @@ namespace Daisy.SaveAsDAISY
         /// <param name="outputFilePath"></param>
         /// <param name="outputPipeline"></param>
         /// <param name="singleConverter"></param>
-        public void ConvertToDaisy(ConversionParameters parameters, string outputFilePath, string outputPipeline, SingleConverter singleConverter)
+        public void ConvertToDaisy(ConversionParameters parameters, string outputFilePath, string outputPipeline, BaseConverter singleConverter)
         {
-            if (parameters.ParseSubDocuments == "No" || parameters.ParseSubDocuments == "NoMasterSub")
-            {
-                outputFilePath = (outputFilePath + parameters.GetInputFileNameWithoutExtension + ".xml").Replace(',','_');
-                singleConverter.convertToDaisy(
-                        parameters.InputFile, 
-                        outputFilePath, 
-                        parameters.ListMathMl,
-                        parameters.ConversionParametersHash,
-                        parameters.ControlName, 
-                        outputPipeline);
-            }
-            else if (parameters.ParseSubDocuments == "Yes")
-            {
-                singleConverter.OoxToDaisyOwn(
-                    parameters.TempInputFile,
-                    parameters.InputFile, 
-                    outputFilePath,
-                    parameters.ConversionParametersHash,
-                    parameters.ControlName, 
-                    parameters.ListMathMl,
-                    outputPipeline);
-            }
+            outputFilePath = (outputFilePath + parameters.GetInputFileNameWithoutExtension + ".xml").Replace(',', '_');
+            DocumentParameters document = new DocumentParameters();
+            document.InputPath = parameters.InputFile;
+            document.OutputPath = parameters.OutputPath;
+            document.ListMathMl = parameters.ListMathMl;
+            // TODO FIXME : parse subdocuments
+            singleConverter.convert(document, parameters);
+
         }
 
         /// <summary>
@@ -132,7 +122,7 @@ namespace Daisy.SaveAsDAISY
             string outputFilePath = "",
             string outputPipeline = ""
         ) {
-            SingleConverter singleConverter = null;
+            BaseConverter singleConverter = null;
             if (!parameters.HasBeenFilled) {
                 myForm = new ConversionParametersForm(parameters, this.resourceManager);
                 
@@ -140,26 +130,28 @@ namespace Daisy.SaveAsDAISY
                     parameters = myForm.Parameters;
                     outputFilePath = myForm.OutputFilepath;
                     outputPipeline = myForm.PipeOutput;
-                    singleConverter = new SingleConverterUI(
+                    singleConverter = new GraphicalConverter(
                         converter,
                         parameters.ScriptPath != null && parameters.ScriptPath.Length > 0 ?
                             myForm.getParser :
                             null);
                 }
             } else { // assuming quiet mode launch with conversion parameters passed as parameters
-                singleConverter = new SingleConverter(
+                singleConverter = new ConsoleConverter(
                     converter,
                     parameters.ScriptPath != null ? 
                         new ScriptParser(parameters.ScriptPath) : 
                         null);
             }
             if (singleConverter != null) {
+                parameters.OutputPath = parameters.ScriptPath.Length > 0 ?
+                        ConverterHelper.AppDataSaveAsDAISYDirectory :
+                        outputFilePath;
+                parameters.PipelineOutput = outputPipeline;
                 ConvertToDaisy(
                     parameters,
-                    parameters.ScriptPath.Length > 0 ?
-                        ConverterHelper.AppDataSaveAsDAISYDirectory :
-                        outputFilePath,
-                    outputPipeline,
+                    parameters.OutputPath,
+                    parameters.PipelineOutput,
                     singleConverter);
             }
         }
@@ -167,7 +159,8 @@ namespace Daisy.SaveAsDAISY
 
 		public bool OoxToDaisySub(String outputfilepath, ArrayList subList, String category, Hashtable table, string control, Hashtable MultipleMathMl, string output_Pipeline)
         {
-            SingleConverter singleConverter = new SingleConverterUI(converter, null);
+            BaseConverter singleConverter = new GraphicalConverter(converter, null);
+            // FIXME use the new convert function
             return singleConverter.OoxToDaisySub(outputfilepath, subList,  category, table, control, MultipleMathMl, output_Pipeline);
         }
 

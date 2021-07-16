@@ -6,7 +6,7 @@ using System.Xml;
 
 namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
-    class PathDataType
+    public class PathDataType
     {
         private string m_Path;
         private ScriptParameter m_Parameter;

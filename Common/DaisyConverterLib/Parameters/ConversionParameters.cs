@@ -5,23 +5,30 @@ using System.Collections.Generic;
 namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
     /// <summary>
-    /// Input parameters for convert operations.
+    /// Input parameters for a conversion.
+    /// 
     /// This class also include the former TranslationParametersBuilder
     /// </summary>
     public class ConversionParameters
     {
+                
         /// <summary>
         /// Original input file path.
-        /// In case of OneDrive document, this is replaced by the document copy in the temporary folder.
+        /// FIXME : For now, in case of OneDrive document, this is replaced by the document copy in the temporary folder.
+        /// Note that Master/sub document system is alledgedly not available in Word online
         /// </summary>
         public string InputFile { get; set; }
+
         /// <summary>
         /// Temporary copy of the original input file
         /// </summary>
         public string TempInputFile { get; set; }
-        public string TempInputA { get; set; }
         
+        /// <summary>
+        /// 
+        /// </summary>
         public string ControlName { get; set; }
+       
         public ArrayList ObjectShapes { get; set; }
         public Hashtable ListMathMl { get; set; }
         public ArrayList ImageIds { get; set; }
@@ -36,7 +43,7 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
         public string PipelineOutput { get; set; }
 
         // From the "TranslationParametersBuilder" class
-        public string OutputFile { get; set; }
+        public string OutputPath { get; set; }
         public string Title { get; set; }
         public string Creator { get; set; }
         public string Publisher { get; set; }
@@ -47,6 +54,8 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
         public string ParseSubDocuments { get; set; }
 
         public bool HasBeenFilled { get; set; }
+
+        public bool Validate { get; set; }
 
         public string GetInputFileNameWithoutExtension
         {
@@ -79,8 +88,6 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
                     InputFile = (string)value; break;
                 case "TempInputFile":
                     TempInputFile = (string)value; break;
-                case "TempInputA":
-                    TempInputA = (string)value; break;
                 case "ControlName":
                     ControlName = (string)value; break;
                 case "ObjectShapes":
@@ -98,7 +105,7 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
                 case "Directory":
                     Directory = (string)value; break;
                 case "OutputFile":
-                    OutputFile = (string)value; break;
+                    OutputPath = (string)value; break;
                 case "Title":
                     Title = (string)value; break;
                 case "Creator":
@@ -131,7 +138,7 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
             get {
                 Hashtable parameters = new Hashtable();
                 
-                if (OutputFile != null) parameters.Add("OutputFile", OutputFile);
+                
                 if (Title != null) parameters.Add("Title", Title);
                 if (Creator != null) parameters.Add("Creator", Creator);
                 if (Publisher != null) parameters.Add("Publisher", Publisher);
@@ -139,6 +146,7 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
                 if (Subject != null) parameters.Add("Subject", Subject);
                 if (Version != null) parameters.Add("Version", Version);
                 // TO BE CHANGED if the value changes in xslts
+                if (OutputPath != null) parameters.Add("OutputFile", OutputPath);
                 if (TrackChanges != null) parameters.Add("TRACK", TrackChanges);
                 if (ParseSubDocuments != null) parameters.Add("MasterSubFlag", ParseSubDocuments);
 

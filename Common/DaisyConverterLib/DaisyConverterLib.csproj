@@ -133,16 +133,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WordToDTBookXMLConverter.cs" />
-    <Compile Include="AbstractPostProcessor.cs" />
+    <Compile Include="AbstractConverter.cs" />
+    <Compile Include="PackageUtilities.cs" />
+    <Compile Include="Parameters\DocumentParameters.cs" />
+    <Compile Include="WordToDTBookXMLTransform.cs" />
     <Compile Include="ChainResourceManager.cs" />
-    <Compile Include="AbstractPreprocessor.cs" />
-    <Compile Include="ConversionParameters.cs" />
+    <Compile Include="Parameters\ConversionParameters.cs" />
     <Compile Include="ConversionResult.cs" />
-    <Compile Include="ConversionResultType.cs" />
     <Compile Include="ConverterHelper.cs" />
     <Compile Include="ConverterSettings.cs" />
-    <Compile Include="Converters\SingleConverter.cs" />
+    <Compile Include="Converters\ConsoleConverter.cs" />
     <Compile Include="Daisyclass.cs" />
     <Compile Include="EmbeddedResourceResolver.cs" />
     <Compile Include="IConversionEventsHandler.cs" />

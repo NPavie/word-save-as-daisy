@@ -1,11 +1,19 @@
 ﻿namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
 	/// <summary>
-	/// Provides details about convertation.
+	/// Provides details about a conversion.
 	/// </summary>
 	public class ConversionResult
 	{
-		private ConversionResult(ConversionResultType resultType)
+		public enum Type {
+			Success,
+			ValidationError,
+			Cancel,
+			UnknownError
+		}
+
+
+		private ConversionResult(Type resultType)
 		{
 			ResultType = resultType;
 		}
@@ -16,7 +24,7 @@
 		/// <returns></returns>
 		public static ConversionResult Success()
 		{
-			return new ConversionResult(ConversionResultType.Success);
+			return new ConversionResult(Type.Success);
 		}
 
 		/// <summary>
@@ -25,7 +33,7 @@
 		/// <returns></returns>
 		public static ConversionResult Cancel()
 		{
-			return new ConversionResult(ConversionResultType.Cancel);
+			return new ConversionResult(Type.Cancel);
 		}
 
 		/// <summary>
@@ -35,7 +43,7 @@
 		/// <returns></returns>
 		public static ConversionResult ValidationError(string error)
 		{
-			var result = new ConversionResult(ConversionResultType.ValidationError);
+			var result = new ConversionResult(Type.ValidationError);
 			result.ValidationErrorMessage = error;
 			return result;
 		}
@@ -47,7 +55,7 @@
 		/// <returns></returns>
 		public static ConversionResult UnknownError(string errorMessage)
 		{
-			var result = new ConversionResult(ConversionResultType.UnknownError);
+			var result = new ConversionResult(Type.UnknownError);
 			result.UnknownErrorMessage = errorMessage;
 			return result;
 		}
@@ -65,6 +73,6 @@
 		/// <summary>
 		/// Result type.
 		/// </summary>
-		public ConversionResultType ResultType { get; set; }
+		public Type ResultType { get; set; }
 	}
 }

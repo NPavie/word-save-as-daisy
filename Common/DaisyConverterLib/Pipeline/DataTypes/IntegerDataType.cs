@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace Daisy.SaveAsDAISY.DaisyConverterLib
 {
-    class IntegerDataType
+    public class IntegerDataType
     {
         private List<string> m_ValueList;
         private List<string> m_NiceNameList;
