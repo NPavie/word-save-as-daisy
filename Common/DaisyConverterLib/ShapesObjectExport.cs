@@ -4,7 +4,7 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
     public enum CLIPFORMAT : int
     {

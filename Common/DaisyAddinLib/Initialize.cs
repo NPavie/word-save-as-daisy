@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
     public partial class Initialize : Form
     {

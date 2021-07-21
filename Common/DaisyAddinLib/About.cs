@@ -12,7 +12,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
     public partial class About : Form
     {

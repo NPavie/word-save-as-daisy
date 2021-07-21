@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib {
+namespace Daisy.SaveAsDAISY.Conversion {
     public class PackageUtilities {
         #region Conversion preprocessing utilities
         /// <summary>

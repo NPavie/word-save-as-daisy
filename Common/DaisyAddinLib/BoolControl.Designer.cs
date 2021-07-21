@@ -1,4 +1,4 @@
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
     partial class BoolControl
     {

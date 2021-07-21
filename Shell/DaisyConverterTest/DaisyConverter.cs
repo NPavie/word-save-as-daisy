@@ -36,7 +36,7 @@ using System.Threading;
 using System.Xml.Schema;
 using System.Xml.XPath;
 using System.Xml.Xsl;
-using Daisy.SaveAsDAISY.DaisyConverterLib;
+using Daisy.SaveAsDAISY.Conversion;
 using System.Xml;
 using System.Resources;
 using System.IO.Packaging;
@@ -428,7 +428,7 @@ namespace Daisy.SaveAsDAISY.CommandLineTool {
                 MSword.Document doc = app.Documents.Open(ref _input);
                 Addin addinLib = new Daisy.SaveAsDAISY.Addin();
                 PreprocessingData result = WordPreprocessing.prepareConversion(
-                    new ConsoleEventsHandler(),
+                    new SilentEventsHandler(),
                     doc,
                     addinLib,
                     "DaisySingle",

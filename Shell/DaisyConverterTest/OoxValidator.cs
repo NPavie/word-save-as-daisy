@@ -33,7 +33,7 @@ using System.Xml.Schema;
 using System.Reflection;
 using System.Collections;
 using System.IO.Packaging;
-using Daisy.SaveAsDAISY.DaisyConverterLib;
+using Daisy.SaveAsDAISY.Conversion;
 
 namespace Daisy.SaveAsDAISY.CommandLineTool {
     /// <summary>Exception thrown when the file is not valid</summary>

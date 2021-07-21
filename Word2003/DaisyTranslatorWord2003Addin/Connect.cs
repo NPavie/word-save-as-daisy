@@ -40,7 +40,7 @@ namespace DaisyTranslatorWord2003Addin
 	using Microsoft.Office.Core;
 	using System.Runtime.InteropServices;
 	using MSword = Microsoft.Office.Interop.Word;
-	using Daisy.SaveAsDAISY.DaisyConverterLib;
+	using Daisy.SaveAsDAISY.Conversion;
 	using Daisy.SaveAsDAISY;
 	using System.Drawing;
 	using System.Drawing.Imaging;
@@ -988,7 +988,7 @@ namespace DaisyTranslatorWord2003Addin
 					else
 					{
 						parameters.ScriptPath = pipe.ScriptsInfo[control.Caption].FullName;
-						parameters.Directory = string.Empty;
+						//parameters.Directory = string.Empty;
 						this.addinLib.StartSingleWordConversion(parameters);
 					}
 				}

@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Xml;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
 	/// <summary>
 	/// Provides access to prepopulated_daisy_output.xml from AppData\..\Sonanta directory.

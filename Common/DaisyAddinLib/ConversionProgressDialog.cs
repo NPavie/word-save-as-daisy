@@ -38,11 +38,11 @@ using System.Collections;
 using System.Windows.Forms;
 using System.ComponentModel;
 using System.Collections.Generic;
-using Daisy.SaveAsDAISY.DaisyConverterLib;
+using Daisy.SaveAsDAISY.Conversion;
 using System.Reflection;
 using System.Xml.Xsl;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
     /// <summary>
     /// Conversion progress dialog.

@@ -1,4 +1,4 @@
-﻿namespace Daisy.SaveAsDAISY.DaisyConverterLib
+﻿namespace Daisy.SaveAsDAISY.Conversion
 {
 	/// <summary>
 	/// Provides details about a conversion.
@@ -43,9 +43,9 @@
 		/// <returns></returns>
 		public static ConversionResult ValidationError(string error)
 		{
-			var result = new ConversionResult(Type.ValidationError);
-			result.ValidationErrorMessage = error;
-			return result;
+            return new ConversionResult(Type.ValidationError) {
+				ValidationErrorMessage = error
+			};
 		}
 
 		/// <summary>
@@ -55,9 +55,9 @@
 		/// <returns></returns>
 		public static ConversionResult UnknownError(string errorMessage)
 		{
-			var result = new ConversionResult(Type.UnknownError);
-			result.UnknownErrorMessage = errorMessage;
-			return result;
+            return new ConversionResult(Type.UnknownError) {
+				UnknownErrorMessage = errorMessage
+			};
 		}
 
 		/// <summary>

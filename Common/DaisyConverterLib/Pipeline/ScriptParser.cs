@@ -7,7 +7,7 @@ using System.IO;
 using System.Diagnostics;
 
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
     public class ScriptParser
     {

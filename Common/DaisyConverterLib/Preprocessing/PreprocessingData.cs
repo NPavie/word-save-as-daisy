@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Daisy.SaveAsDAISY.Conversion.Events;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -6,43 +7,31 @@ using System.IO.Packaging;
 using System.Runtime.InteropServices;
 using System.Xml;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib {
-
-	public interface IDocumentPreprocessor {
-
-		/// <summary>
-		/// Retrieve the list of shapes exported from the document to the outputFolderPath
-		/// </summary>
-		/// <param name="eventsHandler"></param>
-		/// <param name="documentOrPath"></param>
-		/// <param name="outputFolderPath"></param>
-		/// <returns></returns>
-		List<string> preprocessShapes(IConversionEventsHandler eventsHandler, object documentOrPath, string outputFolderPath);
-		
-		List<string> preprocessInlineShapes(IConversionEventsHandler eventsHandler, object documentOrPath, string outputFolderPath);
-
-		List<string> preprocessMathML(object documentOrPath, string outputFolderPath);
-
-	}
+namespace Daisy.SaveAsDAISY.Conversion {
 
 	public class PreprocessingData
 	{
-		public PreprocessingData()
-		{}
 
-		public PreprocessingData(string wordVersion,  Pipeline pipeline = null, string pipelineScriptKey = "" ) : base() {
+		IConversionEventsHandler eventsHandler;
+
+
+		public PreprocessingData(IConversionEventsHandler eventsHandler = null)
+		{
+			this.eventsHandler = eventsHandler;
+		}
+
+		public PreprocessingData(IConversionEventsHandler eventsHandler, string wordVersion,  Pipeline pipeline = null, string pipelineScriptKey = "" ) : base() {
+			this.eventsHandler = eventsHandler;
 			conversionParameters.Version = wordVersion;
 			FileInfo postprocessScriptFile;
 			if (pipeline == null) {
 				conversionParameters.ScriptPath = null;
 			} else if (pipelineScriptKey != "") {
 				conversionParameters.ScriptPath = pipeline.ScriptsInfo[pipelineScriptKey].FullName;
-				conversionParameters.Directory = string.Empty;
 			} else if (pipeline.ScriptsInfo.TryGetValue("_postprocess", out postprocessScriptFile)) {
 				// Note : adding a default postprocess script for dtbook pipeline special treatment
 				// This script is alledgedly not visible to users
 				conversionParameters.ScriptPath = postprocessScriptFile.FullName;
-				conversionParameters.Directory = string.Empty;
 			} else conversionParameters.ScriptPath = null;
 		}
 
@@ -56,18 +45,14 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib {
 		}
 
 		// converter settings, to be initialized when needed
-		private ConversionParameters converterSettings = null;
+		private ConversionParameters _conversionParameters = null;
 		public ConversionParameters conversionParameters { 
 			get {
-				if (converterSettings == null) {
-					converterSettings = new ConversionParameters();
-					converterSettings.ListMathMl = new Hashtable();
-					converterSettings.ObjectShapes = new ArrayList();
-					converterSettings.ImageIds = new ArrayList();
-					converterSettings.InlineShapes = new ArrayList();
-					converterSettings.InlineIds = new ArrayList();
+				if (_conversionParameters == null) {
+					_conversionParameters = new ConversionParameters(eventsHandler ?? new SilentEventsHandler());
+					
 				}
-				return converterSettings;
+				return _conversionParameters;
 			} 
 		}
 		/// <summary>

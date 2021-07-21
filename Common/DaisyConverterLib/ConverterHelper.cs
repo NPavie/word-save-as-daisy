@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib {
+namespace Daisy.SaveAsDAISY.Conversion {
     public class ConverterHelper {
 
 		/// <summary>
@@ -40,6 +40,19 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib {
 				return true;
 			}
 			return false;
+		}
+
+		public static string GetTempPath(string fileName, string targetExtension) {
+			string folderName;
+			string path;
+			do {
+				folderName = Path.GetRandomFileName();
+				path = Path.Combine(Path.GetTempPath(), folderName);
+			}
+			while (Directory.Exists(path));
+
+			Directory.CreateDirectory(path);
+			return Path.Combine(path, Path.GetFileNameWithoutExtension(fileName) + targetExtension);
 		}
 
 	}

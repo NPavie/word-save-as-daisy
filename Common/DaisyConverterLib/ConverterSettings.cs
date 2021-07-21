@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Xml;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib {
+namespace Daisy.SaveAsDAISY.Conversion {
     /// <summary>
     /// Global settings of the converter, controled by "ConverterSettingsForm" class.<br/>
     /// Those settings are usually stored in a "DAISY_settingsVer21.xml" file in the application APPDATA directory

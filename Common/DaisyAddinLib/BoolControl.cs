@@ -5,10 +5,10 @@ using System.Drawing;
 using System.Data;
 using System.Text;
 using System.Windows.Forms;
-using Daisy.SaveAsDAISY.DaisyConverterLib;
+using Daisy.SaveAsDAISY.Conversion;
 
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
     public partial class BoolControl : BaseUserControl
     {

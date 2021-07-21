@@ -29,7 +29,7 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Daisy.SaveAsDAISY.DaisyConverterLib;
+using Daisy.SaveAsDAISY.Conversion;
 
 namespace Daisy.SaveAsDAISY.Word
 {

@@ -35,10 +35,10 @@ using System.Reflection;
 using System.Collections;
 using System.IO.Packaging;
 using System.Windows.Forms;
-using Daisy.SaveAsDAISY.DaisyConverterLib;
+using Daisy.SaveAsDAISY.Conversion;
 using System.Diagnostics;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
 	public partial class ConversionParametersForm : Form
 	{
@@ -54,13 +54,12 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 		String uId = "";
 		string btnID = "";
 		private string mInputPath;
-		private string mProjectDirectory;
 		private ScriptParser mParser;
 		private bool useAScript = false;
 		String strBrtextBox = "";
 		TableLayoutPanel oTableLayoutPannel = new TableLayoutPanel();
 
-		public ConversionParameters Parameters { get; }
+		public ConversionParameters Conversion { get; }
 
 		public DocumentParameters documentParameters { get; }
 
@@ -99,28 +98,29 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 		/// <summary>
 		/// Default form for converting a word file to DTbook XML
 		/// </summary>
-		/// <param name="parameters"></param>
+		/// <param name="conversion"></param>
 		/// <param name="manager"></param>
-		public ConversionParametersForm(ConversionParameters parameters, ResourceManager manager) {
-			Parameters = parameters;
+		public ConversionParametersForm(DocumentParameters document, ConversionParameters conversion, ResourceManager manager) {
+			Conversion = conversion;
 
-			btnID = parameters.ControlName;
-			tempInput = parameters.TempInputFile;
+			btnID = conversion.ControlName;
+			tempInput = document.CopyPath ?? Path.GetTempFileName();
 			this.resManager = manager;
-			this.officeVersion = parameters.Version;
-			this.masterSubFlag = parameters.ParseSubDocuments;
+			this.officeVersion = conversion.Version;
+			this.masterSubFlag = conversion.ParseSubDocuments;
 
 			// if a script is defined in the parameters
-			useAScript = parameters.ScriptPath != null && parameters.ScriptPath.Length > 0;
+			useAScript = conversion.ScriptPath != null && conversion.ScriptPath.Length > 0;
 			if (useAScript) {
-				mInputPath = parameters.InputFile;
-				mProjectDirectory = parameters.Directory;
-				mParser = new ScriptParser(parameters.ScriptPath);
+				mInputPath = document.InputPath;
+				mParser = new ScriptParser(conversion.ScriptPath);
+				// TODO : remove this and always use script NiceName if possible
+				// (change the post process nice name by the wanted text)
 				if (!AddInHelper.buttonIsSingleWordToXMLConversion(btnID)) {
 					this.Text = mParser.NiceName;
 				}
 			} else {
-				inputFileName = parameters.InputFile;
+				inputFileName = document.InputPath;
 			}
 			
 			InitializeComponent();
@@ -164,16 +164,15 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 
 		public void Translate()
 		{
-			bool isValidInputs = IsTranslateToSingleDaisy && !useAScript
+			bool isValidInputs = !useAScript
 							? ValidateForSingleDaisyTranslate()
 							: ValidateForFullDaisyTranslate();
 
 			if (isValidInputs)
 			{
-				if (IsTranslateToSingleDaisy && !useAScript)
-					outputFilePath = tBx_Browse.Text;
+				if (!useAScript) outputFilePath = tBx_Browse.Text;
 
-				UpdatePopulateOutputXml(IsTranslateToSingleDaisy && !useAScript ? outputFilePath : strBrtextBox);
+				UpdatePopulateOutputXml(!useAScript ? outputFilePath : strBrtextBox);
 
 				parametersHash = updateParametersHash();
 
@@ -329,7 +328,7 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 
 		private Hashtable updateParametersHash()
 		{
-			Parameters.withParameter("OutputFile", tBx_Browse.Text)
+			Conversion.withParameter("OutputFile", tBx_Browse.Text)
 				.withParameter("Title", tBx_Title.Text)
 				.withParameter("Creator", tBx_Creator.Text)
 				.withParameter("Publisher", tBx_Publisher.Text)
@@ -342,7 +341,7 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 				.withParameter("OutputFile", outputFilePath);
 
 
-			return Parameters.ConversionParametersHash;
+			return Conversion.ConversionParametersHash;
 		}
 
 		private void UpdatePopulateOutputXml(string outputPath)
@@ -527,7 +526,7 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 
 					if (p.Name != "input" && p.ParameterDataType is PathDataType && p.IsParameterRequired)
 					{
-						Control c = (Control)new PathBrowserControl(p, inputFileName, mProjectDirectory, strBrtextBox);
+						Control c = (Control)new PathBrowserControl(p, inputFileName, strBrtextBox);
 						c.Anchor = AnchorStyles.Right;
 						mLayoutPanel.Controls.Add(c);
 						mLayoutPanel.SetFlowBreak(c, true);

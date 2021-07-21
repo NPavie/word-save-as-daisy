@@ -11,7 +11,7 @@ using System.Collections;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
     public partial class Fidility : Form
     {

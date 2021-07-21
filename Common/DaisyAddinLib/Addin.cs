@@ -32,7 +32,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Collections;
-using Daisy.SaveAsDAISY.DaisyConverterLib;
+using Daisy.SaveAsDAISY.Conversion;
 using stdole;
 
 
@@ -101,13 +101,10 @@ namespace Daisy.SaveAsDAISY
         /// <param name="outputFilePath"></param>
         /// <param name="outputPipeline"></param>
         /// <param name="singleConverter"></param>
-        public void ConvertToDaisy(ConversionParameters parameters, string outputFilePath, string outputPipeline, BaseConverter singleConverter)
+        public void ConvertToDaisy(DocumentParameters document, ConversionParameters parameters, Converter singleConverter)
         {
-            outputFilePath = (outputFilePath + parameters.GetInputFileNameWithoutExtension + ".xml").Replace(',', '_');
-            DocumentParameters document = new DocumentParameters();
-            document.InputPath = parameters.InputFile;
-            document.OutputPath = parameters.OutputPath;
-            document.ListMathMl = parameters.ListMathMl;
+            document.OutputPath = (document.OutputPath + document.GetInputFileNameWithoutExtension + ".xml").Replace(',', '_');
+            
             // TODO FIXME : parse subdocuments
             singleConverter.convert(document, parameters);
 
@@ -122,12 +119,12 @@ namespace Daisy.SaveAsDAISY
             string outputFilePath = "",
             string outputPipeline = ""
         ) {
-            BaseConverter singleConverter = null;
+            Converter singleConverter = null;
             if (!parameters.HasBeenFilled) {
                 myForm = new ConversionParametersForm(parameters, this.resourceManager);
                 
                 if(myForm.DoTranslate() == 1) {
-                    parameters = myForm.Parameters;
+                    parameters = myForm.Conversion;
                     outputFilePath = myForm.OutputFilepath;
                     outputPipeline = myForm.PipeOutput;
                     singleConverter = new GraphicalConverter(
@@ -159,7 +156,7 @@ namespace Daisy.SaveAsDAISY
 
 		public bool OoxToDaisySub(String outputfilepath, ArrayList subList, String category, Hashtable table, string control, Hashtable MultipleMathMl, string output_Pipeline)
         {
-            BaseConverter singleConverter = new GraphicalConverter(converter, null);
+            Converter singleConverter = new GraphicalConverter(new GraphicalEventsHandler(), converter, null);
             // FIXME use the new convert function
             return singleConverter.OoxToDaisySub(outputfilepath, subList,  category, table, control, MultipleMathMl, output_Pipeline);
         }

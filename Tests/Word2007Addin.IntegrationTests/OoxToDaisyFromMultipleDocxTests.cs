@@ -6,8 +6,9 @@ using DaisyWord2007AddIn;
 using Extensibility;
 using NUnit.Framework;
 using Microsoft.Office.Interop.Word;
-using Daisy.SaveAsDAISY.DaisyConverterLib;
+using Daisy.SaveAsDAISY.Conversion;
 using System.Reflection;
+using Daisy.SaveAsDAISY.Conversion.Events;
 
 namespace Word2007Addin.IntegrationTests {
     [TestFixture]
@@ -349,7 +350,7 @@ namespace Word2007Addin.IntegrationTests {
             Array array = new object[0];
             connect.OnConnection(word, ext_ConnectMode.ext_cm_External, null, ref array);
 
-            ConsoleEventsHandler eventsHandler = new ConsoleEventsHandler();
+            SilentEventsHandler eventsHandler = new SilentEventsHandler();
             connect.convertAndMergeDocumentsToDTBook(
                 eventsHandler,
                 inputFiles,

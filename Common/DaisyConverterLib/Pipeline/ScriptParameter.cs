@@ -6,7 +6,7 @@ using System.Xml.XPath;
 using System.IO;
 using System.Diagnostics;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
 
     public class ScriptParameter
@@ -94,9 +94,6 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
             switch (DatatypeNode.FirstChild.Name)
             {
                 case "file":
-                    m_DataType = new PathDataType(this, DatatypeNode);
-                    break;
-
                 case "directory":
                     m_DataType = new PathDataType(this, DatatypeNode);
                     break;

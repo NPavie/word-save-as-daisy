@@ -28,7 +28,6 @@
 
 
 using Microsoft.Office.Interop.Word;
-using Daisy.SaveAsDAISY.DaisyConverterLib;
 
 namespace DaisyWord2007AddIn {
     using System;
@@ -45,9 +44,10 @@ namespace DaisyWord2007AddIn {
     using System.Runtime.InteropServices;
     using MSword = Microsoft.Office.Interop.Word;
     using Daisy.SaveAsDAISY;
-    using Daisy.SaveAsDAISY.DaisyConverterLib;
+    using Daisy.SaveAsDAISY.Conversion;
     using System.Globalization;
-    
+    using Daisy.SaveAsDAISY.Conversion.Events;
+
 
     #region Read me for Add-in installation and setup information.
     // When run, the Add-in wizard prepared the registry for the Add-in.
@@ -720,7 +720,7 @@ namespace DaisyWord2007AddIn {
         /// <param name="control"></param>
         public void SaveAsDaisy(IRibbonControl control) {
             try {
-                IConversionEventsHandler eventsHandler = new PluginEventsUIHandler();
+                IConversionEventsHandler eventsHandler = new GraphicalEventsHandler();
                 PreprocessingData result = convertDocumentToDTBook(
                     eventsHandler,
                     applicationObject.ActiveDocument,
@@ -1000,7 +1000,7 @@ namespace DaisyWord2007AddIn {
         /// </summary>
         /// <param name="control"></param>
         public void Mutiple(IRibbonControl control) {
-            IConversionEventsHandler eventsHandler = new PluginEventsUIHandler();
+            IConversionEventsHandler eventsHandler = new GraphicalEventsHandler();
             Application.DoEvents();
 
             MultipleSub mulsubDoc;

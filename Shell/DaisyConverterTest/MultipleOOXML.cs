@@ -9,7 +9,7 @@ using System.Xml.Xsl;
 using System.Collections;
 using System.IO.Packaging;
 using System.Reflection;
-using Daisy.SaveAsDAISY.DaisyConverterLib;
+using Daisy.SaveAsDAISY.Conversion;
 
 namespace Daisy.SaveAsDAISY.CommandLineTool {
     class MultipleOOXML {

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Reflection;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
 	public class AddInHelper
 	{

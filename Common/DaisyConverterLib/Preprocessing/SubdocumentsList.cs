@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
 	public class SubdocumentsList
 	{
@@ -10,6 +10,10 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 			Subdocuments = new List<SubdocumentInfo>();
 			NotTranslatedSubdocuments = new List<SubdocumentInfo>();
 			Errors = new List<string>();
+		}
+
+		public bool Empty { 
+			get => Subdocuments.Count == 0;
 		}
 
 		public int SubdocumentsCount { get; set; }

@@ -1,13 +1,13 @@
 ﻿using System.Collections;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
 	/// <summary>
 	///  Chained resource managers
 	/// </summary>
 	public class ChainResourceManager : System.Resources.ResourceManager
 	{
-		private ArrayList managers;
+		private readonly ArrayList managers;
 
 		public ChainResourceManager()
 		{

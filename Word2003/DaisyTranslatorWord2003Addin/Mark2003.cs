@@ -9,7 +9,7 @@ using Microsoft.Office.Core;
 using System.Collections.Generic;
 using System.ComponentModel;
 using MSword = Microsoft.Office.Interop.Word;
-using Daisy.SaveAsDAISY.DaisyConverterLib;
+using Daisy.SaveAsDAISY.Conversion;
 
 namespace DaisyTranslatorWord2003Addin
 {

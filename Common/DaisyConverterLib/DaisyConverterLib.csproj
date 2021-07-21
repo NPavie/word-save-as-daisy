@@ -7,7 +7,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <RootNamespace>Daisy.SaveAsDAISY.DaisyConverterLib</RootNamespace>
+    <RootNamespace>Daisy.SaveAsDAISY.Conversion</RootNamespace>
     <AssemblyName>DaisyConverterLib</AssemblyName>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -133,7 +133,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbstractConverter.cs" />
+    <Compile Include="Converter.cs" />
+    <Compile Include="Events\SilentEventsHandler.cs" />
+    <Compile Include="IDocumentPreprocessor.cs" />
     <Compile Include="PackageUtilities.cs" />
     <Compile Include="Parameters\DocumentParameters.cs" />
     <Compile Include="WordToDTBookXMLTransform.cs" />
@@ -142,10 +144,9 @@
     <Compile Include="ConversionResult.cs" />
     <Compile Include="ConverterHelper.cs" />
     <Compile Include="ConverterSettings.cs" />
-    <Compile Include="Converters\ConsoleConverter.cs" />
     <Compile Include="Daisyclass.cs" />
     <Compile Include="EmbeddedResourceResolver.cs" />
-    <Compile Include="IConversionEventsHandler.cs" />
+    <Compile Include="Events\IConversionEventsHandler.cs" />
     <Compile Include="ImageProcessing.cs" />
     <Compile Include="NotAnOoxDocumentException.cs" />
     <Compile Include="DaisyEventArgs.cs" />
@@ -301,5 +302,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>

@@ -19,7 +19,7 @@ using COMException = System.Runtime.InteropServices.COMException;
 using TYMED = System.Runtime.InteropServices.ComTypes.TYMED;
 using System.Collections;
 
-using Daisy.SaveAsDAISY.DaisyConverterLib;
+using Daisy.SaveAsDAISY.Conversion;
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
 using Microsoft.Office.Interop.Word;
@@ -27,6 +27,7 @@ using System.IO.Packaging;
 using System.Threading;
 using System.Xml;
 using Daisy.SaveAsDAISY;
+using Daisy.SaveAsDAISY.Conversion.Events;
 
 namespace DaisyWord2007AddIn {
 
@@ -130,7 +131,7 @@ namespace DaisyWord2007AddIn {
 
             object originalPath = currentDoc.FullName;
             object tmpFileName = addin.GetTempPath((string)originalPath, ".docx");
-            object newName = Path.GetTempFileName() + Path.GetExtension((string)originalPath);
+            //object newName = Path.GetTempFileName() + Path.GetExtension((string)originalPath);
 
             // Duplicate the current doc and use the copy
             object addToRecentFiles = false;

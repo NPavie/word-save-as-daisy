@@ -1,48 +1,36 @@
-﻿using System;
+﻿using Daisy.SaveAsDAISY.Conversion.Events;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Xml;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
-{
+namespace Daisy.SaveAsDAISY.Conversion {
     /// <summary>
     /// Input parameters for a conversion.
     /// 
-    /// This class also include the former TranslationParametersBuilder
+    /// This class also include the former TranslationParametersBuilder and PrepopulatedDaisyXml
+    /// TODO : maybe this class shoudl include the script parser
     /// </summary>
     public class ConversionParameters
     {
-                
-        /// <summary>
-        /// Original input file path.
-        /// FIXME : For now, in case of OneDrive document, this is replaced by the document copy in the temporary folder.
-        /// Note that Master/sub document system is alledgedly not available in Word online
-        /// </summary>
-        public string InputFile { get; set; }
+        public ConverterSettings GlobalSettings = new ConverterSettings();
 
         /// <summary>
-        /// Temporary copy of the original input file
-        /// </summary>
-        public string TempInputFile { get; set; }
-        
-        /// <summary>
-        /// 
-        /// </summary>
+		/// Path for prepopulated_daisy xml file (a kind of conversion parameters cache file)
+		/// </summary>
+		private string ConversionParametersXmlPath {
+            get { return ConverterHelper.AppDataSaveAsDAISYDirectory + "\\prepopulated_daisy.xml"; }
+        }
+
+
         public string ControlName { get; set; }
-       
-        public ArrayList ObjectShapes { get; set; }
-        public Hashtable ListMathMl { get; set; }
-        public ArrayList ImageIds { get; set; }
-        public ArrayList InlineShapes { get; set; }
-        public ArrayList InlineIds { get; set; }
-        
 		public string ScriptPath { get; set; }
-		public string Directory { get; set; }
 
         public string TempOutputFile { get; set; }
-
         public string PipelineOutput { get; set; }
 
-        // From the "TranslationParametersBuilder" class
+        // From the "TranslationParametersBuilder" and PrepopulatedDaisyXml class
         public string OutputPath { get; set; }
         public string Title { get; set; }
         public string Creator { get; set; }
@@ -51,29 +39,67 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
         public string TrackChanges { get; set; }
         public string Subject { get; set; }
         public string Version { get; set; }
+
+        public ScriptParser PostProcessSettings { get; set; }
+
+        /// <summary>
+        /// Flag if sub documents should be parsed when found
+        /// </summary>
         public string ParseSubDocuments { get; set; }
+
+        /// <summary>
+        /// Request 
+        /// </summary>
+        public bool Validate { get; set; }
 
         public bool HasBeenFilled { get; set; }
 
-        public bool Validate { get; set; }
+        /// <summary>
+        /// For subdocuments confirmation
+        /// </summary>
+        private IConversionEventsHandler eventsHandler;
 
-        public string GetInputFileNameWithoutExtension
-        {
-            get
-            {
-                int lastSeparatorIndex = InputFile.LastIndexOf('\\');
-                // Special case : onedrive documents uses https based URL format with '/' as separator
-                if(lastSeparatorIndex < 0) {
-                    lastSeparatorIndex = InputFile.LastIndexOf('/');
-                }
-                if (lastSeparatorIndex < 0) { // no path separator found
-                    return InputFile.Remove(InputFile.LastIndexOf('.'));
-                } else {
-                    string tempInput = InputFile.Substring(lastSeparatorIndex);
-                    return tempInput.Remove(tempInput.LastIndexOf('.'));
-                }
+        public ConversionParameters(IConversionEventsHandler eventsHandler, string wordVersion = null, string pipelineScript = null, DocumentParameters mainDocument = null) {
+            this.eventsHandler = eventsHandler;
+            Version = wordVersion;
+            ScriptPath = pipelineScript;
+            if (pipelineScript != null) {
+                PostProcessSettings = new ScriptParser(pipelineScript);
+            }
+            if (mainDocument != null) {
+                this.usingMainDocument(mainDocument);
+            } else if (File.Exists(ConversionParametersXmlPath)) { // Retrieve previous settings
+                this.usingCachedSettings();
             }
         }
+
+        public ConversionParameters usingMainDocument(DocumentParameters mainDocument) {
+            Creator = PackageUtilities.DocPropCreator(mainDocument.InputPath);
+            Title = PackageUtilities.DocPropTitle(mainDocument.InputPath);
+            Publisher = PackageUtilities.DocPropPublish(mainDocument.InputPath);
+            if(mainDocument.SubDocuments.Count > 0) {
+                if(this.eventsHandler != null) {
+                    ParseSubDocuments = this.eventsHandler.AskForTranslatingSubdocuments() ? "Yes" : "No";
+                } else {
+                    ParseSubDocuments = "No";
+                }
+            } else {
+                ParseSubDocuments = "NoMasterSub";
+            }
+            return this;
+        }
+
+        public ConversionParameters usingCachedSettings() {
+            XmlDocument document = new XmlDocument();
+            document.Load(ConversionParametersXmlPath);
+            Creator = document.FirstChild.ChildNodes[0].InnerText;
+            Title = document.FirstChild.ChildNodes[1].InnerText;
+            Publisher = document.FirstChild.ChildNodes[2].InnerText;
+            return this;
+        }
+
+
+
 
         /// <summary>
         /// Function to mimic the TranslationParametersBuilder with* construction
@@ -84,26 +110,8 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
         /// <returns>The converter itself</returns>
         public ConversionParameters withParameter(string name, object value) {
             switch (name) {
-                case "InputFile":
-                    InputFile = (string)value; break;
-                case "TempInputFile":
-                    TempInputFile = (string)value; break;
-                case "ControlName":
-                    ControlName = (string)value; break;
-                case "ObjectShapes":
-                    ObjectShapes = (ArrayList)value; break;
-                case "ListMathMl":
-                    ListMathMl = (Hashtable)value; break;
-                case "ImageIds":
-                    ImageIds = (ArrayList)value; break;
-                case "InlineShapes":
-                    InlineShapes = (ArrayList)value; break;
-                case "InlineIds":
-                    InlineIds = (ArrayList)value; break;
                 case "ScriptPath":
                     ScriptPath = (string)value; break;
-                case "Directory":
-                    Directory = (string)value; break;
                 case "OutputFile":
                     OutputPath = (string)value; break;
                 case "Title":
@@ -138,7 +146,6 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
             get {
                 Hashtable parameters = new Hashtable();
                 
-                
                 if (Title != null) parameters.Add("Title", Title);
                 if (Creator != null) parameters.Add("Creator", Creator);
                 if (Publisher != null) parameters.Add("Publisher", Publisher);
@@ -151,24 +158,48 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
                 if (ParseSubDocuments != null) parameters.Add("MasterSubFlag", ParseSubDocuments);
 
                 // also retrieve global settings
-                ConverterSettings globalSettings = new ConverterSettings();
-                string imgoption = globalSettings.GetImageOption;
-                string resampleValue = globalSettings.GetResampleValue;
-                string characterStyle = globalSettings.GetCharacterStyle;
-                string pagenumStyle = globalSettings.GetPagenumStyle;
-                if (imgoption != " ") {
-                    parameters.Add("ImageSizeOption", imgoption);
-                    parameters.Add("DPI", resampleValue);
+                if (GlobalSettings.GetImageOption != " ") {
+                    parameters.Add("ImageSizeOption", GlobalSettings.GetImageOption);
+                    parameters.Add("DPI", GlobalSettings.GetResampleValue);
                 }
-                if (characterStyle != " ") {
-                    parameters.Add("CharacterStyles", characterStyle);
+                if (GlobalSettings.GetCharacterStyle != " ") {
+                    parameters.Add("CharacterStyles", GlobalSettings.GetCharacterStyle);
                 }
-                if (pagenumStyle != " ") {
-                    parameters.Add("Custom", pagenumStyle);
+                if (GlobalSettings.GetPagenumStyle != " ") {
+                    parameters.Add("Custom", GlobalSettings.GetPagenumStyle);
                 }
 
                 return parameters;
             }
+        }
+
+        /// <summary>
+		/// Save current publisher/title/creator values to xml file.
+		/// </summary>
+		public void Save() {
+            XmlDocument docuemnt = new XmlDocument();
+
+            XmlElement elmtDaisy = docuemnt.CreateElement("Daisy");
+            docuemnt.AppendChild(elmtDaisy);
+
+            XmlElement elmtCreator, elmtTitle, elmtPublisher;
+
+            elmtCreator = docuemnt.CreateElement("Creator");
+            elmtDaisy.AppendChild(elmtCreator);
+            elmtCreator.InnerText = Creator;
+
+            elmtTitle = docuemnt.CreateElement("Title");
+            elmtDaisy.AppendChild(elmtTitle);
+            elmtTitle.InnerText = Title;
+
+            elmtPublisher = docuemnt.CreateElement("Publisher");
+            elmtDaisy.AppendChild(elmtPublisher);
+            elmtPublisher.InnerText = Publisher;
+            
+            if (!System.IO.Directory.Exists(ConverterHelper.AppDataSaveAsDAISYDirectory))
+                System.IO.Directory.CreateDirectory(ConverterHelper.AppDataSaveAsDAISYDirectory);
+
+            docuemnt.Save(ConversionParametersXmlPath);
         }
     }
 }

@@ -4,7 +4,7 @@ using DaisyWord2007AddIn;
 using Extensibility;
 using Microsoft.Office.Interop.Word;
 using NUnit.Framework;
-using Daisy.SaveAsDAISY.DaisyConverterLib;
+using Daisy.SaveAsDAISY.Conversion;
 
 namespace Word2007Addin.IntegrationTests {
     [TestFixture]
@@ -343,7 +343,7 @@ namespace Word2007Addin.IntegrationTests {
             connect.OnConnection(word, ext_ConnectMode.ext_cm_External, null, ref array);
 
             connect.convertDocumentToDTBook(
-                new ConsoleEventsHandler(),
+                new SilentEventsHandler(),
                 word.ActiveDocument,
                 "DaisySingle",
                 parameters,

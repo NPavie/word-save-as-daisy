@@ -13,7 +13,7 @@ using System.IO.Packaging;
 using System.Drawing.Imaging;
 
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
     public partial class MultipleSub : Form
     {

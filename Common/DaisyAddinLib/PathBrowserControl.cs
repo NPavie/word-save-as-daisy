@@ -7,7 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
 	public partial class PathBrowserControl : BaseUserControl
 	{
@@ -15,14 +15,13 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 		private string m_TextLabel;
 		private ScriptParameter m_Parameter;
 		private PathDataType m_PathData;
-		private string m_ProjectDirectory;
+
 		public PathBrowserControl() { InitializeComponent(); }
 
-		public PathBrowserControl(ScriptParameter p, string SelectedPath, string ProjectDirectory, string strBrtextBox)
+		public PathBrowserControl(ScriptParameter p, string SelectedPath,  string strBrtextBox)
 			: this()
 		{
 			m_SelectedPath = SelectedPath;
-			m_ProjectDirectory = ProjectDirectory;
 			m_Parameter = p;
 			//m_PreDestination = strBrtextBox;
 
@@ -60,11 +59,10 @@ namespace Daisy.SaveAsDAISY.DaisyConverterLib
 				MessageBox.Show(e.Message);
 			}
 		}
-		public PathBrowserControl(ScriptParameter p, string SelectedPath, string ProjectDirectory)
+		public PathBrowserControl(ScriptParameter p, string SelectedPath)
 			: this()
 		{
 			m_SelectedPath = SelectedPath;
-			m_ProjectDirectory = ProjectDirectory;
 			m_Parameter = p;
 			//m_PreDestination = strBrtextBox;
 

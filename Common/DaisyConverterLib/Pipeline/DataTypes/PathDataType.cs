@@ -4,7 +4,7 @@ using System.Text;
 using System.IO;
 using System.Xml;
 
-namespace Daisy.SaveAsDAISY.DaisyConverterLib
+namespace Daisy.SaveAsDAISY.Conversion
 {
     public class PathDataType
     {
