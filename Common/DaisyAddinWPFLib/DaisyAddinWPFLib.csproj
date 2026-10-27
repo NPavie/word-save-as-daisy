@@ -133,6 +133,10 @@
     <Compile Include="SettingsForm.xaml.cs">
       <DependentUpon>SettingsForm.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UpdateDownloadWindow.xaml.cs">
+      <DependentUpon>UpdateDownloadWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Updater.cs" />
     <Compile Include="WPFConverter.cs" />
     <Compile Include="WPFEventsHandler.cs" />
     <Page Include="About.xaml">
@@ -203,6 +207,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pipeline2Properties.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UpdateDownloadWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

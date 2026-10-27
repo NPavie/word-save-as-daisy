@@ -1,0 +1,32 @@
+<Window x:Class="Daisy.SaveAsDAISY.WPF.UpdateDownloadWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Save as DAISY update"
+        Width="450"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Closing="Window_Closing"
+        Loaded="Window_Loaded">
+    <StackPanel Margin="10">
+        <TextBlock x:Name="UpdateText"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,10"
+                   AutomationProperties.Name="Update message" />
+        <ProgressBar x:Name="DownloadProgress"
+                     Height="20"
+                     Margin="0,0,0,5"
+                     Minimum="0"
+                     Maximum="100"
+                     Value="0"
+                     IsIndeterminate="False" />
+        <TextBlock x:Name="ProgressText"
+                   HorizontalAlignment="Right"
+                   Text="" />
+        <Button Width="80"
+                Margin="0,10,0,0"
+                HorizontalAlignment="Right"
+                Click="CancelButton_Click"
+                x:Name="CancelButton">Cancel</Button>
+    </StackPanel>
+</Window>

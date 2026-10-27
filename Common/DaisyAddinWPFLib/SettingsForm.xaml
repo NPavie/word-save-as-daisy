@@ -73,6 +73,26 @@
         <CheckBox Content="Disable sponsorship notifications"
                   Margin="10,5,5,5"
                   x:Name="DisableSponsorhip" />
+        <GroupBox Header="Automatic updates"
+                  Margin="5"
+                  VerticalAlignment="Center">
+            <StackPanel>
+                <CheckBox Content="Check for updates when Word starts"
+                          Margin="2"
+                          x:Name="CheckUpdatesAtStartup" />
+                <Grid>
+                    <Label Content="Update channel"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Left"
+                           Margin="2"
+                           x:Name="UpdateChannelLabel" />
+                    <ComboBox Margin="150,2,2,2"
+                              VerticalAlignment="Center"
+                              x:Name="UpdateChannel"
+                              AutomationProperties.LabeledBy="{Binding ElementName=UpdateChannelLabel}" />
+                </Grid>
+            </StackPanel>
+        </GroupBox>
         <GroupBox Header="Footnotes customization"
                   Margin="5"
                   VerticalAlignment="Center">

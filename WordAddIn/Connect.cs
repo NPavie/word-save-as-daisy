@@ -459,6 +459,19 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /// <seealso class='IDTExtensibility2' />
         public void OnStartupComplete(ref System.Array custom)
         {
+            // Check for addin updates in the background, according to the user settings
+            try
+            {
+                if (ConverterSettings.Instance.CheckUpdatesAtStartup)
+                {
+                    System.Threading.Tasks.Task.Run(() => Daisy.SaveAsDAISY.WPF.Updater.CheckForUpdateAndPrompt());
+                }
+            }
+            catch (Exception e)
+            {
+                AddinLogger.Error(e);
+            }
+
             // Launch the pipeline in the background to start conversions asap
             try
             {
