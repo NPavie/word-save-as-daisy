@@ -1,4 +1,5 @@
 using Daisy.SaveAsDAISY.Conversion.Pipeline.Pipeline2;
+using Daisy.SaveAsDAISY.Conversion.Update;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -312,6 +313,8 @@ namespace Daisy.SaveAsDAISY.Conversion
         private bool useDAISYPipelineApp = true; // use the pipeline app to run the conversion instead of the embedded engine
         private string resultsFolder = DefaultResultsFolder; // Default results folder
         private string mistralApiKey = "";
+        private bool checkUpdatesAtStartup = true; // check for updates when the addin starts
+        private string updateChannel = global::Daisy.SaveAsDAISY.Conversion.Update.UpdateChannel.Values[global::Daisy.SaveAsDAISY.Conversion.Update.UpdateChannel.Enum.Stable]; // "stable" or "beta"
         /// <summary>
         /// Get the current settings as XML string
         /// </summary>
@@ -342,6 +345,7 @@ namespace Daisy.SaveAsDAISY.Conversion
                 $"\r\n\t<UseWebserviceRunner value=\"{useWebserviceRunner.ToString().ToLower()}\" />" +
                 $"\r\n\t<ResultsFolder value=\"{(withPrivateData ? resultsFolder : "removed for privacy")}\" />" +
                 $"\r\n\t<MistralApiKey value=\"{(withPrivateData ? mistralApiKey : "removed for privacy")}\" />" +
+                $"\r\n\t<UpdateCheck enabled=\"{checkUpdatesAtStartup.ToString().ToLower()}\" channel=\"{updateChannel}\" />" +
                 $"\r\n</Settings>";
         }
 
@@ -429,6 +433,11 @@ namespace Daisy.SaveAsDAISY.Conversion
             XmlNode MistralApiKeySettings = settingsDocument.SelectSingleNode("//Settings/MistralApiKey");
             if (MistralApiKeySettings != null) {
                 mistralApiKey = (MistralApiKeySettings.Attributes["value"]?.InnerXml) ?? mistralApiKey;
+            }
+            XmlNode UpdateCheckSettings = settingsDocument.SelectSingleNode("//Settings/UpdateCheck");
+            if (UpdateCheckSettings != null) {
+                checkUpdatesAtStartup = (UpdateCheckSettings.Attributes["enabled"]?.InnerXml) != "false";
+                updateChannel = (UpdateCheckSettings.Attributes["channel"]?.InnerXml) ?? updateChannel;
             }
 
 
@@ -535,6 +544,16 @@ namespace Daisy.SaveAsDAISY.Conversion
         public string MistralApiKey {
             get => mistralApiKey;
             set => mistralApiKey = value;
+        }
+
+        public bool CheckUpdatesAtStartup {
+            get => checkUpdatesAtStartup;
+            set => checkUpdatesAtStartup = value;
+        }
+
+        public UpdateChannel.Enum UpdateChannel {
+            get => global::Daisy.SaveAsDAISY.Conversion.Update.UpdateChannel.Keys.ContainsKey(updateChannel) ? global::Daisy.SaveAsDAISY.Conversion.Update.UpdateChannel.Keys[updateChannel] : global::Daisy.SaveAsDAISY.Conversion.Update.UpdateChannel.Enum.Stable;
+            set => updateChannel = global::Daisy.SaveAsDAISY.Conversion.Update.UpdateChannel.Values[value];
         }
 
         public string ResultsFolder {

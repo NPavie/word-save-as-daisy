@@ -128,6 +128,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AddinLogger.cs" />
+    <Compile Include="Update\UpdateChannel.cs" />
+    <Compile Include="Update\UpdateManager.cs" />
     <Compile Include="Converter.cs" />
     <Compile Include="Events\SilentEventsHandler.cs" />
     <Compile Include="Pipeline\Engine.cs" />
