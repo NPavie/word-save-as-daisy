@@ -63,6 +63,12 @@ namespace Daisy.SaveAsDAISY.WPF
             {  "Resample the images", ImageOptionChoice.Enum.Resample }
         };
 
+        private static readonly Dictionary<string, Daisy.SaveAsDAISY.Conversion.Update.UpdateChannel.Enum> UpdateChannelChoices = new Dictionary<string, Daisy.SaveAsDAISY.Conversion.Update.UpdateChannel.Enum>
+        {
+            { "Stable releases only", Daisy.SaveAsDAISY.Conversion.Update.UpdateChannel.Enum.Stable },
+            { "Stable and beta (pre-releases)", Daisy.SaveAsDAISY.Conversion.Update.UpdateChannel.Enum.Beta },
+        };
+
         private static readonly Dictionary<string, FootnotesPositionChoice.Enum> NotesPositionChoices = new Dictionary<string, FootnotesPositionChoice.Enum>
         {
             {"End of pages",FootnotesPositionChoice.Enum.Page },
@@ -78,6 +84,14 @@ namespace Daisy.SaveAsDAISY.WPF
 
             TranslateCharacteStyles.IsChecked = GlobaleSettings.CharacterStyle;
             DisableSponsorhip.IsChecked = GlobaleSettings.DontNotifySponsorship;
+
+            CheckUpdatesAtStartup.IsChecked = GlobaleSettings.CheckUpdatesAtStartup;
+            UpdateChannel.ItemsSource = UpdateChannelChoices.Keys;
+            UpdateChannel.SelectedIndex = UpdateChannelChoices.Values.ToList().IndexOf(GlobaleSettings.UpdateChannel);
+            if (UpdateChannel.SelectedIndex < 0)
+            {
+                UpdateChannel.SelectedIndex = 0;
+            }
 
             PageNumbering.ItemsSource = PageNumberingChoices.Keys;
             PageNumbering.SelectedIndex = PageNumberingChoices.Values.ToList().IndexOf(GlobaleSettings.PagenumStyle);
@@ -203,6 +217,11 @@ namespace Daisy.SaveAsDAISY.WPF
                 GlobaleSettings.PagenumStyle = PageNumberingChoices.Values.ToList()[PageNumbering.SelectedIndex];
                 GlobaleSettings.CharacterStyle = TranslateCharacteStyles.IsChecked == true;
                 GlobaleSettings.DontNotifySponsorship = DisableSponsorhip.IsChecked == true;
+                GlobaleSettings.CheckUpdatesAtStartup = CheckUpdatesAtStartup.IsChecked == true;
+                if (UpdateChannel.SelectedIndex >= 0)
+                {
+                    GlobaleSettings.UpdateChannel = UpdateChannelChoices.Values.ToList()[UpdateChannel.SelectedIndex];
+                }
                 GlobaleSettings.ImageOption = ImageSizeChoices.Values.ToList()[ImageSizeOptions.SelectedIndex];
                 GlobaleSettings.ImageResamplingValue = Resampling.SelectedIndex >= 0 ? ResamplingValues.Values.ToList()[Resampling.SelectedIndex] : ImageResamplingChoice.Enum.dpi_72; // Default to 72 DPI if not selected
                 GlobaleSettings.FootnotesPosition = NotesPositionChoices.Values.ToList()[NotesPosition.SelectedIndex];
