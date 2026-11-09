@@ -29,6 +29,7 @@
 
 using Daisy.SaveAsDAISY.Conversion;
 using Daisy.SaveAsDAISY.Conversion.Pipeline;
+using Daisy.SaveAsDAISY.Conversion.Telemetry;
 using Daisy.SaveAsDAISY.Conversion.Pipeline.Pipeline2;
 using Daisy.SaveAsDAISY.Conversion.Pipeline.Scripts;
 using Daisy.SaveAsDAISY.Forms;
@@ -696,6 +697,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /// <param name="control"></param>
         public void Update_Styles(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("Update_Styles");
             object copyTempName;
             MSword.Document docTemplate = new Microsoft.Office.Interop.Word.Document();
             MSword.Document docActive = this.applicationObject.ActiveDocument;
@@ -801,6 +803,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /*Function validate input docx file using DAISY rule*/
         public void Validate(IRibbonControl _, bool flip)
         {
+            OpenPanelTelemetry.TrackAction("Validate");
             float officeVersion = float.Parse(
                 this.applicationObject.Version,
                 CultureInfo.InvariantCulture.NumberFormat
@@ -1137,6 +1140,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /// <param name="control"></param>
         public void HelpUI(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("HelpUI");
             System.Diagnostics.Process.Start(
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\" + "Help.chm"
             );
@@ -1144,6 +1148,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
 
         public void ShowWordManual(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("ShowWordManual");
             System.Diagnostics.Process.Start(
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
                     + "\\"
@@ -1153,6 +1158,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
 
         public void ShowAuthoringGuidelines(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("ShowAuthoringGuidelines");
             System.Diagnostics.Process.Start(
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
                     + "\\"
@@ -1162,6 +1168,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
 
         public void ShowDtBookManual(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("ShowDtBookManual");
             System.Diagnostics.Process.Start(
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
                     + "\\"
@@ -1175,6 +1182,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /// <param name="control"></param>
         public void AboutUI(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("AboutUI");
             Daisy.SaveAsDAISY.WPF.About aboutWindow = new Daisy.SaveAsDAISY.WPF.About();
             aboutWindow.ShowDialog();
         }
@@ -1188,6 +1196,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /// <param name="control"></param>
         public void DocumentMetadataUI(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("DocumentMetadataUI");
             try
             {
                 var dispatch = Dispatcher.CurrentDispatcher;
@@ -1512,6 +1521,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
 
         public void SaveAsDTBookXML(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("SaveAsDTBookXML");
             ApplyScript(new WordToDtbook(eventsHandler), eventsHandler);
         }
 
@@ -1521,6 +1531,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /// <param name="control"></param>
         public void SaveAsDAISY3(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("SaveAsDAISY3");
             ApplyScript(new WordToDAISY3(eventsHandler), eventsHandler);
         }
 
@@ -1530,6 +1541,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /// <param name="control"></param>
         public void SaveAsDAISY202(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("SaveAsDAISY202");
             ApplyScript(new WordToDAISY202(eventsHandler), eventsHandler);
         }
 
@@ -1540,6 +1552,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /// <param name="conversionIntegrationTestSettings"></param>
         public void SaveAsEPUB3(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("SaveAsEPUB3");
             ApplyScript(new WordToEPUB3(eventsHandler), eventsHandler);
         }
 
@@ -1550,6 +1563,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /// <param name="conversionIntegrationTestSettings"></param>
         public void SaveAsMP3(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("SaveAsMP3");
             ApplyScript(new WordToMP3(eventsHandler), eventsHandler);
         }
 
@@ -1559,6 +1573,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
 
         public void ImportODT(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("ImportODT");
             try
             {
                 WPFEventsHandler eventsHandler = new WPFEventsHandler();
@@ -1725,6 +1740,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
 
         public void ImportRTF(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("ImportRTF");
             try
             {
                 WPFEventsHandler eventsHandler = new WPFEventsHandler();
@@ -1801,6 +1817,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
 
         public void ImportPDF(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("ImportPDF");
             try
             {
                 WPFEventsHandler eventsHandler = new WPFEventsHandler();
@@ -1906,6 +1923,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /// <param name="control"></param>
         public void MutipleWordToDTBookXML(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("MutipleWordToDTBookXML");
             try
             {
                 GraphicalEventsHandler eventsHandler = new GraphicalEventsHandler();
@@ -1970,6 +1988,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
 
         public void MutipleWordToDAISY3(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("MutipleWordToDAISY3");
             try
             {
                 GraphicalEventsHandler eventsHandler = new GraphicalEventsHandler();
@@ -2032,6 +2051,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
 
         public void MutipleWordToEPUB3(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("MutipleWordToEPUB3");
             try
             {
                 GraphicalEventsHandler eventsHandler = new GraphicalEventsHandler();
@@ -2126,6 +2146,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /// <param name="control"></param>
         public void ManageAbbreviation(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("ManageAbbreviation");
             try
             {
                 MSword.Document doc = this.applicationObject.ActiveDocument;
@@ -2166,6 +2187,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /// <param name="control"></param>
         public void ManageAcronym(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("ManageAcronym");
             try
             {
                 MSword.Document doc = this.applicationObject.ActiveDocument;
@@ -2206,6 +2228,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /// <param name="control"></param>
         public void MarkAsAbbreviationUI(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("MarkAsAbbreviationUI");
             MSword.Document doc = this.applicationObject.ActiveDocument;
 
             if (
@@ -2343,6 +2366,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
         /// <param name="control"></param>
         public void MarkAsAcronymUI(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("MarkAsAcronymUI");
             MSword.Document doc = this.applicationObject.ActiveDocument;
 
             if (
@@ -2430,6 +2454,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007
 
         public void GetlanguageSettings(IRibbonControl _)
         {
+            OpenPanelTelemetry.TrackAction("GetlanguageSettings");
             try
             {
                 int fileIndex;
