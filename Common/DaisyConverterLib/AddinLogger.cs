@@ -1,8 +1,10 @@
+using Daisy.SaveAsDAISY.Conversion.Telemetry;
 using System;
 using System.IO;
 using log4net;
 using log4net.Appender;
 using log4net.Config;
+using log4net.Core;
 using log4net.Layout;
 
 namespace Daisy.SaveAsDAISY.Conversion
@@ -52,7 +54,13 @@ namespace Daisy.SaveAsDAISY.Conversion
 			patternLayout.ActivateOptions();
 			appender.ActivateOptions();
 
-			BasicConfigurator.Configure(appender);
+			OpenPanelAppender telemetryAppender = new OpenPanelAppender
+			                               {
+			                               	Name = "OpenPanelAppender",
+			                               	Threshold = Level.Warn
+			                               };
+
+			BasicConfigurator.Configure(appender, telemetryAppender);
 		}
 
 		#endregion

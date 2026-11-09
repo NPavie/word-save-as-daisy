@@ -333,6 +333,7 @@ namespace Daisy.SaveAsDAISY.Conversion
                     return ConversionResult.Fail(e);
                 }
                 this.EventsHandler.onPipelineProcessingSuccess(ConversionParameters);
+                Telemetry.OpenPanelTelemetry.TrackConversion(ConversionParameters);
                 return ConversionResult.Success(outputDirectory);
             }
             

@@ -129,6 +129,8 @@
   <ItemGroup>
     <Compile Include="AddinLogger.cs" />
     <Compile Include="Converter.cs" />
+    <Compile Include="Telemetry\\OpenPanelAppender.cs" />
+    <Compile Include="Telemetry\\OpenPanelTelemetry.cs" />
     <Compile Include="Events\SilentEventsHandler.cs" />
     <Compile Include="Pipeline\Engine.cs" />
     <Compile Include="Pipeline\JNIWrapperRunner.cs" />

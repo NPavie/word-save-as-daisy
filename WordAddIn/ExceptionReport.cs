@@ -1,4 +1,5 @@
 ﻿using Daisy.SaveAsDAISY.Conversion;
+using Daisy.SaveAsDAISY.Conversion.Telemetry;
 using System;
 using System.Diagnostics;
 using System.Reflection;
@@ -14,6 +15,7 @@ namespace Daisy.SaveAsDAISY.Addins.Word2007 {
             var isProgramFiles = location.StartsWith(programFiles);
             InitializeComponent();
             this.ExceptionRaised = raised;
+            OpenPanelTelemetry.TrackException(raised, "ExceptionReport");
 
             Exception current = raised;
             string exceptionText = current.Message;
